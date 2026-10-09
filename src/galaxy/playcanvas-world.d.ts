@@ -1,2 +1,3 @@
 import type {PlanetId} from './journey';
-export function createGalaxyScene(host:HTMLElement,labelHost:HTMLElement,callbacks:{pick:(id:PlanetId)=>void;observatory:()=>void;landed:(yes:boolean)=>void;failed:()=>void}):import('./universe').GalaxyScene;
+export interface GalaxyScene {ready:Promise<unknown>;home(forceFlight?:boolean):void;overview():void;present():void;focus(id:PlanetId):void;land():void;observatory():void;setProgress(value:number):void;setMode(value:'map'|'flight'):void;scrub(value:number):void;stats:{fps:number;calls:number;triangles:number;surface:boolean};zoom(direction:number):void;pause(value:boolean):void;readonly paused:boolean;dispose():void;}
+export function createGalaxyScene(host:HTMLElement,labelHost:HTMLElement,callbacks:{pick:(id:PlanetId)=>void;observatory:()=>void;landed:(yes:boolean)=>void;failed:()=>void}):GalaxyScene;

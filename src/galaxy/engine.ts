@@ -1,6 +1,5 @@
-import type {GalaxyScene} from './universe';
-type Factory=typeof import('./universe').createGalaxyScene;
-// Explicit rollback keeps the former renderer and all account data intact.
-const useThree=new URLSearchParams(location.search).get('engine')==='three';
-export const createGalaxyScene:Factory=useThree?(await import('./universe')).createGalaxyScene:(await import('./playcanvas-world.js')).createGalaxyScene;
+import type {GalaxyScene} from './playcanvas-world.js';
+type Factory=typeof import('./playcanvas-world.js').createGalaxyScene;
+// ASTRA uses one renderer now: PlayCanvas.
+export const createGalaxyScene:Factory=(await import('./playcanvas-world.js')).createGalaxyScene;
 export type {GalaxyScene};

@@ -6,6 +6,6 @@ export default defineConfig({
   preview: { host: "127.0.0.1", port: 5173, strictPort: true },
   build: {
     target: ["es2022", "safari16.4"],
-    rollupOptions: { input: { main: "index.html", spatial: "spatial/index.html", legacy: "spatial/legacy.html" } },
+    rollupOptions: { input: { main: "index.html", spatial: "spatial/index.html" } },
   },
 });
