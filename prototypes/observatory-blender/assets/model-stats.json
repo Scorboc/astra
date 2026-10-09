@@ -1,0 +1,37 @@
+{
+  "source": "Locally authored Blender geometry, reference-calibrated revision 2",
+  "revision": 2,
+  "objects": 9,
+  "vertices": 35903,
+  "triangles": 58782,
+  "bytes": 1467300,
+  "bounds_blender_z_up": {
+    "min": [
+      -15.525712966918945,
+      -35.130001068115234,
+      -1.0676816701889038
+    ],
+    "max": [
+      15.525712966918945,
+      4.719981670379639,
+      21.751773834228516
+    ]
+  },
+  "height": 22.81945550441742,
+  "spire_reference_height": 21.5,
+  "spire_base_width": 5.605357142857143,
+  "spire_peak_separation": 21.730357142857144,
+  "dome_width": 18.15,
+  "bridge_length": 31.32,
+  "materials": [
+    "Titanium",
+    "Floor",
+    "Silver",
+    "WarmLight",
+    "Champagne",
+    "Ice",
+    "IcePale",
+    "Glazing",
+    "IceLight"
+  ]
+}

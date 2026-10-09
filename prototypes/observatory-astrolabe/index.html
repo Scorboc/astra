@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASTRA — обсерватория-астролябия / отдельный прототип</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="backdrop" aria-hidden="true"></div>
+  <div id="scene" role="img" aria-label="Пространственная обсерватория-астролябия на белом облаке"></div>
+  <header>
+    <span class="brand">astra<span>.</span></span>
+    <span class="prototype-label">ОБСЕРВАТОРИЯ <small>ОТДЕЛЬНЫЙ 3D-ПРОТОТИП</small></span>
+    <button id="pause" aria-pressed="false">Пауза движения</button>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="title">
+      <span class="eyebrow">ТВОЁ МЕСТО ДЛЯ НАБЛЮДЕНИЙ</span>
+      <h1 id="title">Обсерватория<br>открытий</h1>
+      <p id="description">Загляни внутрь астролябии. Здесь можно рассмотреть будущие места для наблюдений и проб.</p>
+    </section>
+    <nav class="controls" aria-label="Осмотр обсерватории">
+      <button id="enter" class="primary">Войти внутрь</button>
+      <button id="outside" hidden>Вернуться снаружи</button>
+      <button id="rotate">Другой ракурс</button>
+    </nav>
+    <nav id="rooms" class="rooms" aria-label="Демонстрационные пространства" hidden>
+      <button data-room="observations">Атлас наблюдений</button>
+      <button data-room="practice">Пробы и навыки</button>
+      <button data-room="discoveries">Открытия</button>
+    </nav>
+    <p class="note">Отдельный визуальный прототип · без доступа к профилю · сцену можно повернуть перетаскиванием</p>
+    <p id="status" role="status"></p>
+  </main>
+  <dialog id="detail">
+    <button id="close" aria-label="Закрыть описание">×</button>
+    <span class="eyebrow">ВЫМЫШЛЕННЫЙ ПРИМЕР</span>
+    <h2 id="detail-title"></h2>
+    <div id="detail-body"></div>
+  </dialog>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

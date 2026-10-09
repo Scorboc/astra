@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="data:,"><title>ASTRA — ледяная обсерватория · отдельный прототип</title><link rel="stylesheet" href="./style.css"></head>
+<body>
+  <canvas id="scene" tabindex="0" aria-label="Осмотр обсерватории. Стрелки вверх и вниз приближают и отдаляют, влево и вправо поворачивают камеру."></canvas>
+  <header><a class="brand" href="../../spatial/#galaxy">astra<span>.</span></a><div class="label">ЛЕДЯНАЯ ОБСЕРВАТОРИЯ<small>ОТДЕЛЬНЫЙ ПРОТОТИП</small></div><button id="pause" aria-pressed="false">Пауза движения</button></header>
+  <main><div class="caption"><span>КОЛЬЦО СВЕТА</span><h1>Между льдом<br>и звёздами</h1></div>
+    <nav aria-label="Осмотр модели"><button id="approach">Подойти к входу</button><button id="outside" hidden>Общий вид</button><button id="angle">Другой ракурс</button><button id="studio" aria-pressed="false">Без эффектов</button><a href="./assets/observatory.glb" download>Скачать модель</a><button id="reference">Эталон</button></nav>
+    <p class="hint">Тачпад: вверх / вниз — полёт, влево / вправо — ракурс · Можно использовать стрелки</p><p id="status" role="status">Загружаем обсерваторию…</p>
+  </main>
+  <dialog id="comparison" aria-label="Утверждённая архитектура"><button id="close-reference" autofocus>Закрыть эталон</button><img alt="Эталон: два зазубренных ледяных шпиля, стеклянный купол, световое кольцо и планеты"></dialog>
+  <script type="module" src="./main.js"></script>
+</body></html>

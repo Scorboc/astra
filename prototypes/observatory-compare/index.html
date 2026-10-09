@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASTRA — сравнение обсерватории №2</title>
+  <style>
+    :root{color-scheme:dark;--ink:#060a1b;--paper:#f7f1eb;--muted:#ccd4e7;--gold:#f2d399}
+    *{box-sizing:border-box}body{margin:0;min-height:100dvh;background:radial-gradient(ellipse at 60% 0%,#2d175c,#060a1b 65%);color:var(--paper);font:16px/1.55 Arial,sans-serif}
+    main{width:min(1120px,calc(100% - 32px));margin:auto;padding:42px 0 70px}h1{font:normal clamp(34px,5vw,60px)/1.06 Georgia,serif;margin:12px 0 16px}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:.18em}
+    p{max-width:720px;color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:30px 0}.card{padding:28px;border:1px solid #bb9ce177;border-radius:24px;background:linear-gradient(135deg,#35245a99,#0a1533dd);box-shadow:0 10px 40px #0005}.card h2{margin:0 0 8px;font:normal 31px Georgia,serif}.card p{min-height:76px;margin:0 0 20px}.card a{display:inline-flex;align-items:center;min-height:46px;border:1px solid #f4d89c;border-radius:25px;background:#8c603c;color:white;padding:10px 20px;text-decoration:none}.card a:focus-visible{outline:3px solid white;outline-offset:3px}.reference{display:block;width:100%;max-width:850px;height:auto;border-radius:18px;border:1px solid #baa9cf55}.caption{font-size:13px}
+    @media(max-width:640px){.grid{grid-template-columns:1fr}.card p{min-height:0}main{padding-top:25px}}
+  </style>
+</head>
+<body>
+  <main>
+    <span class="eyebrow">ASTRA · ОТДЕЛЬНЫЕ ПРОТОТИПЫ</span>
+    <h1>Обсерватория №2:<br>два движка</h1>
+    <p>Открой версии по очереди в одинаковом размере окна. Обе используют один фон и одну GLB-модель телескопа; сама площадка, створки и облако собраны отдельно в каждом движке. Поэтому это сравнение внешнего вида и удобства, а не строгий тест скорости.</p>
+    <div class="grid">
+      <section class="card">
+        <h2>Three.js</h2>
+        <p>Первый прототип. Светлая облачная опора и более мягкие отражения на площадке.</p>
+        <a href="../observatory-membrane/">Открыть Three.js</a>
+      </section>
+      <section class="card">
+        <h2>PlayCanvas</h2>
+        <p>Второй прототип того же образа. Отдельная 3D-сцена с теми же действиями: вход, ракурс и пауза.</p>
+        <a href="../observatory-playcanvas/">Открыть PlayCanvas</a>
+      </section>
+    </div>
+    <img class="reference" src="../../design/observatory-options-2026-10-09/02-membrane-observatory.jpg" width="1672" height="941" alt="Утверждённый концепт обсерватории №2: золотой телескоп, полупрозрачные цветные створки и белое облако">
+    <p class="caption">Эталон для сравнения. Ни одна из интерактивных версий пока не совпадает с изображением 1:1.</p>
+  </main>
+</body>
+</html>

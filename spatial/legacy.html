@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#e8e6dd" />
+  <title>Astra — пространство возможностей</title>
+  <link rel="icon" href="/favicon.svg" />
+</head>
+<body>
+  <main id="spatial-app">
+    <div id="stage" aria-label="Интерактивное пространство Astra"></div>
+    <div id="labels" aria-label="Объекты пространства"></div>
+    <header class="topbar">
+      <a class="brand" href="/spatial/" aria-label="Astra — общий вид">astra<span>✳</span></a>
+      <nav class="world-switch" aria-label="Варианты пространства">
+        <button data-world="garden" aria-pressed="true"><span>01</span> Сад</button>
+        <button data-world="orbit" aria-pressed="false"><span>02</span> Орбита</button>
+        <button data-world="room" aria-pressed="false"><span>03</span> Комната</button>
+      </nav>
+      <span class="live-badge"><i></i> интерактивный 3D-прототип</span>
+    </header>
+    <section class="world-caption" aria-live="polite">
+      <p class="eyebrow" id="world-kicker">01 / открытый мир</p>
+      <h1 id="world-title">У каждого шага<br />есть своё место.</h1>
+      <p id="world-description">Исследуйте сад. Нажмите на любой объект,<br />чтобы войти в раздел.</p>
+    </section>
+    <div class="camera-tools" aria-label="Управление камерой">
+      <button id="zoom-in" aria-label="Приблизить" title="Приблизить">＋</button>
+      <button id="zoom-out" aria-label="Отдалить" title="Отдалить">−</button>
+      <button id="reset-camera" aria-label="Общий вид" title="Общий вид">⌂</button>
+      <button id="motion-toggle" aria-pressed="false" aria-label="Пауза анимации" title="Пауза анимации">Ⅱ</button>
+    </div>
+    <button id="spark" class="spark-button">✧ Найти искру <span>мини-игра</span></button>
+    <div class="bottom-bar">
+      <p class="controls-hint"><span>↔</span> Тяните — поворот <b>·</b> Колесо — масштаб <b>·</b> Нажмите объект</p>
+      <nav class="section-shortcuts" aria-label="Быстрый вход в разделы">
+        <button data-section="today">Сегодня</button><button data-section="route">Маршрут</button><button data-section="discoveries">Открытия</button><button data-section="profile">Профиль</button>
+      </nav>
+      <a class="flat-link" href="/today">Обычный интерфейс ↗</a>
+    </div>
+    <aside id="detail" class="detail" aria-labelledby="detail-title" hidden>
+      <button id="close-detail" class="close-detail" aria-label="Вернуться в пространство">↙ Вернуться в мир</button>
+      <span class="eyebrow">Объект пространства / <span id="detail-number"></span></span>
+      <h2 id="detail-title" tabindex="-1"></h2>
+      <p id="detail-subtitle" class="detail-subtitle"></p>
+      <p id="detail-description"></p>
+      <a id="detail-link" class="primary-link"></a>
+      <p class="detail-note">Переход в рабочий прототип Astra.<br />Только вымышленные данные.</p>
+    </aside>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="loading" class="loading"><span class="loading-mark">✳</span><p>Собираем пространство…</p></div>
+    <div id="fallback" class="fallback" hidden><h1>Не удалось открыть 3D</h1><p>Ваш браузер не предоставил доступ к графике. Все полезные функции доступны в обычном интерфейсе.</p><a href="/today">Открыть Astra без 3D →</a><button onclick="location.reload()">Попробовать снова</button></div>
+    <noscript><div class="fallback">Для интерактивной сцены нужен JavaScript. <a href="/today">Рабочий прототип</a></div></noscript>
+  </main>
+  <script type="module" src="/src/spatial/main.ts"></script>
+</body>
+</html>

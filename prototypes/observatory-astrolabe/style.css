@@ -1,0 +1,59 @@
+:root{color-scheme:dark;--ivory:#f8f0e4;--muted:#c8d0e5;--gold:#e8c685;--panel:#060a19e0}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#030512;color:var(--ivory);font:16px/1.5 Arial,sans-serif}
+#backdrop{position:fixed;inset:-2%;background:#030512 url('./nebula-background.webp') center/cover no-repeat;transform:translate3d(var(--bg-x,0px),var(--bg-y,0px),0);transition:transform .4s ease-out}
+#scene{position:fixed;inset:0}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+header{position:fixed;z-index:2;top:24px;left:4%;right:4%;display:flex;align-items:center;gap:28px;pointer-events:none}
+header>*{pointer-events:auto}
+.brand{font:44px/1 Georgia,serif;letter-spacing:-.06em;text-shadow:0 2px 16px #000}
+.brand span{color:var(--gold)}
+.prototype-label{font-size:11px;letter-spacing:.21em;text-shadow:0 2px 14px #000}
+.prototype-label small{display:block;margin-top:4px;font-size:9px;color:#b7c4dc}
+header button{margin-left:auto}
+button{min-height:46px;border:1px solid #e9cb966b;border-radius:28px;background:#081125c9;color:var(--ivory);padding:11px 18px;font:inherit;cursor:pointer;backdrop-filter:blur(12px);transition:background .2s,border-color .2s,box-shadow .2s}
+button:hover{background:#1d2548e8;border-color:var(--gold)}
+button:active{background:#3c2f3a}
+button:focus-visible{outline:2px solid #ffe2a1;outline-offset:3px}
+button[hidden],[hidden]{display:none!important}
+.primary{min-width:172px;background:linear-gradient(135deg,#836138dd,#211f39e8);border-color:#f5d69a;box-shadow:0 0 24px #ffbf6940}
+.intro{position:fixed;left:5%;top:24%;z-index:1;width:min(370px,35vw);pointer-events:none;text-shadow:0 2px 16px #000,0 0 24px #000}
+.eyebrow{font-size:11px;letter-spacing:.24em;color:#f6d28f}
+h1{margin:20px 0 18px;font:normal clamp(38px,4.3vw,64px)/1.05 Georgia,serif}
+.intro p{max-width:340px;margin:0;color:#e0e6f2;line-height:1.65}
+.controls,.rooms{position:fixed;z-index:2;left:5%;display:flex;gap:9px;flex-wrap:wrap}
+.controls{bottom:80px}
+.rooms{bottom:142px;right:5%}
+.rooms button{background:#090f24d9}
+.note{position:fixed;z-index:1;bottom:13px;left:5%;right:5%;margin:0;font-size:11px;color:#c4cbe0;text-shadow:0 2px 12px #000;pointer-events:none}
+#status{position:fixed;z-index:2;bottom:42px;left:5%;margin:0;font-size:12px;color:#f1ce91}
+dialog{width:min(520px,92vw);max-height:80dvh;padding:42px 46px;border:1px solid #b8a5dc81;border-radius:32% 9% 22% 8%/12% 8% 19% 10%;color:var(--ivory);background:radial-gradient(ellipse at 85% 0%,#393075e0,var(--panel) 65%);box-shadow:0 0 42px #ae58ee4f,inset 0 0 24px #518bef35;backdrop-filter:blur(18px);overflow:auto}
+dialog::backdrop{background:#0204109c}
+dialog h2{margin:18px 0;font:normal 34px/1.1 Georgia,serif}
+dialog p{line-height:1.65;color:#e3e8f4}
+dialog strong{color:#f2d495}
+#close{position:absolute;top:13px;right:17px;min-width:44px;padding:5px 11px;font-size:25px}
+.inside .intro{top:105px;width:300px}
+.inside h1{font-size:35px}
+.inside .intro p{display:none}
+@media(max-width:700px){
+  header{top:15px;left:5%;right:5%;gap:10px}
+  .brand{font-size:31px}
+  .prototype-label{font-size:8px;letter-spacing:.11em}
+  .prototype-label small{font-size:7px}
+  header button{padding:8px 10px;min-height:44px;font-size:11px}
+  .intro{top:99px;left:6%;width:min(255px,68vw)}
+  h1{font-size:clamp(30px,8vw,43px);margin:10px 0}
+  .intro p{font-size:13px;line-height:1.5}
+  .eyebrow{font-size:9px}
+  .controls,.rooms{left:6%;right:6%}
+  .controls{bottom:67px}
+  .rooms{bottom:126px}
+  button{padding:9px 13px;font-size:13px;min-height:44px}
+  .note{left:6%;right:6%;bottom:8px;font-size:10px}
+  .inside .intro{top:86px;width:220px}
+  .inside h1{font-size:28px}
+  dialog{padding:42px 29px}
+}
+@media(max-width:430px){.rooms{bottom:119px}.rooms button{padding:8px 10px;font-size:12px}.note{max-width:330px}.controls{bottom:61px}}
+@media(prefers-reduced-motion:reduce){button,#backdrop{transition:none}}

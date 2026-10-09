@@ -1,0 +1,75 @@
+/* Approved concept 04. The frame pixels come from the actual approved image.
+   Override prior rounded-card experiments, including their mobile variants. */
+/* Only the inner form may scroll, never the scene/header when an input focuses. */
+@supports(overflow:clip){html,body,#galaxy-app{overflow:clip}}
+.research-page .journey-panel,.research-page.is-demo .journey-panel{
+  left:53%;right:auto;top:12dvh;bottom:auto;width:min(960px,64vw,calc(84dvh * 1.26316));
+  height:auto;aspect-ratio:960/760;max-height:none;padding:0;transform:translateX(-50%);
+  overflow:visible;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;
+  animation:none;isolation:isolate;scrollbar-gutter:auto;container-type:inline-size;
+}
+.research-page .journey-panel::before,.research-page .journey-panel::after{display:none}
+.research-page .journey-panel>.membrane-art{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible}
+.membrane-sparks{filter:drop-shadow(0 0 7px #ffe2be);animation:membrane-sparks 4.7s ease-in-out infinite alternate}
+@keyframes membrane-sparks{from{opacity:.25}to{opacity:1}}
+.research-page .journey-panel>.panel-scroll{
+  position:absolute;inset:18% 15% 17% 20%;overflow-y:auto;overflow-x:hidden;
+  padding:0 10px 18px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#dac29d5e transparent;
+}
+.research-page .panel-top{justify-content:center;min-height:26px;padding:0 34px;text-align:center}
+.research-page .panel-top .eyebrow{max-width:none;color:#f0d5a0;font-size:11px;letter-spacing:.3em;line-height:1.8}
+.research-page .panel-top button{position:absolute;right:0;top:0;min-height:28px;min-width:28px;opacity:.55;font-size:21px}
+.research-page .panel-top button:hover,.research-page .panel-top button:focus-visible{opacity:1}
+.membrane-divider{display:flex;align-items:center;justify-content:center;gap:17px;margin:17px auto;color:#f3d299;font-size:23px}
+.membrane-divider::before,.membrane-divider::after{content:'';width:70px;height:1px;background:linear-gradient(90deg,transparent,#d2ba8c)}
+.membrane-divider::after{transform:scaleX(-1)}
+.research-page .journey-panel h2{font:normal clamp(28px,3.25vw,52px)/1.13 Georgia,'Times New Roman',serif;letter-spacing:-.035em;color:#faf5f0;text-align:center;margin:12px 0 25px;text-shadow:0 2px 15px #000}
+.research-page .journey-panel h2:focus-visible{outline:none}
+.research-page .journey-panel .research-main-card{border:0!important;background:none!important;backdrop-filter:none;box-shadow:none;padding:0;margin:20px 0 0;border-radius:0}
+.research-page .journey-panel .primary{
+  border:1px solid #ffe1a8;border-radius:100px;min-height:58px;padding:13px 30px;
+  color:#fff0ce;background:linear-gradient(180deg,#d9bb7c3d,#191820a3 55%,#d2ab743d);
+  box-shadow:0 0 5px #ffe3b3,0 0 20px #f0be7759,inset 0 0 16px #ffddb93d;
+  font-size:16px;text-shadow:0 1px 6px #0008;transition:box-shadow .2s,background .2s;
+}
+.research-page .journey-panel .primary:hover{background:linear-gradient(180deg,#d9bb7c50,#33303ea8 55%,#d2ab7450);box-shadow:0 0 7px #ffe3b3,0 0 30px #f0be777a,inset 0 0 20px #ffddb944}
+.research-page .journey-panel .primary:focus-visible{outline:2px solid #fff5d9;outline-offset:6px}
+.research-page .journey-panel input,.research-page .journey-panel textarea,.research-page .journey-panel select,.research-page .research-choices label{background:#040d214d!important;backdrop-filter:none;border-color:#e1d3b43d!important}
+.research-page .journey-panel .research-choices label:has(input:checked){background:#c6a87526!important;border-color:#e5c78b!important}
+.research-page .journey-panel .panel-scroll p{color:#d3d9e6;text-shadow:0 1px 7px #000;line-height:1.6}
+.research-page .journey-panel[data-presentation=invitation] .panel-scroll{inset:19.5% 12% 8% 17%;text-align:center;padding-bottom:8px}
+.research-page .journey-panel[data-presentation=invitation] .panel-top{min-height:0}
+.research-page .journey-panel[data-presentation=invitation] .panel-top .eyebrow{font-size:1.5cqw}
+.research-page .journey-panel[data-presentation=invitation] .membrane-divider{margin:1.9cqw auto;font-size:2.4cqw}
+.research-page .journey-panel[data-presentation=invitation] h2{font-size:7.7cqw;margin:1.3cqw 0 3.1cqw;font-weight:normal}
+.invitation-time{display:flex;align-items:center;justify-content:center;gap:1.5cqw;margin:0 0 3cqw;font:normal 2.45cqw/1.4 Arial,sans-serif;color:#c6cfdf}
+.invitation-time svg{width:27px;height:27px;stroke:#f2d298;fill:none;stroke-width:1.6}
+.research-page .journey-panel .invitation-copy{font-size:2.4cqw;line-height:1.55;margin:0 auto 4.1cqw;max-width:590px}
+.research-page .journey-panel .invitation-action{width:64%;margin:0 auto;font-size:2.6cqw;display:flex;justify-content:center;align-items:center;gap:3cqw;min-height:8.3cqw;padding:1.3cqw 3cqw;font-weight:600}
+.invitation-action span{font-size:27px;font-weight:normal}
+.research-page .local-label{display:none}
+@media(max-width:700px){
+  .research-page .journey-panel,.research-page.is-demo .journey-panel{left:50%;top:104px;width:calc(100vw - 8px);height:calc(100dvh - 184px);max-height:none;aspect-ratio:auto;bottom:auto;padding:0;background:none;backdrop-filter:none;border-radius:0}
+  .research-page.is-demo .journey-panel{height:calc(100dvh - 282px)}
+  .research-page .journey-panel>.panel-scroll{inset:17% 11% 16% 15%;padding:0 4px 12px}
+  .research-page .journey-panel .panel-top .eyebrow{font-size:8px;letter-spacing:.19em}
+  .research-page .journey-panel h2{font-size:27px;margin:8px 0 20px}
+  .membrane-divider{margin:9px auto;font-size:19px;gap:12px}
+  .membrane-divider::before,.membrane-divider::after{width:45px}
+  .research-page .journey-panel[data-presentation=invitation] .panel-scroll{inset:22% 9% 14% 14%}
+  .research-page .journey-panel[data-presentation=invitation] .panel-top .eyebrow{font-size:9px}
+  .research-page .journey-panel[data-presentation=invitation] .membrane-divider{font-size:19px;margin:12px auto}
+  .research-page .journey-panel[data-presentation=invitation] h2{font-size:clamp(28px,8.3vw,42px);margin:12px 0 26px}
+  .research-page .journey-panel .invitation-copy{font-size:14px;margin-bottom:27px}
+  .invitation-time{font-size:15px;margin-bottom:22px;gap:9px}
+  .invitation-time svg{width:22px;height:22px}
+  .research-page .journey-panel .invitation-action{width:88%;min-height:52px;font-size:17px;gap:18px;padding:10px 18px}
+}
+@media(max-height:650px){
+  .research-page .journey-panel[data-presentation=invitation] .panel-scroll{inset:17% 12% 15% 17%}
+  .research-page .journey-panel[data-presentation=invitation] h2{font-size:clamp(26px,3.5vw,42px);margin-bottom:12px}
+  .research-page .journey-panel .invitation-copy{margin-bottom:15px;font-size:14px}
+  .invitation-time{margin-bottom:12px;font-size:14px}
+  .research-page .journey-panel .invitation-action{min-height:45px;font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){.membrane-sparks{animation:none}}

@@ -1,0 +1,30 @@
+/* v5 is a real shared 3D scene. Do not put the concept image behind the canvas. */
+.cosmos{background:#030711}
+.vignette{background:linear-gradient(180deg,#01040b55,transparent 22%,transparent 75%,#01040b88)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.flight-strip{position:absolute;left:4%;bottom:112px;width:min(330px,48%);z-index:5;color:#c3d1de;transition:opacity .4s;padding:10px 12px 9px;border:1px solid #b9d7e026;border-radius:18px;background:#04101b45;backdrop-filter:blur(10px)}
+.flight-top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:10px}
+#flight-world{font:16px Georgia,serif;color:#eadbbf}
+.view-modes{display:flex;gap:3px;padding:3px;background:#05111f80;border:1px solid #bfccd12b;border-radius:30px;backdrop-filter:blur(12px)}
+.view-modes button{padding:9px 11px;font-size:10px;border-radius:25px;min-height:34px;color:#9dabb8}
+.view-modes button[aria-pressed=true]{color:#f1e6d0;background:#d4c09e1c}
+.flight-strip p{font-size:9px;letter-spacing:.02em;color:#92a5b9;margin:2px 0;line-height:1.7}
+.has-panel .flight-strip,.on-surface .flight-strip,.is-demo .flight-strip{display:none}
+.intro{transition:opacity .65s,transform .65s}.exploring .intro{opacity:0;transform:translateY(14px);pointer-events:none}.exploring .intro-actions{pointer-events:none}
+.planet-label{background:#02091240;border-radius:20px;padding:8px 12px}.planet-label i{background:var(--planet);box-shadow:0 0 10px var(--planet)}
+.planet-label.unexplored{opacity:.65}.planet-label:hover{opacity:1;background:#0b182ddb}
+.on-surface .camera-tools{top:auto;bottom:210px}
+.benchmark-land{margin-top:9px;padding:10px 16px;border:1px solid #e8c59270;border-radius:22px;background:#06121bcc;color:#f1ddb4;font-size:12px;min-height:42px}
+.benchmark-origin .on-surface{background:transparent}
+@media(max-width:700px){
+ .flight-strip{left:23px;right:auto;bottom:158px;width:238px;padding:8px 10px;border-radius:24px 31px 25px 34px/29px 23px 36px 25px;background:#07152642;border-color:#8be6f34f;box-shadow:0 0 22px #53d8ff18,0 0 30px #d054ff12}.flight-strip p{display:none}.flight-top{gap:5px;margin:0}#flight-world{font-size:14px}
+ .view-modes button{padding:8px 10px;font-size:9px;min-height:34px}
+ .intro,.is-demo .intro{left:25px;right:45px;top:auto;bottom:270px}.intro h1{font-size:34px}
+ .intro>p:not(.eyebrow){font-size:11px}.intro .eyebrow{font-size:7px}
+ .intro-actions .text-button{display:none}.intro-actions .primary{background:#081722bd}
+ .cosmos canvas{touch-action:none}.camera-tools{top:110px;bottom:auto}
+ .planet-label{max-width:140px}.planet-label small{max-width:120px}
+ .on-surface .camera-tools{top:110px;bottom:auto}
+}
+@media(max-width:360px){.view-modes button{padding:8px;font-size:8px}.intro h1{font-size:29px}.intro{bottom:263px}.flight-strip{left:18px;right:18px}}
+@media(max-height:620px) and (min-width:701px){.flight-strip{bottom:83px}.intro,.is-demo .intro{top:27%}.intro-note{display:none}}

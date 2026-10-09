@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASTRA — обсерватория №2 / PlayCanvas</title>
+  <script type="module" crossorigin src="./assets/index-UNFwN422.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Rzy4m4BO.css">
+</head>
+<body>
+  <div id="backdrop" aria-hidden="true"></div>
+  <div id="scene" role="img" aria-label="3D-обсерватория №2 на белом облаке: тёмная круглая площадка, телескоп и полупрозрачные сияющие створки">
+    <canvas id="application" aria-hidden="true"></canvas>
+  </div>
+  <header>
+    <a class="brand" href="#outside" aria-label="Обсерватория №2, вид снаружи">astra<span>.</span></a>
+    <span class="prototype-label">ОБСЕРВАТОРИЯ №2 <small>PLAYCANVAS · ОТДЕЛЬНЫЙ ПРОТОТИП</small></span>
+    <button id="pause" type="button" aria-pressed="false">Пауза движения</button>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="title">
+      <span class="eyebrow">ПРОСТРАНСТВО НАБЛЮДЕНИЙ</span>
+      <h1 id="title">Обсерватория<br>на облаке</h1>
+      <p>Зайди внутрь, чтобы рассмотреть места для записей и проб. Здесь нет оценок человека и обязательных достижений.</p>
+    </section>
+    <nav class="controls" aria-label="Осмотр обсерватории">
+      <button id="enter" class="primary" type="button">Войти внутрь</button>
+      <button id="outside" type="button" hidden>Вернуться снаружи</button>
+      <button id="rotate" type="button">Другой ракурс</button>
+    </nav>
+    <nav id="rooms" class="rooms" aria-label="Демонстрационные витрины" hidden>
+      <button type="button" data-room="observations">Атлас наблюдений</button>
+      <button type="button" data-room="practice">Пробы и навыки</button>
+      <button type="button" data-room="discoveries">Открытия</button>
+    </nav>
+    <p class="note">Вариант №2 · PlayCanvas · без доступа к профилю · перетащи, чтобы повернуть</p>
+    <p id="status" role="status"></p>
+  </main>
+  <dialog id="detail" aria-labelledby="detail-title">
+    <button id="close" type="button" aria-label="Закрыть описание">×</button>
+    <span class="eyebrow">ДЕМОНСТРАЦИОННАЯ ВИТРИНА</span>
+    <h2 id="detail-title"></h2>
+    <div id="detail-body"></div>
+  </dialog>
+</body>
+</html>

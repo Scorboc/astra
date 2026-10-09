@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>ASTRA — обсерватория Кольцо света · PlayCanvas</title>
+  <script type="module" crossorigin src="./assets/index-Blq5PU_-.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Cur0QhNF.css">
+</head>
+<body>
+  <div id="backdrop" aria-hidden="true"></div>
+  <div id="scene">
+    <canvas id="application" tabindex="0" aria-label="Осмотр обсерватории: стрелки вверх и вниз приближают и отдаляют, влево и вправо поворачивают камеру"></canvas>
+  </div>
+  <header class="topbar">
+    <a class="brand" href="../../spatial/#galaxy" aria-label="Вернуться в галактику ASTRA">astra<span>.</span></a>
+    <div class="prototype-label">КОЛЬЦО СВЕТА <small>PLAYCANVAS · ОТДЕЛЬНЫЙ ПРОТОТИП</small></div>
+    <button id="pause" type="button" aria-pressed="false">Пауза движения</button>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="title">
+      <span class="eyebrow">ПРОСТРАНСТВО НАБЛЮДЕНИЙ</span>
+      <h1 id="title">Обсерватория<br>среди планет</h1>
+      <p>Здесь можно было бы возвращаться к своим наблюдениям и пробам. Пока это отдельная демонстрация пространства, без личных данных.</p>
+    </section>
+    <nav class="controls" aria-label="Осмотр обсерватории">
+      <button id="approach" class="primary" type="button">Подойти к входу</button>
+      <button id="outside" type="button" hidden>Общий вид</button>
+      <button id="view" type="button">Другой ракурс</button>
+      <a class="reference-link" href="../../design/observatory-options-2026-10-09/10-ice-metal-ring-in-galaxy.png" target="_blank" rel="noopener">Сравнить с картинкой</a>
+    </nav>
+    <p class="note">Двумя пальцами по тачпаду — ближе и дальше · перетаскиванием — поворот · стрелки на клавиатуре тоже работают</p>
+    <p id="status" role="status" aria-live="polite">Загружаем сцену…</p>
+  </main>
+</body>
+</html>

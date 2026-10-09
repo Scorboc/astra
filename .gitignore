@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.pnpm-store/
+.cache/
+.env
+.env.*
+!.env.example
+*.log
+test-results/
+playwright-report/
+artifacts/
+*.db
+*.sqlite*
+*.tsbuildinfo
+private-data/
+backups/
+_astra_pkg_inspect_20261003/
+
+# Large source-only exports not needed by the web build
+public/universe/*16384*
+public/universe/origin-full-v2-*
+public/universe/origin-atompunk-v1-*
+public/universe/origin-detail/crystal-grain-v1.png
+prototypes/observatory-blender/assets/*.blend*
+prototypes/observatory-blender/build/
