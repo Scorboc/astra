@@ -58,7 +58,7 @@ export function createGalaxyScene(host:HTMLElement,labelHost:HTMLElement,callbac
   try{paused=paused||sessionStorage.getItem('astra.motion-paused')==='true';}catch{/* Motion controls also work without storage. */}
   document.body.classList.toggle('motion-paused',paused);
   let travel=0,desiredTravel=0,fps=0,frames=0,fpsAt=last,raf=0,dirty=true,lastRender=0;
-  let focused:PlanetId='origin',isLanded=false,dragged=false,press={x:0,y:0},touchY=0;
+  let focused:PlanetId='origin',isLanded=false,dragged=false,press={x:0,y:0},touchY=0,touchX=0,flightYaw=0,flightYawTarget=0;
   let transition:{from:T.Vector3;to:T.Vector3;lookFrom:T.Vector3;lookTo:T.Vector3;start:number;duration:number;done?:()=>void}|undefined;
   const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'default'});
   renderer.setPixelRatio(renderPixelRatio(host.clientWidth,host.clientHeight,devicePixelRatio));renderer.outputColorSpace=T.SRGBColorSpace;
@@ -385,8 +385,8 @@ export function createGalaxyScene(host:HTMLElement,labelHost:HTMLElement,callbac
   // send the camera backwards across the entire path at every lap boundary.
   function scrub(value:number){if(mode!=='flight'){leaveSurface();updateMode('flight');}transition=undefined;desiredTravel=finiteFlight(value);dirty=true;}
   function onWheel(e:WheelEvent){if(mode!=='flight')return;e.preventDefault();scrub(desiredTravel+T.MathUtils.clamp(e.deltaY,-180,180)*.00032);}
-  function onDown(e:PointerEvent){press={x:e.clientX,y:e.clientY};touchY=e.clientY;dragged=false;if(mode==='flight')canvas.setPointerCapture(e.pointerId);if(mode!=='flight'){transition=undefined;controls.enabled=true;} }
-  function onMove(e:PointerEvent){const rect=canvas.getBoundingClientRect();closeStars.pointerMove((e.clientX-rect.left)/rect.width*2-1,-((e.clientY-rect.top)/rect.height*2-1));if(!e.buttons){dirty=true;return;}const distance=Math.hypot(e.clientX-press.x,e.clientY-press.y);if(distance>5)dragged=true;if(mode==='flight'&&dragged){scrub(desiredTravel+(touchY-e.clientY)*.0011);touchY=e.clientY;}dirty=true;}
+  function onDown(e:PointerEvent){press={x:e.clientX,y:e.clientY};touchY=e.clientY;touchX=e.clientX;dragged=false;if(mode==='flight')canvas.setPointerCapture(e.pointerId);if(mode!=='flight'){transition=undefined;controls.enabled=true;} }
+  function onMove(e:PointerEvent){const rect=canvas.getBoundingClientRect();closeStars.pointerMove((e.clientX-rect.left)/rect.width*2-1,-((e.clientY-rect.top)/rect.height*2-1));if(!e.buttons){dirty=true;return;}const distance=Math.hypot(e.clientX-press.x,e.clientY-press.y);if(distance>5)dragged=true;if(mode==='flight'&&dragged){scrub(desiredTravel+(touchY-e.clientY)*.0011);touchY=e.clientY;flightYawTarget=T.MathUtils.clamp(flightYawTarget+(e.clientX-touchX)*.0035,-.82,.82);touchX=e.clientX;}dirty=true;}
   function onLeave(){closeStars.pointerLeave();dirty=true;}
   const ray=new T.Raycaster(),pointer=new T.Vector2();
   function onUp(e:PointerEvent){if(dragged||mode==='surface')return;const r=canvas.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObjects(pickMeshes,false)[0];const stationHit=observatoryWorld?.root.visible?ray.intersectObject(observatoryWorld.pickRoot,true)[0]:undefined;if(stationHit&&(!hit||stationHit.distance<hit.distance)){if(mode!=='observatory')callbacks.observatory();return;}if(hit)callbacks.pick(hit.object.userData.planet as PlanetId);}
@@ -428,7 +428,7 @@ export function createGalaxyScene(host:HTMLElement,labelHost:HTMLElement,callbac
     if(!paused){elapsed+=dt;waterTime.value=elapsed;surfaceClock.value=elapsed;for(const p of planets)if(p.id!=='about'){p.body.rotation.y+=dt*p.spin;for(const ring of p.rings)ring.rotation.z+=dt*.008;}starM.uniforms.uTime.value=elapsed;gas.rotation.z=Math.sin(elapsed*.009)*.018;
       courier.position.set(Math.sin(elapsed*.09)*18,2+Math.cos(elapsed*.13)*6,-(elapsed*1.1%170));courier.rotation.y=Math.sin(elapsed*.09)*.4;}
     if(transition){const f=transition,raw=Math.min(1,(now-f.start)/f.duration),t=raw*raw*(3-2*raw);camera.position.lerpVectors(f.from,f.to,t);controls.target.lerpVectors(f.lookFrom,f.lookTo,t);camera.lookAt(controls.target);if(raw===1){transition=undefined;controls.enabled=mode!=='flight';f.done?.();}}
-    else if(mode==='flight'){travel=mix(travel,desiredTravel,reduced.matches?1:1-Math.exp(-dt*5));const pose=flightPose(travel);if(width<700)pose.position.z+=1.5;camera.position.copy(pose.position);controls.target.copy(pose.target);camera.lookAt(pose.target);}
+    else if(mode==='flight'){travel=mix(travel,desiredTravel,reduced.matches?1:1-Math.exp(-dt*5));flightYaw=mix(flightYaw,flightYawTarget,reduced.matches?1:1-Math.exp(-dt*7));const pose=flightPose(travel);if(width<700)pose.position.z+=1.5;const viewOffset=pose.position.clone().sub(pose.target);viewOffset.applyAxisAngle(T.Object3D.DEFAULT_UP,flightYaw);camera.position.copy(pose.target).add(viewOffset);controls.target.copy(pose.target);camera.lookAt(pose.target);}
     else controls.update();
     site.visible=benchmark?host.dataset.landscape==='ready'&&mode==='surface'&&camera.position.distanceTo(site.getWorldPosition(anchor))<2.4:mode==='surface'||camera.position.distanceTo(about.group.position)<12;
     planetMists.forEach(mist=>mist.update(elapsed,mode==='surface',camera.position));
