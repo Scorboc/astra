@@ -40,3 +40,18 @@
 .motion-paused .membrane-sparks,.motion-paused .journey-panel,.motion-paused .journey-panel::before,.motion-paused .journey-panel::after,.motion-paused .journey-panel>.panel-scroll,.motion-paused .journey-panel>.membrane-art{animation:none!important}
 .research-page [data-reading-motion]{min-height:44px;margin-right:16px}
 .research-page .journey-panel .panel-top button{min-width:44px;min-height:44px}
+/* Keep the approved membrane edge; protect only the reading area. */
+.research-page .journey-panel>.panel-scroll,.research-page .journey-panel[data-presentation=content]>.panel-scroll{background:radial-gradient(ellipse at center,#020816f2 0%,#020816e8 55%,#020816b3 72%,transparent 100%);scrollbar-width:thin;scrollbar-color:#b6cddd #07101c;overscroll-behavior:contain;border-radius:28px}
+.space-hint{animation-name:space-hint-fade}
+@keyframes space-hint-fade{from{opacity:0}to{opacity:1}}
+.space-hint button{min-width:44px;min-height:44px;flex-shrink:0}
+.galaxy-header a{min-height:24px}
+.camera-tools{z-index:7}
+@media(max-width:700px){#observatory-bar{right:64px}.camera-tools button{width:40px;height:40px}}
+@media(max-width:700px){.space-hint{left:16px;right:64px;bottom:154px;width:auto;transform:none}.space-hint>span:nth-child(2){min-width:0}.space-hint small{font-size:11px}.space-hint-icon{display:none}}
+@media(max-height:540px) and (min-width:701px){
+ .research-page .journey-panel,.research-page.is-demo .journey-panel{top:76px;height:calc(100dvh - 84px);width:min(720px,92vw)}
+ .research-page .journey-panel>.panel-scroll,.research-page .journey-panel[data-presentation=content]>.panel-scroll{inset:3% 9% 4%;padding:8px 18px 24px;overflow-y:auto}
+ .research-page .journey-panel h2{font-size:26px;margin:4px 0 10px}
+ .research-page .journey-panel .membrane-divider{margin:4px auto}
+}

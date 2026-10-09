@@ -563,3 +563,15 @@ scripts/check-observatory-mirror.mjs: PASS — четыре ракурса с п
 Владелец отклонил визуальное качество процедурного здания. Оно остаётся техническим черновиком, не утверждённым дизайном. Подготовлен чистый 2D-исходник `11-tripo-architecture-reference.png`; план и промпт сохранены в `prototypes/observatory-gateway/TRIPO_PLAN.md`. Tripo CLI подключён, API авторизован, dry-run успешен, но баланс API равен 0; новая 3D-модель не создана.
 
 Исправлено управление изолированным прототипом: вертикальная прокрутка тачпада приближает/отдаляет, горизонтальная меняет ракурс, добавлены клавиатурные альтернативы и возврат общего вида. Ctrl/Meta+wheel оставлен браузеру. В браузере прокрутка вниз изменила cameraDistance 22.00 → 16.49, обратная вернула 22.00; кнопка общего вида восстановила исходное состояние. Это проверка wheel-событий браузера, не отдельная аппаратная сертификация тачпада. Изолированная сборка PASS. Внешний вид всё ещё требует замену здания и настройку материалов/эффектов.
+## Responsive repair — 2026-10-10
+
+Owner authorised fixes and GitHub publication. ui-ux-pro-max guided touch/layout and reading protection; the approved membrane edge and product flow remain unchanged.
+
+- Node tests: 78 PASS, 0 FAIL; TypeScript and Vite build PASS. Existing large-chunk/worker warnings remain.
+- Production preview in Chromium: 1440x900, 375x812, 812x375. Scene ready, login/register and all four primary routes open without page exceptions or document horizontal overflow. Back returns to the actual preceding route (an unauthenticated profile may redirect to login).
+- Swipe hint bounding box fits each viewport. Mobile initial camera stays further from planets; compact policy uses both dimensions and FOV updates on resize.
+- Repeated zoom commands stop at the minimum. An actual click on the observatory zoom button succeeds after fixing landing-bar overlap. Pinch uses a proportional ratio instead of repeated fixed jumps; hardware touchpad/pinch remains unverified.
+- Mobile requests 4096x2048 Origin texture, desktop 8192x4096; no 8192 request in portrait/landscape mobile runs. This is not a measured real-phone FPS improvement.
+- Reviewed screenshots in artifacts/fixed-*.png. Local reading protection was softened to avoid replacing the organic frame with a rectangular card. Landscape forms retain internal scrolling; not all fields fit simultaneously in 375px height.
+- Python Playwright unavailable; browser checks used the bundled Node Playwright runtime. Re-run: node scripts/verify-responsive.mjs. No real profiles used.
+
