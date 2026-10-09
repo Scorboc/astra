@@ -36,7 +36,7 @@ function today(){return expeditionDay(expedition,journey.demo);}
 function clockJourney(){journey={...journey,period:{start:expedition.start,today:today()}};}
 function persist(){if(!journey.demo)storageStatus=saveExpedition(expeditionStore,{version:1,journey,expedition},storageAllowed);}
 clockJourney();
-let landing=false,tourTimer:ReturnType<typeof setInterval>|undefined,tourIndex=0,toastTimer:ReturnType<typeof setTimeout>|undefined;
+let landing=false,tourTimer:ReturnType<typeof setInterval>|undefined,tourIndex=0,toastTimer:ReturnType<typeof setTimeout>|undefined,spaceHintSeen=false;
 let readerWasPaused=false;
 let checkDraft={outcome:journey.data.draft?.outcome??'' as Outcome|'',minutes:journey.data.draft?.minutes??'',note:journey.data.draft?.note??'',energy:journey.data.draft?.energy??''},reflectionDraft='';
 let goalTrack:Goal['track']=journey.data.goalDraft?.track??journey.data.goal.track,goalTitle=journey.data.goalDraft?.title??journey.data.goal.title,goalCriterion=journey.data.goalDraft?.criterion??journey.data.goal.criterion,goalMinutes=journey.data.scheduleDraft?.minutes??journey.data.schedule.minutes,goalDays=journey.data.scheduleDraft?.days??[...journey.data.schedule.days];
@@ -50,6 +50,7 @@ root.innerHTML=`
  <nav class="main-nav" aria-label="Основная навигация"><a href="#today"><span aria-hidden="true">◷</span>Сегодня</a><a href="#astrology"><span aria-hidden="true">✧</span>Астрология</a><a href="#results"><span aria-hidden="true">▥</span>Результаты</a><a href="#profile"><span aria-hidden="true">◉</span>Профиль</a></nav>
  <div class="header-actions"><a class="account-link" href="${activeAccount?'#profile':'#login'}">${activeAccount?esc(activeAccount.login):'Войти'}</a><button class="about-link" data-action="about">Об Astra ↗</button><button class="demo-launch" data-action="demo">Демо за 3 минуты <span>↗</span></button></div></header>
  <div class="local-label"><i></i><span id="mode-label">Система готова · маршрут активен</span></div>
+ <aside class="space-hint" id="space-hint" role="status" aria-live="polite"><span class="space-hint-icon" aria-hidden="true">↕</span><span><strong>Это живое пространство</strong><small>Свайпни вверх или вниз, чтобы лететь · потяни сцену, чтобы осмотреться · нажми на планету</small></span><button type="button" data-action="dismiss-space-hint" aria-label="Скрыть подсказку">×</button></aside>
  <section class="intro" id="intro"><p class="eyebrow">ТВОЯ ПЕРСОНАЛЬНАЯ ГАЛАКТИКА</p><h1 id="intro-title">Здесь начинается<br>твой путь</h1><p id="intro-copy">Не нужно знать всё заранее.<br>Начни с того, что тебе интересно.</p><div class="intro-actions" id="controls"><button class="primary" data-action="start" id="start-button">Выбрать цель <span>↗</span></button><button class="text-button" data-action="about">Осмотреться · об Astra</button></div><span class="intro-note">Небольшие действия. Настоящие открытия.</span></section>
  <div class="camera-tools" aria-label="Камера и движение"><button data-action="observatory" aria-label="Открыть обсерваторию" title="Обсерватория">⌂</button><button data-action="zoom-in" aria-label="Приблизить" title="Приблизить">＋</button><button data-action="zoom-out" aria-label="Отдалить" title="Отдалить">−</button><button data-action="overview" aria-label="Общий вид галактики" title="Общий вид">⌖</button><button id="motion" data-action="motion" aria-label="Пауза движения" aria-pressed="false" title="Пауза движения">Ⅱ</button></div>
  <aside class="journey-panel" id="panel" aria-labelledby="panel-heading" hidden></aside>
@@ -125,6 +126,7 @@ function sync(){
  document.querySelectorAll('[data-reading-motion]').forEach(el=>{el.setAttribute('aria-pressed',String(scene?.paused??false));el.textContent=scene?.paused?'Включить движение':'Спокойный режим';});
  const btn=$('motion');btn.setAttribute('aria-pressed',String(scene?.paused??false));btn.setAttribute('aria-label',scene?.paused?'Возобновить движение':'Пауза движения');btn.textContent=scene?.paused?'▷':'Ⅱ';
  $('demo-dock').hidden=!journey.demo;
+ $('space-hint').hidden=route!=='galaxy'||spaceHintSeen;
  if(journey.demo)$('demo-dock').innerHTML=`<div class="demo-heading"><span>ДЕМО / ВЫМЫШЛЕННЫЕ ДАННЫЕ</span><button data-action="exit-demo" aria-label="Выйти из демо">×</button></div><details><summary>Быстрый просмотр экранов</summary><div class="demo-stages">${['Начало','Рождение','Желания','Сегодня','Результаты'].map((t,i)=>`<button data-demo-stage="${i}">${t}</button>`).join('')}</div><p>Быстрый просмотр сбрасывает только демо и подставляет вымышленный профиль без достижений.</p></details>`;
  if(journey.demo)$('demo-dock').insertAdjacentHTML('beforeend',`<div class="demo-controls"><button data-action="demo-day">Демо-день ${expedition.demoDay+1} →</button><button data-action="demo-month">К дню 30</button></div>`);
 }
@@ -214,6 +216,7 @@ root.addEventListener('click',e=>{
  if(target.dataset.demoStage!==undefined){stopTour();previewStage(Number(target.dataset.demoStage));return;}
  const action=target.dataset.action;
  if(action==='observatory'){go('observatory');return;}
+ if(action==='dismiss-space-hint'){spaceHintSeen=true;sync();return;}
  if(action==='encounter'){go('companion');return;}
  if(action==='context'){go('context');return;}
  if(action==='compare-plans'){go('plans');return;}
@@ -243,7 +246,7 @@ root.addEventListener('click',e=>{
  if(action==='export')exportResult();if(action==='reload')location.reload();
 });
 // Any direct interaction interrupts autoplay before it can replace a user's form.
-const interruptTour=(e:Event)=>{if((e.target as Element).closest('#demo-dock'))return;if(tourTimer)stopTour();};
+const interruptTour=(e:Event)=>{if((e.target as Element).closest('#demo-dock'))return;if((e.target as Element).closest('#cosmos')){spaceHintSeen=true;sync();}if(tourTimer)stopTour();};
 $('reader').addEventListener('close',()=>scene?.pause(readerWasPaused));
 root.addEventListener('pointerdown',interruptTour);root.addEventListener('keydown',interruptTour);root.addEventListener('input',interruptTour);
 window.addEventListener('hashchange',applyRoute);

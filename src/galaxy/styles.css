@@ -25,6 +25,11 @@ dialog{border:1px solid #bdcbd43b;border-radius:22px;padding:35px;background:#0b
 .vignette{background:linear-gradient(180deg,#02071240,transparent 19%,transparent 78%,#020712aa)}
 .galaxy-header{top:30px}.wordmark{font-size:42px}.main-nav{gap:34px}
 .local-label{top:auto;bottom:12px;left:4%;font-size:8px;color:#adb9c2}
+.space-hint{position:absolute;left:50%;bottom:92px;z-index:6;display:flex;align-items:center;gap:12px;transform:translateX(-50%);width:min(470px,calc(100% - 40px));padding:12px 14px;border:1px solid #bfe8e84a;border-radius:18px;background:linear-gradient(110deg,#071c2bd9,#17112bd1);backdrop-filter:blur(16px);box-shadow:0 10px 45px #0007,0 0 28px #4ed4d31c;color:#ecf0ea;animation:space-hint-in .7s ease both}
+.space-hint-icon{display:grid;place-items:center;width:32px;height:32px;flex:0 0 32px;border:1px solid #b5e8dd80;border-radius:50%;color:#b7f0df;font-size:22px;animation:space-hint-pulse 1.8s ease-in-out infinite}
+.space-hint strong,.space-hint small{display:block}.space-hint strong{font:normal 14px Georgia,serif;color:#f2e6c8}.space-hint small{margin-top:4px;color:#b8cbd3;font-size:10px;line-height:1.5}.space-hint button{margin-left:auto;align-self:flex-start;min-width:28px;min-height:28px;color:#b7c8d0;font-size:20px}.space-hint button:hover{color:#fff}
+@keyframes space-hint-in{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes space-hint-pulse{50%{box-shadow:0 0 0 6px #9fe6d414;color:#fff}}
 .intro,.is-demo .intro{left:63%;right:6%;top:37%;max-width:410px}
 .intro h1{font:normal clamp(30px,3.35vw,56px)/1.14 Georgia,serif;letter-spacing:-1.1px;margin:15px 0 20px;color:#f2eee4;text-shadow:0 2px 24px #0005}
 .intro .eyebrow{font-size:8px;color:#c3c5c4;letter-spacing:.2em}
@@ -63,7 +68,7 @@ dialog{border:1px solid #bdcbd43b;border-radius:22px;padding:35px;background:#0b
 @media(max-width:1050px) and (min-width:701px){.intro,.is-demo .intro{left:59%;right:8%;top:33%}.intro h1{font-size:34px}.main-nav{gap:20px}.journey-panel{right:9%}.is-demo.on-surface .landing-bar{max-width:calc(100% - 405px);right:6%}}
 @media(max-width:700px){
  #galaxy-app{min-height:400px}.galaxy-header{top:22px;left:22px;right:22px}.wordmark{font-size:35px}.main-nav{gap:5px}
- .local-label{top:73px;bottom:auto;left:23px;font-size:7px;color:#c7d2dc;text-shadow:0 1px 5px #000}
+ .local-label{top:73px;bottom:auto;left:23px;font-size:7px;color:#c7d2dc;text-shadow:0 1px 5px #000}.space-hint{left:20px;right:20px;bottom:151px;width:auto;transform:none;padding:10px 11px;border-radius:15px}.space-hint strong{font-size:12px}.space-hint small{font-size:9px}.space-hint-icon{width:28px;height:28px;flex-basis:28px;font-size:19px}
  .intro,.is-demo .intro{left:25px;right:35px;top:auto;bottom:24%;max-width:340px;filter:drop-shadow(0 2px 14px #0009)}
  .intro h1,.is-demo .intro h1{font-size:37px;line-height:1.13;letter-spacing:-.8px;margin:13px 0 15px}
  .intro .eyebrow{font-size:7px}.intro>p:not(.eyebrow),.is-demo .intro>p:not(.eyebrow){font-size:11px;margin:12px 0 19px;color:#e0e5e7}
