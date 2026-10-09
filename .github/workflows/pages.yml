@@ -43,7 +43,10 @@ jobs:
               else if (/\.(html|js|css|svg)$/.test(name)) {
                 let text = await readFile(file, 'utf8');
                 for (const path of ['spatial/', 'universe/', 'benchmark-origin/', 'ui/', 'favicon.svg']) {
-                  text = text.replaceAll(`"/${path}`, `"/astra/${path}`).replaceAll(`'/${path}`, `'/astra/${path}`);
+                  text = text
+                    .replaceAll(`"/${path}`, `"/astra/${path}`)
+                    .replaceAll(`'/${path}`, `'/astra/${path}`)
+                    .replaceAll('`/' + path, '`/astra/' + path);
                 }
                 await writeFile(file, text);
               }
