@@ -5,7 +5,9 @@ export const FLIGHT_STOPS=[0,.25,.5,.75,1];
 // Place the observatory opposite Velir, directly on the nebula fold.
 export const OBSERVATORY_POSITION=[-40,-6,-68];
 export const OBSERVATORY_ROTATION=Math.PI/2;
-const points=[[-1,5,18],[3,6,-9],[15,17,-17],[16,18,-39],[2,3,-51],[3,3,-73],[17,6,-89],[18,6,-111],[6,8,-126],[2,12,-152],[-24,22,-174],[-58,26,-145],[-62,20,-113],[-14,6,-87],[-52,22,-45],[-29,12,33],[2,6,45]];
+// The return arc passes in front of the observatory at podest height, so the
+// pink envelope and black reflection are readable while the camera goes by.
+const points=[[-1,5,18],[3,6,-9],[15,17,-17],[16,17,-39],[2,6,-51],[3,5,-73],[17,6,-89],[18,6,-111],[6,8,-126],[2,12,-152],[-24,22,-174],[-58,26,-145],[-62,16,-113],[-14,4,-68],[-52,10,-45],[-29,12,33],[2,6,45]];
 const targets=[[-7,5,-13],[1,12,-31],[5,13,-37],[-4,0,-65],[-6,0,-71],[7,1,-102],[6,1,-109],[-3,4,-141],[-4,4,-148],[-4,4,-145],[-4,4,-143],[-32,3,-82],[-40,3,-68],[-40,0,-68],[-25,3,-65],[-8,1,0],[-8,2,-4]];
 export const FLIGHT_PERIOD=points.length/8;
 export function wrapFlight(value){const t=(Number.isFinite(value)?value:0)%FLIGHT_PERIOD;return t<0?t+FLIGHT_PERIOD:t;}
