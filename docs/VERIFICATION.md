@@ -575,3 +575,19 @@ Owner authorised fixes and GitHub publication. ui-ux-pro-max guided touch/layout
 - Reviewed screenshots in artifacts/fixed-*.png. Local reading protection was softened to avoid replacing the organic frame with a rectangular card. Landscape forms retain internal scrolling; not all fields fit simultaneously in 375px height.
 - Python Playwright unavailable; browser checks used the bundled Node Playwright runtime. Re-run: node scripts/verify-responsive.mjs. No real profiles used.
 
+## Camera comfort refinement — 2026-10-10
+
+- Removed immediate zoom teleports; desired camera position settles using frame-rate-independent damping. Horizontal wheel no longer also zooms. Orbit is limited to focus/observatory, yaw +/-0.48 radians and bounded elevation; observatory elevation remains above the podium.
+- Removed frame-by-frame hard position corrections that caused jumps. Mobile flight clearance is applied to the desired route before damping, using the same clearance as the initial view. Return to flight preserves travel rather than resetting to stage zero. Drag threshold uses cumulative movement.
+- Chromium preview checks at 1440x900, 375x812 and 812x375 passed route/overflow/zoom-bound checks. Synthetic horizontal wheel at observatory kept camera radius within 0.1 world units while changing angle; large mouse drag kept camera above the floor. Screenshot: artifacts/camera-smooth-observatory.png. Real phone and physical touchpad comfort require owner validation; no FPS guarantee.
+- These are local camera changes; no product logic, approved materials or client data were changed.
+
+## Owner-defined camera rail replacement — 2026-10-10
+
+Supersedes the previous orbit-based camera tuning. Replaced the route with a right-side planetary lane, far-side turn around Solis, low approach to the end of the observatory bridge, and a closed return to Origin. Arc-length lookup is computed once; moving speed is capped rather than recomputed by variable curve segment length. The mobile lane has extra lateral clearance, without per-frame collision pushes.
+
+- 80 unit tests PASS; TypeScript and production build PASS. Rail samples avoid solid planets and remain above podium level. The loop closes, and the podium stop reaches approximately (-18,-5.35,-68), looking upward toward (-40,2,-68).
+- Chromium preview on 1440x900 and 375x812: observatory arrival at (-17.99,-5.35,-68.01), no page exceptions. Screenshots artifacts/rail-pc-podium.png and artifacts/rail-phone-podium.png; PC image visually inspected. Horizontal look followed by forward wheel resumes the route.
+- Stationary look changes direction, not position. Forward input clears look offsets and restores the standard route orientation through damping. Right mouse drag allows vertical look; on touch, two-finger pan allows look without advancing the route. Physical touch device comfort and real-device FPS remain unverified. No claim of zero hardware stutter.
+- Changes remain local pending owner visual acceptance; no publication performed in this revision.
+
