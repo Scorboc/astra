@@ -1,5 +1,12 @@
 # Проверка прототипа Astra v0.3
 
+## Личные коллекции обсерватории — 2026-10-10
+
+- В результатах подключены коллекции открытий, навыков/опыта, решений, ручных астрологических сопоставлений, выполненных/частичных проб и месячной истории. Источники — текущие ответы аккаунта; достижения автоматически не создаются.
+- Добавление и уточнение личной записи используют существующее сохранение ResearchState, сохраняют прошлые версии и ревизию основания. Изменённое основание помечается для пересмотра. Навык требует ссылки на самоотчёт о действии. Старые профили совместимы без миграции.
+- Шесть релевантных тестов прошли: сериализация, ревизии, отсутствие выдуманной практики, чужие основания, экранирование и прежний атлас. TypeScript и сборка прошли. В браузере открыты коллекции профиля-примера и форма с клавиатуры; пять проб прочитаны из профиля. Полный сценарий сохранения через браузер и физический телефон пока не проверены.
+- Это рабочие коллекции внутри существующего окна. Пространственные экспонаты под куполом и автоматический анализ ИИ ещё не реализованы. Новая публикация не выполнялась.
+
 ## Возвращена живая анимация PlayCanvas — 2026-10-10
 
 - После сообщения владельца подтверждено: сцена не была на паузе и ошибок исполнения не было, но при прежнем переносе рендерера вращение планет отсутствовало, а движение объёмных эффектов было практически незаметным.
@@ -667,4 +674,82 @@ Supersedes the previous orbit-based camera tuning. Replaced the route with a rig
 - Chromium preview on 1440x900 and 375x812: observatory arrival at (-17.99,-5.35,-68.01), no page exceptions. Screenshots artifacts/rail-pc-podium.png and artifacts/rail-phone-podium.png; PC image visually inspected. Horizontal look followed by forward wheel resumes the route.
 - Stationary look changes direction, not position. Forward input clears look offsets and restores the standard route orientation through damping. Right mouse drag allows vertical look; on touch, two-finger pan allows look without advancing the route. Physical touch device comfort and real-device FPS remain unverified. No claim of zero hardware stutter.
 - Changes remain local pending owner visual acceptance; no publication performed in this revision.
+
+## Observatory texture shimmer mitigation — 2026-10-10
+
+- Enabled explicit trilinear minification and anisotropy for the architecture reference. Frontal image projection fades on sideways faces and subpixel detail; capped sharp material highlights and disabled back-face glazing rendering. Flight near clip is 0.5 instead of 0.025, retaining 0.025 for surface mode to improve depth precision.
+- Production build passed. Local browser loaded the scene without captured console errors. Close-up validation was incomplete: the compact observatory view was obscured by a planet, and the tab subsequently changed to Results. Complete elimination of shimmer during motion is not yet verified. No camera route, podium or publication changes in this fix.
+
+### Follow-up after owner reported no visible improvement
+
+- The architecture model contains very thin silver and champagne rods on the dome and spires. Their projected width drops below one screen pixel and produces the visible grid shimmer. When the camera is farther than 16 world units, those fine rod material batches are hidden; the main glass, ice and titanium geometry remains. Nearer views retain the rods.
+- Reduced the small metal highlights and observatory bloom. PlayCanvas temporal antialiasing is enabled while viewing or approaching the observatory on wide screens. Compact screens rely on the geometry detail limit and texture filtering, avoiding the extra temporal rendering cost.
+- TypeScript and production build passed. In-app browser loaded the observatory route without console errors; a compact-width visual check was possible, but the planet still partly obscures the frontal building in this browser. Motion quality at the owner's exact wide-screen angle and hardware performance still require a direct check. Changes are local.
+- Wide-screen Chromium verification through `scripts/verify-observatory-shimmer.mjs` at 1440×900 loaded the model without page errors. Captured `artifacts/observatory-shimmer-after-1.png` and `artifacts/observatory-shimmer-after-2.png` during approach. The second image shows the dome and spires without the former white speckled grid; continuous hardware motion and the owner's precise side angle remain to be checked. Headless software rendering reported about 12 FPS and is not a real-device performance measurement.
+
+## Green beam starts on the central observatory plinth — 2026-10-10
+
+- Main PlayCanvas scene: aligned the narrow green core and volume axis to the model's central raised disc (local x/z = 0, top approximately y = 0.825). Added a small green source disc at y = 0.84. The beam reaches the former upper height; its volumetric box now begins at the source rather than above the dome.
+- The titanium crown cap receives a small central aperture so the beam can pass through; only the emerald volume bypasses scene depth so its lower section remains visible through the glazed dome. Red ring, two spires and camera route are unchanged.
+- TypeScript and production build passed. Headless Chromium at 1280×720 loaded the observatory with no page errors; screenshots `artifacts/observatory-beam-source-1.png` and `artifacts/observatory-beam-source-2.png` show green light continuing into the dome. The lower plinth is partly covered by the observatory action bar in that test frame; direct visual confirmation of the exact origin point on a user's full-size screen remains useful. Local change only.
+
+## Полноэкранные планетарные залы — 2026-10-10
+
+- По выбору владельца исследовательские экраны открываются как широкие залы поверх существующей PlayCanvas-сцены. Новые 3D-модели и дополнительные тяжёлые текстуры для залов не добавлены. Утверждённая мембрана №4, планеты, маршрут камеры, четыре раздела и данные не заменялись.
+- «Сегодня»: основное действие в заполненном синтетическом примере поднято перед инфографикой. «Результаты»: четыре последних сохранённых ответа показаны таблицей с датой и источником; на телефоне строки складываются в компактные записи. «Профиль»: продолжение исследования видно до раскрываемых личных сведений.
+- `pnpm build`: PASS. `pnpm test`: 92 PASS, 0 FAIL. Прежние предупреждения сборки о размере PlayCanvas-чанка и browser-external `node:worker_threads` остались.
+- `node scripts/verify-planetary-hall.mjs`: Chromium 1440×900 и 375×812 — вход в синтетический профиль 1/1, Today/Astrology/Results/Profile/Origin/Research, отсутствие горизонтального переполнения страницы, выход в галактику и Browser Back — PASS; ошибок страницы не обнаружено. Кадры: `artifacts/planetary-hall-*.png`.
+- Ручная проверка текущей вкладки 714×612 показала, что действие «Открыть обзор месяца» видно без прокрутки. Визуально сравнены широкие и телефонные кадры. Это не подтверждает точное совпадение с концепт-изображениями: их нарисованные поверхности планет и панорамы не являются рабочими ассетами. Физический телефон и аппаратная производительность не проверены.
+
+## Исток: отдельный зал и переход — 2026-10-10
+
+- `#planet/origin` больше не показывает содержимое профиля: отдельный экран Истока объясняет начало знакомства и ведёт к следующему фактическому шагу, без готового вывода о человеке.
+- При открытии сначала запускается существующий пролёт PlayCanvas к Истоку, затем за 850 мс раскрывается зал. Повторная смена маршрута отменяет таймер перехода. При `prefers-reduced-motion: reduce` дополнительная анимация зала отключена.
+- `pnpm build`: PASS; `pnpm test`: 92 PASS. `node scripts/verify-planetary-hall.mjs`: 1440×900 и 375×812 PASS, включая окончание перехода, заголовок Истока, возврат в галактику и Back. Оба финальных кадра `artifacts/planetary-hall-*-planet/origin.png` осмотрены.
+- Это переход к полноэкранному залу, **не** посадка на детализированную поверхность и не точное повторение концепт-панорамы. Новых панорамных ассетов и тяжёлых 3D-моделей нет. Физический телефон и FPS не проверены; изменения локальные, без публикации.
+
+## Нижняя навигация — 2026-10-10
+
+- Четыре существующих раздела (`Сегодня`, `Астрология`, `Результаты`, `Профиль`) перенесены в единый нижний док на широком и узком экране. В шапке остались бренд и вход/информация; маршруты и смысл разделов не изменены. Активная кнопка выделена цветом и фоном.
+- Залы и основные плавающие элементы получили место над доком, на мобильной ширине учтён нижний safe area. `pnpm build`: PASS.
+- `node scripts/verify-planetary-hall.mjs`: Chromium 1440×900 и 375×812 — PASS для шести маршрутов; док ниже шапки и не перекрывает залы, кнопка астрологии переводит на `#astrology`, `aria-current` обновляется, Back возвращает прежний маршрут. Финальные кадры широкого и телефонного экранов осмотрены. Физический телефон и ландшафтный режим этой ревизией не проверены. Изменения локальные, без публикации.
+
+## Пять планет как нижний маршрут — 2026-10-10
+
+- Нижний док теперь открывает `#planet/origin`, `#planet/aurora`, `#planet/velir`, `#planet/nereya`, `#planet/solis`. У каждого мира отдельный короткий кабинет и главное действие к существующей функции: знакомство/сегодня, сегодняшний шаг, журнал, состояние плана, результаты. Вход в профиль — в шапке; астрология доступна из Истока и Авроры. Старые прямые маршруты `#today`, `#astrology`, `#results`, `#profile` и история браузера сохранены.
+- На широком экране только ракурс открытия планетного кабинета сдвинут так, чтобы планета оставалась видимой слева от мембраны. Основной маршрут камеры, жесты и ракурсы других исследовательских экранов не изменены. Лёгкие планетные отметки и разные оттенки в доке сделаны CSS, без новых текстур и моделей.
+- `pnpm build`: PASS; `pnpm test`: 92 PASS. `node scripts/verify-planetary-hall.mjs`: Chromium 1440×900 и 375×812 PASS; проверены пять кабинетов, их активная подсветка, переходы основных действий, Back, прямые прежние разделы, отсутствие переполнения и перекрытия нижним доком. Кадры Авроры, Велира и Солиса визуально осмотрены. Физический телефон, FPS и точное соответствие концепт-картинкам не проверены. Изменения локальные, без публикации.
+
+## Внутренние кабинеты планет — 2026-10-10
+
+- У пяти планет теперь отдельные полноэкранные 2.5D-интерьеры с индивидуальной атмосферой, главным действием и тремя работающими дверями в существующие разделы. Маршрут входа: PlayCanvas-подлёт к выбранной планете → короткий переход → интерьер. Прямые ссылки и Back/Forward сохраняются; при reduced motion переход пропускается.
+- Функциональные экраны, открытые из планеты, занимают тот же широкий экран; кнопка сверху возвращает в соответствующий кабинет, а из кабинета — в галактику. Нижнее меню переключает планеты. Подписи статуса читают сохранённые ответы, не изображают неподтверждённый прогресс или готовый план.
+- `pnpm build`: PASS; `pnpm test`: 92 PASS; `node scripts/verify-planetary-hall.mjs`: Chromium 1440×900 и 375×812 PASS. Проверены пять интерьеров, кнопки, возврат, Back, узкий экран и отсутствие переполнения. Кадры лежат в `artifacts/planetary-hall-*`.
+- Визуальный интерьер создан из CSS и уже существующих локальных текстур без новых тяжёлых моделей. Это **не** точное совпадение с ранее нарисованными концепт-панорамами и не физическая 3D-посадка. Физический телефон и производительность GPU ещё не измерены; публикации не было.
+
+## Меню кабинетов и читаемая сводка — 2026-10-10
+
+- После просмотра пяти кабинетов в Chromium заменена пустая левая иллюстрация: поверх фоновой сцены теперь показан отдельный **вымышленный пример заполнения** для каждой планеты. Пример не берётся из профиля и постоянно маркируется «не твои данные». Справа выделены назначение кабинета, действительный текущий шаг и три вторичных раздела; основное действие одно.
+- На телефоне порядок колонок меняется: сначала текущий шаг и кнопка, затем пример. В результатах прежний первый экран с длинной таблицей и неопределённым компасом заменён тремя подписанными фактическими числами и предупреждением об ограничениях выводов. Подробные ответы, коллекции и история сохранены в раскрываемых разделах.
+- ui-ux-pro-max: применены рекомендации по предсказуемому Back, видимому действию, мобильной адаптации, подписанным числам без ложной «шкалы прогресса» и клавиатурному фокусу. `pnpm test`: 92 PASS; `pnpm build`: PASS; `node scripts/verify-planetary-hall.mjs`: Chromium 1440×900 и 375×812 PASS, включая примеры, видимость основного действия на телефоне, три числа результатов, переходы, Back и отсутствие переполнения. Скриншоты осмотрены. Изменения локальные; физический телефон и тест с реальными пользователями не проводились.
+
+## Экраны по четырём образцам владельца — 2026-10-10
+
+- Образцы `C:\Users\Admin\Downloads\1..4` сверены визуально. №1 и №4 идентичны: результаты с таблицей и выбранной записью. №2 задаёт форму экрана вопроса, №3 — три крупные двери кабинета. Их оформление адаптировано для реальных разделов ASTRA: Исток, Аврора, Велир, Нерея, Солис; прежние маршруты сохранены.
+- Созданы шесть пейзажных слоёв без текста и интерфейса; оптимизированные WebP лежат в `public/cabinet-scenes/`. PNG-исходники полученной генерации остаются в каталоге сгенерированных изображений Codex, не в выдаче сайта. Сумма WebP — около 2,36 МБ против около 17 МБ PNG; на текущем кабинете загружается только его пейзаж. Это снижение веса ассетов, не измерение FPS или скорости реального телефона.
+- Кабинет теперь показывает пейзаж и крупные маршруты; сегодняшнее исследование — пейзаж слева и читаемую форму справа; результаты — фильтруемую таблицу фактических записей с деталью выбранной строки. Синтетический пример в кабинете помечен отдельно. В результатах не выдумываются персональные транзиты или анализ: астрологический слой помечен отдельно и прямо указывает, если сопоставление не рассчитано.
+- Переходы и формы остаются рабочими. В интерьерах разделы `Сегодня`, `Астрология`, `Результаты`, `Профиль` доступны сверху на широком экране и снизу на телефоне; Back/Forward сохраняется. Это близкая веб-адаптация композиции, **не 1:1 копия**: пейзажи сгенерированы заново, мембрана и миниатюры сделаны CSS, не извлечены из присланных картинок. Физический телефон, реальные пользователи и аппаратная производительность пока не проверены; публикации нет.
+- Итоговая проверка: `pnpm build` PASS, `pnpm test` 92 PASS, `node scripts/verify-planetary-hall.mjs` Chromium 1440×900 и 375×812 PASS. Проверены пять кабинетов, рабочие двери, форма, фильтрация и выбор записи в результатах, возврат и Back, отсутствие горизонтального переполнения; финальные кадры в `artifacts/planetary-hall-*` осмотрены. WebP сравнен с исходными PNG визуально. Сумма опубликованных в локальной сборке новых пейзажей около 2,36 МБ; PNG удалены только из `public/`, чтобы не загружать их на сайте.
+
+## Вход в обсерваторию из нижнего меню — 2026-10-10
+
+- В доке галактики к пяти планетам добавлен шестой явно подписанный вход «Обсерватория»; внутри кабинетов это пятый пункт навигации рядом с четырьмя основными разделами. Ссылка ведёт на существующий `#observatory`, без дублирования экрана или логики. Активный пункт помечается `aria-current="page"`.
+- Для шести пунктов док галактики расширен на ПК; на ширине 375 px пункты остаются отдельными, с подписью и областью касания не ниже 58 px. Это сознательное исключение из рекомендации ui-ux-pro-max «не более пяти пунктов» ради сохранения всех пяти утверждённых планет и прямого входа в обсерваторию; при последующих изменениях навигации этот компромисс нужно пересмотреть.
+- `pnpm build`: PASS. `node scripts/verify-planetary-hall.mjs`: Chromium 1440×900 и 375×812 PASS: клик из нижнего дока, `aria-current`, клик из кабинета, Back, существующие разделы и отсутствие переполнения. Кадр `artifacts/planetary-hall-phone-today.png` осмотрен. Физический телефон не проверен; публикации не было.
+
+## Обсерватория без промежуточного шага — 2026-10-10
+
+- `#observatory` больше не показывает отдельную панель с «Открыть атлас наблюдений» и «Вернуться к планетам». Нажатие пункта навигации, кнопки камеры или метки здания сразу открывает кабинет обсерватории с существующими коллекциями и наблюдениями; 3D-камера по-прежнему подходит к зданию. Анонимный доступ к личному атласу направляется на вход, как и другие персональные экраны.
+- Внутри кабинета можно просматривать исходные записи и добавлять собственную заметку. Сохранение и уточнение остаются в `#observatory`, а не неожиданно переводят к итогам месяца. Отдельные результаты доступны обычной навигацией; Back сохраняет предыдущий маршрут.
+- `pnpm build`: PASS, `pnpm test`: 92 PASS. `node scripts/verify-planetary-hall.mjs` проверяет прямой вход и отсутствие прежней панели на 1440×900 и 375×812; кадры `artifacts/observatory-direct-{desktop,phone}.png` осмотрены после завершения появления. Физический телефон и пользовательская приёмка не проводились; публикации не было.
 

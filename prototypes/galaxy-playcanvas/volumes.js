@@ -1,7 +1,8 @@
 import {VOLUME_LAYOUT} from './volume-layout.js';
-export function addVolumes(pc,device,parent,camera,{layer,omitFoundation=false}={}){
+export function addVolumes(pc,device,parent,camera,{layer,omitFoundation=false,beamBase}={}){
  const entries=[];
- for(const spec of VOLUME_LAYOUT){
+ for(const sourceSpec of VOLUME_LAYOUT){
+  const spec=sourceSpec.kind===1&&beamBase!==undefined?{...sourceSpec,center:[0,(40+beamBase)/2,0],half:[sourceSpec.half[0],(40-beamBase)/2,sourceSpec.half[2]]}:sourceSpec;
   if(omitFoundation&&spec.kind===3)continue;
   const material=new pc.ShaderMaterial({uniqueName:'astra-volume-'+spec.kind+'-'+spec.name,attributes:{aPosition:pc.SEMANTIC_POSITION},
    vertexGLSL:'attribute vec3 aPosition;uniform mat4 matrix_model;uniform mat4 matrix_viewProjection;varying vec3 exitPoint;void main(){exitPoint=aPosition*2.;gl_Position=matrix_viewProjection*matrix_model*vec4(aPosition,1.);}',
@@ -24,8 +25,8 @@ float field(vec3 p){
   float width=.62+.55*(.5+.5*sin(angle*5.+time*.12));
   return exp(-distanceToRing*distanceToRing/(width*width))*smoothstep(.18,.76,n)*1.5;
  #elif FIELD_KIND == 1
-  float y=p.y+19.;
-  vec2 offset=vec2(sin(y*.47+time*.26),cos(y*.31-time*.19))*.48;
+  float y=p.y+halfSize.y;
+  vec2 offset=vec2(sin(y*.47+time*.26),cos(y*.31-time*.19))*.48*smoothstep(0.,6.,y);
   float r=length(p.xz-offset);
   if(r>2.8)return 0.;
   float n=cloud(vec3(p.x*2.2,y*1.05-time*.44,p.z*2.2));
@@ -68,7 +69,7 @@ void main(){
  float opacity=1.-transmission;if(opacity<.002)discard;
  gl_FragColor=vec4(accumulated/max(opacity,.001),opacity);
 }`});
-  material.blendType=pc.BLEND_NORMAL;material.depthWrite=false;material.depthTest=true;material.cull=pc.CULLFACE_FRONT;
+  material.blendType=pc.BLEND_NORMAL;material.depthWrite=false;material.depthTest=spec.kind!==1;material.cull=pc.CULLFACE_FRONT;
   material.setParameter('halfSize',spec.half);material.setParameter('tint',spec.color);material.setParameter('gain',spec.gain);material.setParameter('spireSide',spec.side||0);
   const entity=new pc.Entity(spec.name);entity.addComponent('render',{meshInstances:[new pc.MeshInstance(pc.Mesh.fromGeometry(device,new pc.BoxGeometry()),material)],...(layer===undefined?{}:{layers:[layer]})});parent.addChild(entity);entity.setLocalPosition(...spec.center);entity.setLocalScale(...spec.half.map(v=>v*2));
   entries.push({entity,material,inverse:new pc.Mat4(),eye:new pc.Vec3()});

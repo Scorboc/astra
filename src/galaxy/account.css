@@ -47,7 +47,7 @@
 .space-hint button{min-width:44px;min-height:44px;flex-shrink:0}
 .galaxy-header a{min-height:24px}
 .camera-tools{z-index:7}
-@media(max-width:700px){#observatory-bar{right:64px}.camera-tools button{width:40px;height:40px}}
+@media(max-width:700px){.camera-tools button{width:40px;height:40px}}
 @media(max-width:700px){.space-hint{left:16px;right:64px;bottom:154px;width:auto;transform:none}.space-hint>span:nth-child(2){min-width:0}.space-hint small{font-size:11px}.space-hint-icon{display:none}}
 @media(max-height:540px) and (min-width:701px){
  .research-page .journey-panel,.research-page.is-demo .journey-panel{top:76px;height:calc(100dvh - 84px);width:min(720px,92vw)}

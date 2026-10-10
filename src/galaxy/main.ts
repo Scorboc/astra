@@ -19,6 +19,10 @@ import { saveExpedition,loadExpedition,forgetExpedition } from './expedition-sto
 import { WORLD_THEMES } from './world-themes';
 import { activeAccount,profileStore,mountAccountUI,accountSummary,rememberAccountRoute } from './account-ui';
 import './account.css';
+import './planetary-hall.css';
+import './navigation-dock.css';
+import './world-cabinet.css';
+import './reference-layout.css';
 
 const $ = <E extends HTMLElement = HTMLElement>(id:string) => document.getElementById(id) as E;
 const esc = (v:unknown) => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
@@ -38,6 +42,7 @@ function persist(){if(!journey.demo)storageStatus=saveExpedition(expeditionStore
 clockJourney();
 let landing=false,tourTimer:ReturnType<typeof setInterval>|undefined,tourIndex=0,toastTimer:ReturnType<typeof setTimeout>|undefined,spaceHintSeen=false;
 let readerWasPaused=false;
+let hallArrivalTimer:ReturnType<typeof setTimeout>|undefined;
 let checkDraft={outcome:journey.data.draft?.outcome??'' as Outcome|'',minutes:journey.data.draft?.minutes??'',note:journey.data.draft?.note??'',energy:journey.data.draft?.energy??''},reflectionDraft='';
 let goalTrack:Goal['track']=journey.data.goalDraft?.track??journey.data.goal.track,goalTitle=journey.data.goalDraft?.title??journey.data.goal.title,goalCriterion=journey.data.goalDraft?.criterion??journey.data.goal.criterion,goalMinutes=journey.data.scheduleDraft?.minutes??journey.data.schedule.minutes,goalDays=journey.data.scheduleDraft?.days??[...journey.data.schedule.days];
 let savedDrafts:{check:typeof checkDraft;reflection:string;track:Goal['track'];title:string;criterion:string;minutes:number;days:number[];pace:Plan['pace']}|null=null;
@@ -45,17 +50,17 @@ const root=$('galaxy-app');
 const benchmark=new URLSearchParams(location.search).get('section')==='origin';
 root.innerHTML=`
  <button class="skip" data-action="start">К действиям</button>
- <div id="cosmos" class="cosmos"></div><div id="planet-labels" class="planet-labels"></div><div class="vignette" aria-hidden="true"></div>
+ <div id="cosmos" class="cosmos"></div><div id="planet-labels" class="planet-labels"></div><div class="vignette" aria-hidden="true"></div><div class="hall-atmosphere" aria-hidden="true"></div><div class="world-portal" aria-hidden="true"></div>
  <header class="galaxy-header"><a class="wordmark" href="#galaxy" aria-label="Astra — галактика">astra<span>.</span></a>
- <nav class="main-nav" aria-label="Основная навигация"><a href="#today"><span aria-hidden="true">◷</span>Сегодня</a><a href="#astrology"><span aria-hidden="true">✧</span>Астрология</a><a href="#results"><span aria-hidden="true">▥</span>Результаты</a><a href="#profile"><span aria-hidden="true">◉</span>Профиль</a></nav>
- <div class="header-actions"><a class="account-link" href="${activeAccount?'#profile':'#login'}">${activeAccount?esc(activeAccount.login):'Войти'}</a><button class="about-link" data-action="about">Об Astra ↗</button></div></header>
+ <nav class="main-nav" aria-label="Планеты исследования и обсерватория">${PLANETS.map(p=>`<a href="#planet/${p.id}" data-world="${p.id}" style="--world-color:${p.color}"><span class="world-mark" aria-hidden="true"></span><span class="world-name">${p.name}</span></a>`).join('')}<a href="#observatory" data-world="observatory" aria-label="Обсерватория"><span class="world-mark observatory-mark" aria-hidden="true"></span><span class="world-name">Обсерватория</span></a></nav>
+ <nav class="section-nav" aria-label="Разделы ASTRA"><a href="#today" data-section="today">◷ <span>Сегодня</span></a><a href="#astrology" data-section="astrology">✧ <span>Астрология</span></a><a href="#results" data-section="results">▥ <span>Результаты</span></a><a href="#profile" data-section="profile">◉ <span>Профиль</span></a><a href="#observatory" data-section="observatory"><span class="observatory-nav-icon" aria-hidden="true">⌂</span> <span>Обсерватория</span></a></nav>
+ <div class="header-actions"><a class="account-link" href="${activeAccount?'#profile':'#login'}" aria-label="${activeAccount?'Открыть профиль':'Войти'}">${activeAccount?'Профиль':'Войти'}</a><button class="about-link" data-action="about">Об Astra ↗</button></div></header>
  <div class="local-label"><i></i><span id="mode-label">Система готова · маршрут активен</span></div>
  <aside class="space-hint" id="space-hint" role="status" aria-live="polite"><span class="space-hint-icon" aria-hidden="true">↕</span><span><strong>Это живое пространство</strong><small>Свайп вверх или вниз — лететь по маршруту · нажми на планету или обсерваторию — приблизиться · внутри выбранного мира можно осмотреться и изменить расстояние</small></span><button type="button" data-action="dismiss-space-hint" aria-label="Скрыть подсказку">×</button></aside>
  <section class="intro" id="intro"><p class="eyebrow">ТВОЯ ПЕРСОНАЛЬНАЯ ГАЛАКТИКА</p><h1 id="intro-title">Здесь начинается<br>твой путь</h1><p id="intro-copy">Не нужно знать всё заранее.<br>Начни с того, что тебе интересно.</p><div class="intro-actions" id="controls"><button class="primary" data-action="start" id="start-button">Выбрать цель <span>↗</span></button><button class="text-button" data-action="about">Осмотреться · об Astra</button></div><span class="intro-note">Небольшие действия. Настоящие открытия.</span></section>
  <div class="camera-tools" aria-label="Камера и движение"><button data-action="observatory" aria-label="Открыть обсерваторию" title="Обсерватория">⌂</button><button data-action="zoom-in" aria-label="Приблизить" title="Приблизить">＋</button><button data-action="zoom-out" aria-label="Отдалить" title="Отдалить">−</button><button data-action="overview" aria-label="Общий вид галактики" title="Общий вид">⌖</button><button id="motion" data-action="motion" aria-label="Пауза движения" aria-pressed="false" title="Пауза движения">Ⅱ</button></div>
  <aside class="journey-panel" id="panel" aria-labelledby="panel-heading" hidden></aside>
  <section class="landing-bar" id="landing-bar" hidden><div><span class="eyebrow">ПЛАНЕТА «ОБ ASTRA»</span><p id="landing-status" role="status">Проходим сквозь атмосферу…</p></div><button class="primary" data-action="read">Прочитать надпись ↗</button><button class="ghost" data-action="overview">Вернуться к звёздам</button></section>
- <section class="landing-bar" id="observatory-bar" aria-label="Обсерватория" hidden><div><span class="eyebrow">ОБСЕРВАТОРИЯ</span><p>Твои наблюдения, пробы и открытия</p></div><a class="primary" href="#results">Открыть атлас наблюдений ↗</a><a class="ghost" href="#galaxy">Вернуться к планетам</a></section>
  <section class="demo-dock" id="demo-dock" aria-label="Ускоренная проверка" hidden></section>
  <div id="toast" class="toast" role="status" aria-live="polite"></div>
  <div class="boot" id="boot"><span class="boot-orbit">✧</span><p>Собираем твою галактику</p><small>Сначала первый мир. Детали — по мере приближения.</small></div>
@@ -81,7 +86,7 @@ function panel(title:string,kicker:string,body:string){
  if(kicker.startsWith('СОЛИС /'))body+='<button class="primary wide" data-action="daily">Продолжить ежедневные пробы ↗</button><button class="text-button wide" data-action="route">Календарь 30 дней</button>'+horizonBody(expedition,journey,today());
  const invitation=body.includes('class="invitation-time"');$('panel').dataset.presentation=invitation?'invitation':'content';
  $('panel').dataset.reading=String(!invitation && /^(results|journal|astrology|profile|plan)$/.test(location.hash.slice(1)));
- $('panel').innerHTML=`${membraneFrame()}<div class="panel-scroll" id="panel-scroll"><div class="panel-top"><span class="eyebrow">${invitation?'СЕГОДНЯ':kicker}</span><button data-action="close-panel" aria-label="Закрыть панель">×</button></div><div class="membrane-divider" aria-hidden="true">✧</div><h2 id="panel-heading" tabindex="-1">${title}</h2>${body}<p id="form-error" class="form-error" role="alert" tabindex="-1"></p></div>`;$('panel').hidden=false;
+ $('panel').innerHTML=`${membraneFrame()}<div class="panel-scroll" id="panel-scroll"><div class="panel-top"><span class="eyebrow">${invitation?'СЕГОДНЯ':kicker}</span><button data-action="close-panel" aria-label="Вернуться в галактику">← <span>В галактику</span></button></div><div class="membrane-divider" aria-hidden="true">✧</div><h2 id="panel-heading" tabindex="-1">${title}</h2>${body}<p id="form-error" class="form-error" role="alert" tabindex="-1"></p></div>`;$('panel').hidden=false;
 }
 function routePanel(){panel('Твоя экспедиция','30 ДНЕЙ / ОТ ПРОБ К МАРШРУТУ',routeBody(expedition,journey,today()));}
 function encounterPanel(){panel('Встреча в пути','РАДИОКАНАЛ / НАБЛЮДЕНИЕ',companionBody(expedition,journey,today()));}
@@ -133,20 +138,39 @@ function sync(){
 function applyRoute(){
  clockJourney();
  route=parseRoute(location.hash);
- if(!activeAccount&&!journey.demo&&!['galaxy','observatory','about','login','register','example'].includes(route)){rememberAccountRoute(route);history.replaceState(null,'','#login');route='login';}
- $('panel').hidden=true;$('landing-bar').hidden=route!=='about';$('observatory-bar').hidden=route!=='observatory';$('intro').hidden=route!=='galaxy';document.body.classList.toggle('has-panel',!['galaxy','observatory','about'].includes(route));document.body.classList.toggle('on-surface',route==='about');
- document.body.classList.toggle('research-page',!['galaxy','observatory','about'].includes(route));
- const navRoute=['astrology','forecast','astro-checks'].includes(route)?'astrology':['observatory','results','journal','plan','route','discoveries','plans','planet/velir','planet/nereya','planet/solis'].includes(route)||route.startsWith('research/')?'results':['profile','context','planet/origin','birth','birth-review','wishes','wishes-review','rhythm','review'].includes(route)?'profile':'today';
- document.querySelectorAll<HTMLAnchorElement>('.main-nav a').forEach(a=>{if(a.hash==='#'+navRoute)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
- if(route==='observatory'){scene?.observatory();sync();return;}
+ if(hallArrivalTimer){clearTimeout(hallArrivalTimer);hallArrivalTimer=undefined;}
+ document.body.classList.remove('origin-arriving','world-entering');
+ if(!activeAccount&&!journey.demo&&!['galaxy','about','login','register','example'].includes(route)){rememberAccountRoute(route);history.replaceState(null,'','#login');route='login';}
+ document.body.classList.toggle('account-auth',route==='login'||route==='register');
+ $('panel').hidden=true;$('landing-bar').hidden=route!=='about';$('intro').hidden=route!=='galaxy';document.body.classList.toggle('has-panel',!['galaxy','about'].includes(route));document.body.classList.toggle('on-surface',route==='about');
+ document.body.classList.toggle('research-page',!['galaxy','about'].includes(route));
+ const hall=!['galaxy','about','login','register'].includes(route);
+ document.body.classList.toggle('planetary-hall',hall);
+ document.body.classList.toggle('origin-hall',route==='planet/origin');
+ document.body.dataset.currentWorld=route.startsWith('planet/')?route.slice(7):'';
+ document.body.classList.toggle('hall-atlas',hall&&['results','journal','astrology','forecast','astro-checks','profile','plan','example'].includes(route));
+ const navPlanet=route.startsWith('planet/')?route.slice(7):['welcome','birth','birth-review','wishes','wishes-review','rhythm','review','context'].includes(route)?'origin':['today','research','memories'].includes(route)?'aurora':['journal','discoveries'].includes(route)||route.startsWith('research/')?'velir':['plan','route','plans'].includes(route)?'nereya':route==='results'?'solis':'';
+ document.body.classList.toggle('world-interior',hall&&(!!navPlanet||route==='observatory'));
+ document.body.dataset.activeScreen=route;
+ if(navPlanet)document.body.dataset.currentWorld=navPlanet;
+ document.querySelectorAll<HTMLAnchorElement>('.main-nav a').forEach(a=>{if((navPlanet&&a.dataset.world===navPlanet)||(route==='observatory'&&a.dataset.world==='observatory'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+ const activeSection=['today','research','planet/aurora'].includes(route)?'today':['astrology','forecast','astro-checks'].includes(route)?'astrology':['results','journal','planet/solis','planet/velir'].includes(route)?'results':route==='profile'?'profile':route==='observatory'?'observatory':'';
+ document.querySelectorAll<HTMLAnchorElement>('.section-nav a').forEach(a=>{if(a.dataset.section===activeSection)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+ if(route==='observatory'){scene?.observatory();research.render('observatory');sync();$('panel-heading').focus({preventScroll:true});return;}
  if(accountUI.render(route)){scene?.present();sync();return;}
  if(research.render(route)){
+  if(navPlanet&&!route.startsWith('planet/')){const exit=$('panel').querySelector<HTMLButtonElement>('.panel-top [data-action="close-panel"]');if(exit){exit.removeAttribute('data-action');exit.dataset.research=`go:planet/${navPlanet}`;exit.setAttribute('aria-label',`Вернуться на планету ${navPlanet}`);exit.innerHTML='← <span>В кабинет</span>';}}
   if(route==='today')scene?.present();
-  else if(route.startsWith('planet/'))scene?.focus(route.slice(7) as PlanetId);
+  else if(route.startsWith('planet/')){
+   scene?.focus(route.slice(7) as PlanetId,'hall');
+   if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.body.classList.add('world-entering');
+    hallArrivalTimer=setTimeout(()=>{document.body.classList.remove('world-entering');hallArrivalTimer=undefined;$('panel-heading').focus({preventScroll:true});},1100);
+   }
+  }
   else if(['birth','welcome','wishes','rhythm','review'].includes(route))scene?.focus('origin');
   sync();$('panel-heading').focus({preventScroll:true});return;
  }
- document.querySelectorAll<HTMLAnchorElement>('.main-nav a').forEach(a=>{if(a.hash==='#'+route)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  if(route==='about'){landing=false;$('landing-status').textContent='Проходим сквозь атмосферу…';scene?.land();}
  else if(route==='galaxy')scene?.home();
  else if(route.startsWith('planet/')){const id=route.slice(7) as PlanetId;if(id==='about'){go('about');return;}scene?.focus(id);planetPanel(id);}
@@ -173,12 +197,12 @@ function previewStage(stage:number){
  expedition.research=r;resetDrafts();sync();go(stage===0?'welcome':stage===1?'birth':stage===2?'wishes':stage===3?'today':'results');
 }
 function exportResult(){clockJourney();const researchState=expedition.research??newResearch();const result={format:'astra-research-v1',synthetic:journey.demo||!!activeAccount?.example,mode:journey.demo?'accelerated-preview':activeAccount?.example?'synthetic-account':'personal-journey',generatedForDate:today(),research:researchState,astrology:{layer:'symbolic-reflection',forecastMode:researchState.forecastMode,checks:[]},personalInstruction:{status:researchState.answers.length?'collecting-evidence':'awaiting-first-research'},legacy:{...reportData(journey.data),reflection:journey.reflection,reflectionHistory:journey.reflectionHistory,expedition,horizon:horizon(expedition,journey,today())},note:'Предыдущие записи сохранены отдельно и не подменяют результаты нового знакомства.'};const url=URL.createObjectURL(new Blob([JSON.stringify(result,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='astra-research.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Резервная копия готова.');}
-root.addEventListener('input',e=>{const t=e.target as HTMLInputElement;if(t.form?.id==='goal-form'){const f=new FormData(t.form);goalTitle=String(f.get('goal')??'');goalCriterion=String(f.get('criterion')??'');goalMinutes=Number(f.get('minutes'));goalDays=f.getAll('day').map(Number);}if(t.form?.id==='check-form'){const f=new FormData(t.form);checkDraft={outcome:String(f.get('outcome')??'') as Outcome|'',minutes:String(f.get('minutes')??''),note:String(f.get('note')??''),energy:''};}if(t.form?.id==='reflection-form')reflectionDraft=t.value;});
+root.addEventListener('input',e=>{const t=e.target as HTMLInputElement;if(t.form?.getAttribute('id')==='goal-form'){const f=new FormData(t.form);goalTitle=String(f.get('goal')??'');goalCriterion=String(f.get('criterion')??'');goalMinutes=Number(f.get('minutes'));goalDays=f.getAll('day').map(Number);}if(t.form?.getAttribute('id')==='check-form'){const f=new FormData(t.form);checkDraft={outcome:String(f.get('outcome')??'') as Outcome|'',minutes:String(f.get('minutes')??''),note:String(f.get('note')??''),energy:''};}if(t.form?.getAttribute('id')==='reflection-form')reflectionDraft=t.value;});
 root.addEventListener('input',e=>{
  const t=e.target as HTMLInputElement;
- if(t.form?.id.startsWith('research-')){research.capture(t.form);return;}
- if(t.form?.id==='check-form')journey={...journey,data:{...journey.data,draft:{...checkDraft,requestId:'draft'}}};
- if(t.form?.id==='goal-form')journey={...journey,data:{...journey.data,goalDraft:{...GOALS[goalTrack],title:goalTitle,criterion:goalCriterion},scheduleDraft:{...journey.data.schedule,minutes:goalMinutes,days:[...goalDays]}}};
+ if(t.form?.getAttribute('id')?.startsWith('research-')){research.capture(t.form);return;}
+ if(t.form?.getAttribute('id')==='check-form')journey={...journey,data:{...journey.data,draft:{...checkDraft,requestId:'draft'}}};
+ if(t.form?.getAttribute('id')==='goal-form')journey={...journey,data:{...journey.data,goalDraft:{...GOALS[goalTrack],title:goalTitle,criterion:goalCriterion},scheduleDraft:{...journey.data.schedule,minutes:goalMinutes,days:[...goalDays]}}};
  persist();
 });
 root.addEventListener('submit',e=>{
@@ -186,15 +210,15 @@ root.addEventListener('submit',e=>{
  try{
   if(research.submit(form)){sync();return;}
   const f=new FormData(form);clockJourney();
-  if(form.id==='goal-form'){
+  if(form.getAttribute('id')==='goal-form'){
    journey=configureJourney(journey,{...GOALS[goalTrack],title:String(f.get('goal')),criterion:String(f.get('criterion'))},{days:f.getAll('day').map(Number),minutes:Number(f.get('minutes')),time:'19:00',budget:0});sync();go('planet/aurora');toast('Направление выбрано. Теперь — маленькая проба.');
-  }else if(form.id==='check-form'){
+  }else if(form.getAttribute('id')==='check-form'){
    journey=recordJourney(journey,{...checkDraft,requestId:crypto.randomUUID()},new Date().toISOString(),editObservationId);editObservationId=undefined;checkDraft={outcome:'',minutes:'',note:'',energy:''};sync();go('planet/velir');toast('Отметка сохранена. Любой результат помогает уточнить следующий шаг.');
-  }else if(form.id==='reflection-form'){
+  }else if(form.getAttribute('id')==='reflection-form'){
    journey=reflectJourney(journey,String(f.get('reflection')??''));sync();go('planet/nereya');
-  }else if(form.id==='context-form'){
+  }else if(form.getAttribute('id')==='context-form'){
    expedition=updateContext(expedition,Object.fromEntries(Object.keys(expedition.context).map(k=>[k,String(f.get(k)??'')])) as Context);sync();go('profile');toast('Контекст сохранён отдельно от отметок о действиях.');
-  }else if(form.id==='encounter-form'){
+  }else if(form.getAttribute('id')==='encounter-form'){
    expedition=answerEncounter(expedition,today(),String(f.get('choice')??''),String(f.get('note')??''));sync();encounterPanel();toast('Ответ принят. Наблюдение не засчитывается как выполненная проба.');
   }
  }catch(error){const invalid=form.querySelector<HTMLElement>(':invalid');const summary=$('form-error');summary.textContent=error instanceof Error?error.message:String(error);summary.focus();invalid?.setAttribute('aria-invalid','true');invalid?.setAttribute('aria-describedby','form-error');}

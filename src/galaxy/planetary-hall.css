@@ -1,0 +1,100 @@
+/* A landing changes the reading space, not the approved planet or its route. */
+.hall-atmosphere{display:none;position:absolute;inset:0;z-index:2;pointer-events:none}
+.planetary-hall .hall-atmosphere{display:block;background:linear-gradient(90deg,#02071308 0%,#0207132b 34%,#020713cf 65%,#020713f2 100%),radial-gradient(ellipse at 6% 82%,#ac45852b,transparent 44%),radial-gradient(ellipse at 45% 7%,#2c8eaf26,transparent 44%)}
+.planetary-hall.origin-hall .hall-atmosphere{background:linear-gradient(95deg,#0506121a 0%,#0808165c 35%,#030712db 67%,#030712f2 100%),radial-gradient(ellipse at 22% 73%,#f55b392e,transparent 38%),radial-gradient(ellipse at 8% 45%,#3bbf8440,transparent 29%)}
+.planetary-hall.origin-hall .journey-panel>.panel-scroll{background:radial-gradient(ellipse at 50% 42%,#020816f4,#020816eb 61%,#020816b7 82%,transparent)}
+.planetary-hall.origin-hall .hall-atmosphere::after{content:'';position:absolute;inset:0;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 24% 52%,#95dcb4aa 0%,#46a7b05c 17%,#da57413b 35%,#02071300 67%)}
+.planetary-hall.origin-hall.origin-arriving .hall-atmosphere::after{animation:origin-atmosphere-arrival .85s ease-out both}
+.planetary-hall.origin-hall.origin-arriving .journey-panel{animation:origin-hall-arrival .85s cubic-bezier(.16,.7,.25,1) both}
+@keyframes origin-atmosphere-arrival{0%{opacity:0;transform:scale(.72)}28%{opacity:.8}100%{opacity:0;transform:scale(1.25)}}
+@keyframes origin-hall-arrival{0%,36%{opacity:0;filter:blur(12px)}100%{opacity:1;filter:blur(0)}}
+.planetary-hall.hall-atlas .hall-atmosphere{background:linear-gradient(110deg,#020713df,#020713aa 53%,#020713d5),radial-gradient(ellipse at 85% 15%,#5641a552,transparent 53%)}
+.planetary-hall .planet-labels,.planetary-hall .space-hint{visibility:hidden}
+.planetary-hall .galaxy-header{z-index:9}
+.planetary-hall.research-page .journey-panel,
+.planetary-hall.research-page.is-demo .journey-panel,
+.planetary-hall.observatory-ui.research-page .journey-panel[data-reading=true]{
+  left:auto;right:1.5vw;top:90px;bottom:auto;transform:none;
+  width:min(980px,69vw);height:calc(100dvh - 104px);max-height:none;aspect-ratio:auto;
+  margin:0;overflow:visible;container-type:inline-size;
+}
+.planetary-hall.hall-atlas.research-page .journey-panel,
+.planetary-hall.hall-atlas.observatory-ui.research-page .journey-panel[data-reading=true]{left:2vw;right:2vw;width:96vw}
+.planetary-hall.research-page .journey-panel>.panel-scroll,
+.planetary-hall.research-page .journey-panel[data-presentation=content]>.panel-scroll,
+.planetary-hall.observatory-ui.research-page .journey-panel>.panel-scroll,
+.planetary-hall.research-page .journey-panel[data-presentation=invitation]>.panel-scroll{
+  inset:6% 8% 7% 10%;padding:12px clamp(18px,2vw,32px) 36px;
+  background:radial-gradient(ellipse at 50% 42%,#020816f5,#020816e8 61%,#020816a8 82%,transparent);
+  border-radius:28px;overflow-y:auto;overflow-x:hidden;scroll-padding-block:70px 90px;
+}
+.planetary-hall.hall-atlas.research-page .journey-panel>.panel-scroll,
+.planetary-hall.hall-atlas.observatory-ui.research-page .journey-panel>.panel-scroll{inset:5% 6% 6%;max-width:none}
+.planetary-hall .journey-panel .panel-top{justify-content:space-between;text-align:left;padding:0;min-height:48px;gap:16px}
+.planetary-hall .journey-panel .panel-top .eyebrow{font-size:11px;letter-spacing:.17em}
+.planetary-hall .journey-panel .panel-top button{position:static;opacity:1;display:inline-flex;align-items:center;gap:7px;min-width:44px;min-height:44px;padding:8px;color:#f1daa9;font-size:13px;white-space:nowrap}
+.planetary-hall .journey-panel .panel-top button:hover{text-decoration:underline;text-underline-offset:4px}
+.planetary-hall .journey-panel .membrane-divider{justify-content:flex-start;margin:4px 0 10px;font-size:16px}
+.planetary-hall .journey-panel .membrane-divider::before{display:none}
+.planetary-hall .journey-panel h2,
+.planetary-hall .journey-panel[data-presentation=invitation] h2{text-align:left;font-size:clamp(30px,3.4vw,49px);margin:4px 0 18px}
+.planetary-hall .journey-panel .invitation-time{justify-content:flex-start;font-size:16px;margin:0 0 16px}
+.planetary-hall .journey-panel .invitation-copy{margin:0 0 22px;max-width:650px;font-size:17px}
+.planetary-hall .journey-panel .invitation-action{margin:0;width:auto;min-width:min(340px,100%);font-size:17px;min-height:54px}
+.planetary-hall .journey-panel .research-main-card{max-width:780px}
+.planetary-hall .journey-panel .research-choices{grid-template-columns:repeat(2,minmax(0,1fr))}
+.planetary-hall .journey-panel .observatory-tools{margin-bottom:12px}
+.planetary-hall .journey-panel .observatory-next{max-width:720px;padding:16px 0}
+.planetary-hall .journey-panel .observatory-next>.primary{width:auto;min-width:min(340px,100%)}
+.planetary-hall .journey-panel .observatory-context,.planetary-hall .journey-panel .observatory-links{max-width:760px}
+.planetary-hall .journey-panel .journal-table-wrap{max-width:100%;overflow-x:auto}
+.planetary-hall .journey-panel .journal-table{min-width:580px}
+.planetary-hall .journey-panel .hall-recent{max-width:1140px;margin:10px 0 28px}
+.planetary-hall .journey-panel .hall-recent-table{min-width:520px}
+.planetary-hall .journey-panel .hall-recent-table caption{font:normal 21px Georgia,serif;color:#f7e5c9;padding:8px 0 16px}
+.planetary-hall .journey-panel .hall-recent-table th{font-size:11px;letter-spacing:.09em;text-transform:uppercase}
+.planetary-hall .journey-panel .hall-recent-table td{font-size:14px;line-height:1.45}
+.planetary-hall .journey-panel .hall-recent-table a{text-decoration:underline;text-underline-offset:3px}
+.planetary-hall .journey-panel .hall-recent>.text-button{display:inline-block;min-height:44px;margin-top:8px}
+.planetary-hall .journey-panel .personal-atlas>.collection{max-width:100%}
+.planetary-hall .journey-panel .research-infographic{max-width:820px}
+.planetary-hall .journey-panel>.membrane-art image{opacity:.82}
+.planetary-hall .journey-panel .profile-facts{max-width:760px;border-top:1px solid #d7c59c30;border-bottom:1px solid #d7c59c30;padding:8px 0;margin:18px 0}
+.planetary-hall .journey-panel .profile-facts>summary{font-size:16px;color:#f2ddb1;min-height:48px;display:flex;align-items:center}
+.planetary-hall .journey-panel .profile-facts .research-settings{margin:12px 0}
+.planetary-hall .demo-dock{z-index:8}
+@media(max-width:700px){
+  .planetary-hall .hall-atmosphere{background:linear-gradient(180deg,#02071336 0%,#020713ae 30%,#020713ef 63%,#020713f7 100%),radial-gradient(ellipse at 18% 10%,#7640af32,transparent 50%)}
+  .planetary-hall.research-page .journey-panel,
+  .planetary-hall.research-page.is-demo .journey-panel,
+  .planetary-hall.hall-atlas.research-page .journey-panel,
+  .planetary-hall.observatory-ui.research-page .journey-panel[data-reading=true]{
+    left:0;right:0;top:112px;bottom:auto;width:100vw;height:calc(100dvh - 118px);
+    transform:none;max-height:none;aspect-ratio:auto;
+  }
+  .planetary-hall.research-page .journey-panel>.panel-scroll,
+  .planetary-hall.research-page .journey-panel[data-presentation=content]>.panel-scroll,
+  .planetary-hall.observatory-ui.research-page .journey-panel>.panel-scroll,
+  .planetary-hall.research-page .journey-panel[data-presentation=invitation]>.panel-scroll,
+  .planetary-hall.hall-atlas.research-page .journey-panel>.panel-scroll{
+    inset:3% 4% 3%;padding:12px 16px 26px;scroll-padding-block:32px 90px;
+    background:linear-gradient(180deg,#020816e4,#020816f2 30%,#020816f7 80%);
+  }
+  .planetary-hall .journey-panel .panel-top .eyebrow{font-size:9px;letter-spacing:.09em}
+  .planetary-hall .journey-panel .panel-top button{font-size:12px}
+  .planetary-hall .journey-panel h2,.planetary-hall .journey-panel[data-presentation=invitation] h2{font-size:clamp(27px,7vw,36px);margin:3px 0 16px}
+  .planetary-hall .journey-panel .research-choices{grid-template-columns:1fr}
+  .planetary-hall .journey-panel .invitation-copy{font-size:15px}
+  .planetary-hall .journey-panel .primary{width:100%}
+  .planetary-hall .journey-panel .observatory-next{padding:4px 0 12px}
+  .planetary-hall .journey-panel .hall-recent-table,
+  .planetary-hall .journey-panel .hall-recent-table tbody{display:block;width:100%;min-width:0}
+  .planetary-hall .journey-panel .hall-recent-table caption{display:block;width:100%;font-size:19px;text-align:left}
+  .planetary-hall .journey-panel .hall-recent-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .planetary-hall .journey-panel .hall-recent-table tr{display:grid;grid-template-columns:78px minmax(0,1fr);gap:2px 8px;border-bottom:1px solid #fff2;padding:10px 0}
+  .planetary-hall .journey-panel .hall-recent-table td{border:0;padding:0;min-width:0;overflow-wrap:anywhere}
+  .planetary-hall .journey-panel .hall-recent-table td:first-child{grid-row:1/3;font-size:11px}
+  .planetary-hall .journey-panel .hall-recent-table td:last-child{grid-column:2;color:#c7b898;font-size:11px}
+}
+@media(max-width:390px){.planetary-hall .journey-panel .panel-top button span{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.planetary-hall .journey-panel,.planetary-hall .journey-panel>.panel-scroll,.planetary-hall .journey-panel>.membrane-art,.planetary-hall .hall-atmosphere::after{animation:none!important}}

@@ -1,11 +1,20 @@
 import { validDay,addDays } from './expedition.ts';
 
+export type AtlasEntry={id:string;kind:'discovery'|'skill'|'decision'|'astrology';text:string;evidenceId:string;evidenceRevision:number|null;status:string;recordedAt:string;revision:number};
 export type Birth={date:string;accuracy:'exact'|'approximate'|'unknown';time:string;until:string;place:string;note:string};
 export type Wishes={original:string;confirmed:string;preserve:string;avoid:string};
 export type Rhythm={kind:'fixed'|'shifts'|'unknown';windows:string;resources:string;limits:string};
 export type ResearchAnswer={id:string;day:string;kind:'question'|'game'|'trial';prompt:string;options?:string[];choices:string[];note:string;source:'USER_STATEMENT'|'TASK_RESPONSE'|'SELF_REPORTED_ACTION';revision:number;recordedAt:string};
 export type ResearchMemory={week:number;from:string;to:string;note:string;certainty:string;source:'RETROSPECTIVE_USER_STATEMENT'};
-export type ResearchState={version:1;step:0|1|2|3|4;complete:boolean;birth:Birth|null;birthDeferred:boolean;wishes:Wishes|null;rhythm:Rhythm|null;memories:ResearchMemory[];memoryDone:boolean;answers:ResearchAnswer[];history:ResearchAnswer[];profileHistory:{field:string;value:unknown;recordedAt:string}[];drafts:Record<string,Record<string,string|string[]>>;forecastMode:'open'|'blind';trialAccepted:string|null};
+export type ResearchState={atlas?:AtlasEntry[];atlasHistory?:AtlasEntry[];version:1;step:0|1|2|3|4;complete:boolean;birth:Birth|null;birthDeferred:boolean;wishes:Wishes|null;rhythm:Rhythm|null;memories:ResearchMemory[];memoryDone:boolean;answers:ResearchAnswer[];history:ResearchAnswer[];profileHistory:{field:string;value:unknown;recordedAt:string}[];drafts:Record<string,Record<string,string|string[]>>;forecastMode:'open'|'blind';trialAccepted:string|null};
+export function saveAtlasEntry(s:ResearchState,input:{id?:string;kind:string;text:string;evidenceId:string;status:string},now:string):ResearchState{
+ if(!['discovery','skill','decision','astrology'].includes(input.kind)||!input.text.trim()||input.text.length>1000||!['Исследую','Хочу продолжить','Отложено','Не подходит','Совпало','Частично','Не совпало','Недостаточно информации'].includes(input.status)||!Number.isFinite(Date.parse(now)))throw new Error('Проверь запись и её статус.');
+ const evidence=s.answers.find(a=>a.id===input.evidenceId);if(input.evidenceId&&!evidence)throw new Error('Выбери существующую запись-основание.');
+ if(input.kind==='skill'&&(!evidence||evidence.source!=='SELF_REPORTED_ACTION'))throw new Error('Для заметки о навыке выбери выполненную или частичную пробу.');
+ const old=s.atlas?.find(a=>a.id===input.id);if(input.id&&!old)throw new Error('Запись не найдена.');
+ const entry:AtlasEntry={id:old?.id??'atlas-'+now,kind:input.kind as AtlasEntry['kind'],text:input.text.trim(),evidenceId:input.evidenceId,evidenceRevision:evidence?.revision??null,status:input.status,recordedAt:now,revision:(old?.revision??0)+1};
+ return {...s,atlas:[...(s.atlas??[]).filter(a=>a.id!==entry.id),entry],atlasHistory:old?[...(s.atlasHistory??[]),old]:s.atlasHistory??[],drafts:{...s.drafts,atlas:{}}};
+}
 export const blankBirth:Birth={date:'',accuracy:'unknown',time:'',until:'',place:'',note:''};
 export const blankWishes:Wishes={original:'',confirmed:'',preserve:'',avoid:''};
 export const blankRhythm:Rhythm={kind:'unknown',windows:'',resources:'',limits:''};
@@ -67,6 +76,7 @@ export function researchProgress(s:ResearchState){return !s.complete?0:!s.memory
 export function validResearch(value:unknown):value is ResearchState{
   if(!value||typeof value!=='object')return false;
   const s=value as ResearchState,short=(v:unknown,n=2000)=>typeof v==='string'&&v.length<=n;
+  for(const entries of [s.atlas,s.atlasHistory])if(entries!==undefined&&(!Array.isArray(entries)||entries.length>1000||entries.some(e=>!e||!short(e.id,100)||!['discovery','skill','decision','astrology'].includes(e.kind)||!short(e.text,1000)||!short(e.evidenceId,80)||!short(e.status,80)||!Number.isInteger(e.revision)||e.revision<1||!(e.evidenceRevision===null||Number.isInteger(e.evidenceRevision)&&e.evidenceRevision>0)||!Number.isFinite(Date.parse(e.recordedAt)))))return false;
   if(s.version!==1||![0,1,2,3,4].includes(s.step)||typeof s.complete!=='boolean'||typeof s.birthDeferred!=='boolean'||typeof s.memoryDone!=='boolean'||!['open','blind'].includes(s.forecastMode)||(s.trialAccepted!==null&&!validDay(s.trialAccepted)))return false;
   if(s.birth!==null){try{validateBirth(s.birth,'9999-12-31');}catch{return false;}}
   if(s.wishes!==null&&!['original','confirmed','preserve','avoid'].every(k=>short(s.wishes?.[k as keyof Wishes])))return false;

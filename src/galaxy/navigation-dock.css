@@ -1,0 +1,63 @@
+/* Five worlds plus the distinct observatory entrance. */
+.main-nav{
+  position:fixed!important;top:auto!important;bottom:max(12px,env(safe-area-inset-bottom))!important;
+  left:50%!important;right:auto!important;transform:translateX(-50%);
+  width:min(840px,calc(100vw - 32px));margin:0!important;padding:5px 9px!important;
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px!important;
+  border:1px solid #c7bde24a;border-radius:22px;
+  background:linear-gradient(105deg,#090f24e8,#13102ae8 50%,#070f23ed);backdrop-filter:blur(20px);
+  box-shadow:0 10px 42px #000a,inset 0 1px #c8e7f129,0 0 24px #825abb1a;z-index:30;
+}
+.main-nav a,.main-nav a:link{
+  display:flex!important;flex-direction:row!important;justify-content:center;align-items:center;
+  min-height:56px!important;gap:8px!important;margin:0!important;padding:7px 5px!important;
+  border:0!important;border-radius:14px;color:#d9dee9;font-size:12px!important;
+  white-space:nowrap;text-align:center;
+}
+.main-nav .world-mark{display:block;width:23px;height:23px;flex:none;border-radius:50%;background:radial-gradient(circle at 30% 25%,#ffffffb0 0%,var(--world-color) 28%,#142238 73%,#030712 100%);box-shadow:inset -4px -5px 7px #000b,0 0 9px var(--world-color);border:1px solid #ffffff52}
+.main-nav [data-world=origin] .world-mark{background:radial-gradient(circle at 40% 33%,#77a779 0 11%,transparent 16%),linear-gradient(125deg,transparent 40%,#f27944 43% 47%,transparent 51%),radial-gradient(circle at 31% 24%,#aab5ba,#5c6678 53%,#151c2c 82%)}
+.main-nav [data-world=aurora] .world-mark{background:radial-gradient(circle at 28% 31%,#b1eb99,#26b997 43%,#085577 68%,#041632 90%)}
+.main-nav [data-world=velir] .world-mark{background:radial-gradient(circle at 30% 25%,#e0faff,#7bbbef 36%,#42609c 66%,#11172b 90%)}
+.main-nav [data-world=nereya] .world-mark{background:radial-gradient(circle at 27% 27%,#f9d39e,#a3a35d 33%,#2c765f 67%,#13212b 90%)}
+.main-nav [data-world=solis] .world-mark{background:radial-gradient(circle at 30% 25%,#ffccca,#d05b9d 34%,#643979 66%,#170f29 91%)}
+.main-nav [data-world=observatory]{--world-color:#d9c1ff}
+.main-nav [data-world=observatory] .observatory-mark{border-radius:6px 6px 2px 2px;clip-path:polygon(50% 0,70% 34%,82% 31%,100% 100%,0 100%,18% 31%,30% 34%);background:linear-gradient(145deg,#e2f8ff 4%,#818dd4 42%,#2b2867 80%);box-shadow:inset 0 0 8px #ffffff99,0 0 12px #a78dff}
+.main-nav .world-name{font-size:inherit!important;color:inherit!important}
+.main-nav a[aria-current=page]{color:#fff3da;background:radial-gradient(ellipse at 50% 100%,#c099c92a,transparent 78%)!important;box-shadow:none}
+.main-nav a[aria-current=page] .world-mark{box-shadow:inset -4px -5px 7px #0008,0 0 15px var(--world-color),0 0 28px var(--world-color)}
+.main-nav a[aria-current=page]::after{display:block;left:24%;right:24%;bottom:1px;width:auto;height:2px;border-radius:4px;background:var(--world-color);box-shadow:0 0 12px var(--world-color);opacity:1}
+.main-nav a:hover,.main-nav a:focus-visible{background:#e8dba610;color:#fff6df}
+.main-nav a:focus-visible{outline:2px solid #f5dda5;outline-offset:-2px}
+.main-nav [data-world=origin]{--world-color:#6ee9d1}.main-nav [data-world=aurora]{--world-color:#79e6a4}.main-nav [data-world=velir]{--world-color:#7cafee}.main-nav [data-world=nereya]{--world-color:#89e5a5}.main-nav [data-world=solis]{--world-color:#f1a39c}
+.world-cabinet-links{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:14px}
+.planetary-hall[data-current-world=aurora] .hall-atmosphere{background:linear-gradient(95deg,#0217112a 0%,#0617227a 37%,#020c17e9 72%),radial-gradient(ellipse at 17% 56%,#36cf8a55,transparent 48%)}
+.planetary-hall[data-current-world=velir] .hall-atmosphere{background:linear-gradient(95deg,#06122d19 0%,#07173680 37%,#020817ed 72%),radial-gradient(ellipse at 16% 47%,#5eb9ef52,transparent 48%)}
+.planetary-hall[data-current-world=nereya] .hall-atmosphere{background:linear-gradient(95deg,#201a0925 0%,#121a1a80 37%,#040b16ee 72%),radial-gradient(ellipse at 16% 52%,#b8aa6b4b,transparent 48%)}
+.planetary-hall[data-current-world=solis] .hall-atmosphere{background:linear-gradient(95deg,#290c2525 0%,#15101d80 37%,#080715ee 72%),radial-gradient(ellipse at 16% 48%,#d86eac4f,transparent 48%)}
+.account-auth .main-nav{display:none}
+.planetary-hall.research-page .journey-panel,
+.planetary-hall.research-page.is-demo .journey-panel,
+.planetary-hall.observatory-ui.research-page .journey-panel[data-reading=true]{height:calc(100dvh - 196px)}
+.galaxy-footer{bottom:96px}
+.landing-bar{bottom:100px}
+.demo-dock,.research-page .demo-dock,.is-demo .demo-dock{bottom:96px!important}
+.toast,.research-page .toast{bottom:100px}
+@media(max-width:700px){
+  .main-nav{bottom:max(5px,env(safe-area-inset-bottom))!important;width:calc(100vw - 12px);padding:3px 4px!important;gap:2px!important;border-radius:16px}
+  .main-nav a,.main-nav a:link{min-height:58px!important;flex-direction:column!important;gap:3px!important;padding:5px 1px!important;font-size:10px!important;line-height:1.1}
+  .main-nav .world-mark{width:21px;height:21px}
+  .main-nav [data-world=observatory] .world-name{font-size:9px!important;letter-spacing:-.04em}
+  .planetary-hall.research-page .journey-panel,
+  .planetary-hall.research-page.is-demo .journey-panel,
+  .planetary-hall.hall-atlas.research-page .journey-panel,
+  .planetary-hall.observatory-ui.research-page .journey-panel[data-reading=true]{top:66px;height:calc(100dvh - 146px)}
+  .research-page:not(.planetary-hall) .journey-panel{bottom:82px;max-height:calc(100dvh - 150px)}
+  .landing-bar,.is-demo.on-surface .landing-bar{bottom:84px;max-height:calc(100dvh - 155px);overflow:auto}
+  .galaxy-footer,.is-demo .galaxy-footer{bottom:84px}
+  .demo-dock,.research-page .demo-dock,.is-demo .demo-dock{bottom:82px!important}
+  .toast,.research-page .toast,.research-page.is-demo .toast{bottom:88px}
+  .camera-tools{bottom:84px!important;top:auto!important}
+  .intro{top:84px}
+  .local-label{top:76px}
+}
+@media(max-height:520px){.main-nav a,.main-nav a:link{min-height:44px!important}.planetary-hall.research-page .journey-panel{top:62px;height:calc(100dvh - 124px)}}
