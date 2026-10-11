@@ -8,7 +8,6 @@ export const accounts=createAccounts(local,session);
 export const activeAccount=accounts.current();
 const returnKey='astra.auth-return';
 export function rememberAccountRoute(route:string){try{sessionStorage.setItem(returnKey,route);}catch{/* Sign-in still works without session storage. */}}
-function accountReturn(){try{const route=sessionStorage.getItem(returnKey);sessionStorage.removeItem(returnKey);return route&&/^(today|astrology|forecast|astro-checks|results|journal|plan|profile|birth|birth-review|wishes|wishes-review|rhythm|review|memories|research(?:\/\d{4}-\d{2}-\d{2})?|planet\/(?:origin|aurora|velir|nereya|solis))$/.test(route)?route:'today';}catch{return 'today';}}
 export const profileStore=activeAccount?accountStore(local,activeAccount.id):local;
 export let exampleUpgradeError='';
 if(activeAccount?.example&&activeAccount.login==='1')try{ensureExampleMonth(profileStore);}catch(e){exampleUpgradeError=e instanceof Error?e.message:'Не удалось подготовить пример.';}
@@ -26,7 +25,7 @@ export function mountAccountUI(root:HTMLElement,panel:(t:string,k:string,b:strin
       const account=register?await accounts.register(String(f.get('login')),password,String(f.get('name'))):await accounts.login(String(f.get('login')),password);
       const store=accountStore(local,account.id);
       if(account.example&&account.login==='1')ensureExampleMonth(store);
-      accounts.activate(account);location.replace(location.pathname+'#'+(register?'welcome':accountReturn()));location.reload();
+      accounts.activate(account);try{sessionStorage.removeItem(returnKey);}catch{/* Navigation still works without session storage. */}location.replace(location.pathname+'#'+(register?'welcome':'galaxy'));location.reload();
     }catch(reason){error.textContent=reason instanceof Error?reason.message:'Не удалось войти. Повтори попытку.';error.focus();button.disabled=false;}
   },true);
   return {render(route:string){

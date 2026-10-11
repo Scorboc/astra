@@ -1,0 +1,109 @@
+/* The five approved 2.5D halls reuse the existing routes and bottom world dock. */
+body.research-page[data-active-screen^="planet/"] .journey-panel{overflow:hidden;border:1px solid #b8d2f0a6;border-radius:15px;box-shadow:0 22px 55px #000b;background:#030a18}
+body.research-page[data-active-screen^="planet/"] .journey-panel>.membrane-art{display:none}
+body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll,
+body.world-interior.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll{inset:0!important;padding:0!important;margin:0;border:0;border-radius:0;background:transparent!important;box-shadow:none;overflow:hidden;display:flex;flex-direction:column}
+body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll>.panel-top{position:absolute;top:13px;right:14px;left:auto;z-index:8;width:auto;margin:0;padding:0;background:none;border:0}
+body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll>.panel-top .eyebrow{display:none}
+body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll>.panel-top button{min-height:42px;padding:6px 12px;border:1px solid #e3c99583;border-radius:10px;background:#041020d9;color:#fff1d6;backdrop-filter:blur(8px)}
+body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll>#panel-heading{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);margin:0;padding:0}
+body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll>#form-error:empty{display:none}
+.council-room{--council-accent:#e8ca8b;position:relative;flex:1 1 auto;width:100%;height:100%;min-height:0;overflow:hidden;color:#fff8eb;isolation:isolate;background:#020916}
+.council-room[data-room=origin]{--council-accent:#e8b591}
+.council-room[data-room=aurora]{--council-accent:#e8ca8b}
+.council-room[data-room=velir]{--council-accent:#b4dcff}
+.council-room[data-room=nereya]{--council-accent:#f0c88b}
+.council-room[data-room=solis]{--council-accent:#efb5e7}
+.council-scene,.council-shade{position:absolute;inset:0;pointer-events:none}
+.council-scene{z-index:-2;background-position:center;background-size:cover}
+.council-room[data-room=origin] .council-scene{background-image:url('/council-halls/origin-hall-v2.webp')}
+.council-room[data-room=aurora] .council-scene{background-image:url('/council-halls/aurora-hall-v1.webp')}
+.council-room[data-room=velir] .council-scene{background-image:url('/council-halls/velir-hall-v2.webp')}
+.council-room[data-room=nereya] .council-scene{background-image:url('/council-halls/nereya-hall-v2.webp')}
+.council-room[data-room=solis] .council-scene{background-image:url('/council-halls/solis-hall-v2.webp')}
+.council-shade{z-index:-1;background:linear-gradient(90deg,#02091877,transparent 25%,transparent 55%,#02081650),linear-gradient(0deg,#020816a3,transparent 28%,transparent 82%,#02081655)}
+.council-rail{position:absolute;z-index:3;top:0;bottom:0;left:0;width:164px;padding:21px 13px 18px;display:flex;flex-direction:column;background:linear-gradient(90deg,#020713f3,#020713db 76%,#02071347)}
+.council-wordmark{display:block;margin:0 0 28px 12px;font:38px/1 Georgia,serif;letter-spacing:-.07em;color:#fff8ee;text-shadow:0 2px 15px #000c}
+.council-wordmark span{color:#e8ca8b}
+.council-room .council-wordmark{display:none}
+.council-rail nav{display:grid;gap:6px;margin-top:67px}
+.council-rail-link{width:100%;min-height:51px;padding:7px 10px;text-align:left;border:1px solid transparent;border-radius:10px;background:#06101c59;color:#fff1d9;font:13px/1.25 Arial,sans-serif;cursor:pointer}
+.council-rail-link:hover,.council-rail-link:focus-visible{border-color:#ffdda8b8;background:#473820bd;box-shadow:inset 0 1px #fff2,0 8px 20px #0007}
+.council-rail>p{margin:auto 0 4px 8px!important;font:13px/1.3 Arial,sans-serif!important;color:#d7cbb5!important}
+.council-heading{position:absolute;top:26px;left:clamp(180px,15%,220px);right:34%;z-index:3;text-shadow:0 2px 13px #000e}
+body.research-page .journey-panel .council-heading h3{font:normal clamp(25px,2.5vw,35px)/1.14 Georgia,serif!important;color:#fff8ef;margin:0 0 6px}
+.council-heading p{font-size:13px!important;line-height:1.35!important;color:#f0f2f4!important;max-width:520px;margin:0!important}
+.council-stations{position:absolute;z-index:3;inset:0 34% 0 164px;pointer-events:none}
+.council-station{position:absolute;pointer-events:auto;min-height:43px;max-width:145px;padding:7px 10px;border:1px solid #e8cb918f;border-radius:9px;color:#fff8e9;background:#06101be3;box-shadow:0 9px 22px #000a,inset 0 1px #fff2;font:12px/1.25 Arial,sans-serif;cursor:pointer}
+.council-station:hover,.council-station:focus-visible{border-color:#ffe7b9;background:#1a2d43ed}
+.council-station-1{left:9%;bottom:28%}.council-station-2{left:42%;bottom:24%}.council-station-3{right:2%;bottom:28%}
+.council-info{position:absolute;z-index:4;top:28px;right:16px;bottom:17px;width:clamp(330px,31%,410px);padding:22px 20px;display:flex;flex-direction:column;overflow:hidden;border:1px solid #f2dba6ba;border-radius:17px;background:linear-gradient(145deg,#061322f0,#071423f1 58%,#030d19ed);box-shadow:0 20px 50px #000c,inset 0 1px #fff3;backdrop-filter:blur(11px)}
+.council-info-head{display:flex;gap:13px;align-items:flex-start;min-height:76px}
+.council-orb{flex:none;width:55px;height:55px;border-radius:50%;border:2px solid #d1bd92;background:radial-gradient(circle at 28% 25%,#e4e8c9,#47a784 23%,#287da5 42%,#102d49 68%,#040c1b);box-shadow:inset -7px -7px 12px #020611,0 3px 15px #478bbd70}
+.council-room[data-room=origin] .council-orb{background:radial-gradient(circle at 28% 25%,#e5e4e0,#8c969b 30%,#bd6042 45%,#1c2029 68%,#040812)}
+.council-room[data-room=velir] .council-orb{background:radial-gradient(circle at 28% 25%,#f4f9ff,#8dd9fb 24%,#496fb7 48%,#191b51 70%,#040817)}
+.council-room[data-room=nereya] .council-orb{background:radial-gradient(circle at 28% 25%,#fff6cf,#9bc1a4 24%,#9e7a49 48%,#243344 70%,#050b16)}
+.council-room[data-room=solis] .council-orb{background:radial-gradient(circle at 28% 25%,#fff0ce,#dfae57 25%,#b34d91 48%,#302154 70%,#060914)}
+body.research-page .journey-panel .council-info h4{font:normal 29px/1.1 Georgia,serif;color:#fff8eb;margin:0 0 5px}
+body.research-page .journey-panel .council-info-head p{font:12px/1.4 Arial,sans-serif;color:#e1e9ed;margin:0;overflow-wrap:anywhere}
+.council-rule{height:1px;flex:none;margin:0 0 15px;background:linear-gradient(90deg,transparent,#e2c88b,transparent)}
+body.research-page .journey-panel .council-context{font:16px/1.4 Georgia,serif!important;color:#fff7eb!important;margin:0 0 17px!important}
+.council-primary{width:100%;min-height:47px;padding:7px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #ffdfa2;border-radius:999px;color:#fff8e9;background:linear-gradient(180deg,#ba955d7a,#513b2699 47%,#9d6d3f91);box-shadow:0 7px 22px #0009,inset 0 1px #fff6;font:14px/1.25 Arial,sans-serif;cursor:pointer}
+.council-primary:hover,.council-primary:focus-visible{background:linear-gradient(180deg,#d5ad75ad,#795233c2)}
+.council-info-links{display:grid;gap:7px;margin:17px 0 0;min-height:0}
+.council-info-links button{width:100%;min-height:58px;padding:8px 11px;text-align:left;border:1px solid #9ab9cd6e;border-radius:9px;color:#f9f2e4;background:#0b1a2bd5;cursor:pointer}
+.council-info-links button:hover,.council-info-links button:focus-visible{border-color:var(--council-accent);background:#1b2c40ed}
+.council-info-links strong,.council-info-links small{display:block}
+.council-info-links strong{font:14px/1.2 Arial,sans-serif}
+.council-info-links small{font:11px/1.32 Arial,sans-serif;color:#c9d6df;margin-top:3px}
+.council-room button:focus-visible{outline:2px solid #fff1c9;outline-offset:2px}
+.council-rail-link,.council-station,.council-primary,.council-info-links button{transition:background-color .24s ease,border-color .24s ease,box-shadow .3s ease,transform .18s ease}
+.council-room button:active{transform:translateY(1px)}
+.council-orb{animation:council-light-breathe 7s ease-in-out infinite}
+@keyframes council-light-breathe{0%,100%{filter:brightness(1);box-shadow:inset -7px -7px 12px #020611,0 3px 12px #478bbd52}50%{filter:brightness(1.09);box-shadow:inset -7px -7px 12px #020611,0 4px 20px #7cceef87}}
+body.world-interior.research-page .journey-panel input,
+body.world-interior.research-page .journey-panel textarea,
+body.world-interior.research-page .journey-panel select{transition:box-shadow .25s ease,background-color .25s ease,border-color .25s ease}
+body.world-interior.research-page .journey-panel input:focus-visible,
+body.world-interior.research-page .journey-panel textarea:focus-visible,
+body.world-interior.research-page .journey-panel select:focus-visible{box-shadow:0 0 0 2px #efd59b75,0 8px 20px #0007;outline:none}
+body.world-interior.research-page .journey-panel .research-choices label{transition:box-shadow .28s ease,background-color .24s ease,transform .18s ease}
+body.world-interior.research-page .journey-panel .research-choices label:has(input:checked){box-shadow:0 0 18px #d5b67054,inset 0 1px #fff3}
+@media(max-width:850px){
+  .council-rail{width:136px}.council-wordmark{font-size:32px}.council-heading{left:146px;right:40%}.council-stations{left:136px;right:40%}.council-info{width:38%}
+  .council-station{font-size:10px;max-width:100px}.council-station-1{left:0}.council-station-2{left:35%}.council-station-3{right:0}
+}
+@media(max-width:740px){
+  body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll>.panel-top{top:5px;right:6px}
+  body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll>.panel-top button{min-height:36px;padding:4px 8px;font-size:11px}
+  .council-scene{background-position:45% top}
+  .council-shade{background:linear-gradient(0deg,#020916 0%,#0209166b 43%,transparent 66%,#02091664)}
+  .council-rail,.council-stations{display:none}
+  .council-heading{top:76px;left:14px;right:12px}
+  body.research-page .journey-panel .council-heading h3{font-size:clamp(21px,6vw,28px)!important}
+  .council-heading p{font-size:11px!important;line-height:1.25!important;max-width:92%}
+  .council-info{left:7px;right:7px;top:38%;bottom:7px;width:auto;padding:13px 14px;border-radius:13px}
+  .council-info-head{min-height:58px;gap:11px}.council-orb{width:43px;height:43px}
+  body.research-page .journey-panel .council-info h4{font-size:23px}
+  body.research-page .journey-panel .council-info-head p{font-size:11px;line-height:1.25}
+  .council-rule{margin-bottom:9px}
+  body.research-page .journey-panel .council-context{display:none}
+  .council-primary{min-height:43px;font-size:12px}
+  .council-info-links{gap:5px;margin-top:9px}
+  .council-info-links button{min-height:48px;padding:6px 9px}
+  .council-info-links strong{font-size:12px}.council-info-links small{font-size:10px;margin-top:1px}
+}
+@media(max-width:740px) and (min-height:760px){.council-info{top:43%}}
+@media(max-width:740px) and (max-height:650px){
+  .council-heading{top:70px}.council-heading p{display:none}
+  .council-info{top:30%;padding:8px 12px}
+  .council-info-head{min-height:44px}.council-orb{width:36px;height:36px}
+  body.research-page .journey-panel .council-info h4{font-size:20px}
+  body.research-page .journey-panel .council-info-head p{display:none}
+  .council-rule{margin-bottom:5px}.council-primary{min-height:38px}
+  .council-info-links{margin-top:5px;gap:3px}
+  .council-info-links button{min-height:35px;padding:4px 8px}
+  .council-info-links small{display:none}
+}
+@media(max-width:350px) and (max-height:650px){.council-heading{top:70px;right:14px}body.research-page .journey-panel .council-heading h3{font-size:20px!important;line-height:1.1}}
+@media(prefers-reduced-motion:reduce){.council-room{scroll-behavior:auto}.council-orb{animation:none}.council-room button,body.world-interior.research-page .journey-panel input,body.world-interior.research-page .journey-panel textarea,body.world-interior.research-page .journey-panel select,body.world-interior.research-page .journey-panel .research-choices label{transition:none}}

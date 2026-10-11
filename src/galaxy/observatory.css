@@ -21,6 +21,22 @@
 .atlas-record{padding:12px 0;border-bottom:1px solid #d7c59c25;overflow-wrap:anywhere}
 .atlas-record h4{font-size:17px;margin:8px 0;font-weight:500;color:#fff1da}
 .atlas-note{white-space:pre-wrap}
+.personal-table{margin:18px 0 26px;padding:18px 0;border-block:1px solid #d7c59c45}
+.personal-table h3{margin:0 0 8px;color:#fff1da}
+.personal-table-scroll{max-width:100%;overflow-x:auto;scrollbar-color:#87cfd0 #091322}
+.personal-table table{width:100%;border-collapse:collapse;min-width:670px;font-size:13px;font-variant-numeric:tabular-nums}
+.personal-table th,.personal-table td{padding:10px 8px;border-bottom:1px solid #d7c59c28;text-align:center;vertical-align:middle}
+.personal-table th:first-child{text-align:left;min-width:150px;width:26%}
+.personal-table th small{display:block;font-weight:400;color:#d2e2e8;margin-top:4px}
+.personal-table .table-mark,.table-suggestions button{background:#143041;color:#f4f6fb;border:1px solid #79c7cd80;border-radius:12px;min-height:44px;padding:6px 10px;cursor:pointer}
+.personal-table .table-mark:hover,.personal-table .table-mark:focus-visible,.table-suggestions button:hover,.table-suggestions button:focus-visible{background:#225262;outline:2px solid #b0f4e7;outline-offset:2px}
+.personal-table .table-status{color:#ccece6}.personal-table .table-empty{color:#9eb0ba}
+.personal-table label{display:block;margin:12px 0;color:#f4e7d1}
+.personal-table input:not([type=radio]),.personal-table textarea{display:block;box-sizing:border-box;width:100%;max-width:600px;margin-top:6px}
+.personal-table fieldset{border:1px solid #d7c59c50;border-radius:12px;margin:12px 0}
+.personal-table fieldset label{display:inline-flex;align-items:center;gap:5px;margin:6px 15px 6px 0}
+.table-suggestions{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:700px){.personal-table{padding:12px 0}.personal-table table{min-width:620px}}
 .observatory-ui .research-infographic{margin:8px 0 16px}
 .observatory-ui .research-infographic strong{font-size:26px}
 .observatory-ui .research-infographic span{font-size:13px}

@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 const base=process.env.ASTRA_URL||'http://127.0.0.1:5190/spatial/';
 const browser=await chromium.launch({headless:true,executablePath:'C:/Users/Admin/AppData/Local/ms-playwright/chromium-1234/chrome-win64/chrome.exe'});
 try{
-  for(const [name,width,height] of [['desktop',1440,900],['phone',375,812]]){
-    const context=await browser.newContext({viewport:{width,height},isMobile:name==='phone',hasTouch:name==='phone'});
+  for(const [name,width,height] of [['desktop',1440,900],['phone',375,812],['small-phone',320,568]]){
+    const context=await browser.newContext({viewport:{width,height},isMobile:name!=='desktop',hasTouch:name!=='desktop'});
     const page=await context.newPage(),errors=[];
     page.on('pageerror',error=>errors.push(error.message));
     await page.goto(base+'#login',{waitUntil:'networkidle'});
@@ -13,9 +13,8 @@ try{
     await page.locator('#account-form [name=login]').fill('1');
     await page.locator('#account-form [name=password]').fill('1');
     await page.locator('#account-form [type=submit]').click();
-    await page.waitForURL('**/#today');
-    await page.waitForSelector('#panel-heading');
-    await page.goto(base+'#galaxy',{waitUntil:'networkidle'});
+    await page.waitForURL('**/#galaxy');
+    await page.waitForSelector('.main-nav');
     assert.equal(await page.locator('.main-nav a').count(),6,'galaxy dock contains five planets and observatory');
     await page.locator('.main-nav a[href="#observatory"]').click();
     await page.waitForURL('**/#observatory');
@@ -43,10 +42,18 @@ try{
         const world=route.slice(7);
         assert.match(await page.locator('#panel-heading').innerText(),new RegExp(({origin:'Исток',aurora:'Аврора',velir:'Велир',nereya:'Нерея',solis:'Солис'})[world]),'world has its own hall');
         assert.equal(await page.locator(`.main-nav a[data-world="${world}"]`).getAttribute('aria-current'),'page','current world is highlighted');
-        assert.equal(await page.locator(`.planet-lobby[data-room="${world}"]`).count(),1,'world has a distinct interior');
-        assert.equal(await page.locator('.cabinet-door').count(),3,'world has three functional doors');
+        assert.equal(await page.locator(`.council-room[data-room="${world}"]`).count(),1,'world has its own council room');
+        assert.match(await page.locator('.council-scene').evaluate(el=>getComputedStyle(el).backgroundImage),new RegExp(`/council-halls/${world}-hall-v${world==='aurora'?'1':'2'}\\.webp`),world+' loads its dedicated room image');
+        assert.equal(await page.locator('.council-info-links button').count(),3,'world has three functional doors');
         assert.equal(await page.locator('.planet-example').count(),0,'planet cabinet does not present a sample footnote');
-        if(name==='phone')assert.ok(await page.locator('.cabinet-primary').evaluate(el=>{const r=el.getBoundingClientRect();return r.top<innerHeight-66&&r.bottom>58}),'primary cabinet action is visible in mobile room');
+        assert.equal(await page.locator('.main-nav').isVisible(),true,'planet dock remains available inside a cabinet');
+        assert.equal(await page.locator('.section-nav').isVisible(),false,'section dock does not replace the planets in a cabinet');
+        const fit=await page.locator('#panel .panel-scroll').evaluate(el=>({scroll:el.scrollHeight,client:el.clientHeight,lobby:(()=>{const r=el.querySelector('.council-room').getBoundingClientRect();return {bottom:r.bottom,frame:el.getBoundingClientRect().bottom};})(),clipped:[...el.querySelectorAll('.council-heading,.council-info,.council-primary,.council-info-links button')].filter(node=>{const r=node.getBoundingClientRect(),frame=(node.closest('.council-info')&&node!==node.closest('.council-info')?node.closest('.council-info'):el).getBoundingClientRect();return r.top<frame.top-2||r.bottom>frame.bottom+2;}).map(node=>node.className)}));
+        assert.ok(fit.scroll<=fit.client+2,route+' fits without internal scrolling: '+JSON.stringify(fit));
+        assert.ok(fit.lobby.bottom<=fit.lobby.frame+2,route+' actions remain within the room');
+        assert.deepEqual(fit.clipped,[],route+' does not clip text or actions');
+        if(name!=='desktop')assert.ok(await page.locator('.council-primary').evaluate(el=>{const r=el.getBoundingClientRect();return r.top<innerHeight-66&&r.bottom>58}),'primary cabinet action is visible in mobile room');
+        if(name!=='desktop')assert.equal(await page.evaluate(()=>{const a=document.querySelector('.council-heading h3').getBoundingClientRect(),b=document.querySelector('#panel .panel-top button').getBoundingClientRect();return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;}),false,route+' heading does not overlap return button');
       }
       if(route==='results'){
         assert.equal(await page.locator('.results-explorer').count(),1,'results use the record explorer');
@@ -70,21 +77,21 @@ try{
       assert.ok(state.hall,route+' uses the hall');
       assert.equal(state.overflow,false,route+' has no horizontal overflow');
       assert.ok(state.back,route+' has a room exit');
-      assert.equal(await page.locator('#panel .panel-top').evaluate(el=>getComputedStyle(el).position),'relative',route+' keeps return control in reading flow');
+      assert.equal(await page.locator('#panel .panel-top').evaluate(el=>getComputedStyle(el).position),route.startsWith('planet/')?'absolute':'relative',route+' keeps return control visible');
       assert.ok(state.panel.width>=width*.65,route+' uses most of the viewport width');
       assert.ok(state.panel.bottom<=height+1,route+' hall fits the viewport');
       await page.screenshot({path:`artifacts/planetary-hall-${name}-${route}.png`});
       if(route.startsWith('planet/')){
-        const destination=await page.locator('#panel .cabinet-primary').getAttribute('data-research');
-        await page.locator('#panel .cabinet-primary').click();
+        const destination=await page.locator('#panel .council-primary').getAttribute('data-research');
+        await page.locator('#panel .council-primary').click();
         await page.waitForURL('**/#'+destination.slice(3));
         await page.waitForSelector('.panel-top [data-research="go:'+route+'"]');
         assert.equal(await page.locator('.panel-top [data-research="go:'+route+'"]').count(),1,route+' subroom links back to its planet');
         await page.goBack();
         await page.waitForURL('**/#'+route);
-        await page.waitForSelector('.cabinet-door');
-        const door=await page.locator('.cabinet-door').first().getAttribute('data-research');
-        await page.locator('.cabinet-door').first().click();
+        await page.waitForSelector('.council-info-links button');
+        const door=await page.locator('.council-info-links button').first().getAttribute('data-research');
+        await page.locator('.council-info-links button').first().click();
         await page.waitForURL('**/#'+door.slice(3));
         await page.goBack();
         await page.waitForURL('**/#'+route);

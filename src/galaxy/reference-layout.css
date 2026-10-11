@@ -136,3 +136,49 @@ body.research-page:not(.account-auth) .journey-panel .question-membrane{padding-
 }
 body.account-auth .header-actions .account-link{display:none}
 body.account-auth.research-page .journey-panel>.panel-scroll{scrollbar-color:#6a8fa677 transparent}
+
+/* A planet entrance uses the available viewport after its return control. */
+body.research-page[data-active-screen^="planet/"] .section-nav{display:none!important}
+body.research-page[data-active-screen^="planet/"] .main-nav{display:grid!important}
+body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll{display:flex;flex-direction:column;overflow:hidden}
+body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll>.panel-top{flex:none}
+body.research-page[data-active-screen^="planet/"] .planet-lobby{flex:1 1 auto;min-height:0;height:auto}
+body.research-page[data-active-screen^="planet/"] .planet-hero{flex:1 1 43%;min-height:0}
+body.research-page[data-active-screen^="planet/"] .planet-membrane{display:flex;flex-direction:column;justify-content:center;flex:1 1 57%;min-height:0;padding-top:clamp(18px,3vh,38px);padding-bottom:12px}
+body.research-page[data-active-screen^="planet/"] .planet-card{min-height:clamp(110px,17vh,160px);padding:clamp(10px,1.6vw,18px)}
+body.research-page[data-active-screen^="planet/"] .planet-card-copy{gap:6px}
+body.research-page[data-active-screen^="planet/"] .planet-more{margin-top:10px}
+.natal-guide{max-width:880px;margin:16px 0 20px;padding:18px 22px;border:1px solid #b5d7e371;border-radius:14px;background:#0d2036d9}
+.natal-guide h4{margin:0 0 10px;color:#f4dda9;font:24px/1.2 Georgia,serif}
+.natal-guide p{margin:8px 0;line-height:1.5;overflow-wrap:anywhere}
+.natal-guide strong{color:#f8e3b7}
+@media(max-width:740px){
+  body.research-page[data-active-screen^="planet/"] .journey-panel{top:58px;height:calc(100dvh - 130px)}
+  body.research-page[data-active-screen^="planet/"] .planet-hero{flex:0 1 38%;min-height:0;height:auto}
+  body.research-page[data-active-screen^="planet/"] .planet-membrane{flex:1 1 62%;padding:12px 12px 8px}
+  body.research-page[data-active-screen^="planet/"] .planet-card-row{gap:6px}
+  body.research-page[data-active-screen^="planet/"] .planet-card{min-height:0;flex:1 1 auto;padding:6px 10px;gap:9px}
+  body.research-page[data-active-screen^="planet/"] .planet-card-orb{width:clamp(34px,9vw,44px)}
+  body.research-page[data-active-screen^="planet/"] .planet-card-copy{gap:2px}
+  body.research-page[data-active-screen^="planet/"] .planet-card-copy strong{font-size:clamp(17px,5vw,20px);line-height:1.12}
+  body.research-page[data-active-screen^="planet/"] .planet-card-copy small{font-size:11px;line-height:1.22}
+  body.research-page[data-active-screen^="planet/"] .planet-card-cta{padding:2px 6px;font-size:11px}
+  body.research-page[data-active-screen^="planet/"] .planet-more{min-height:36px;margin-top:6px;padding:5px 9px;font-size:11px;line-height:1.2}
+  body.research-page[data-active-screen^="planet/"] .planet-hero-copy{bottom:26px}
+  body.research-page[data-active-screen^="planet/"] .planet-hero-copy>p:last-child{font-size:12px!important;line-height:1.22}
+  .natal-guide{padding:13px 15px}.natal-guide h4{font-size:21px}.natal-guide p{font-size:14px}
+}
+@media(max-width:740px) and (max-height:650px){
+  body.research-page[data-active-screen^="planet/"] .planet-hero{flex-basis:43%}
+  body.research-page[data-active-screen^="planet/"] .planet-membrane{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:5px;flex-basis:57%;padding:7px 9px 5px}
+  body.research-page[data-active-screen^="planet/"] .planet-card-row{display:contents}
+  body.research-page[data-active-screen^="planet/"] .planet-hero-copy{bottom:7px;max-width:92%}
+  body.research-page[data-active-screen^="planet/"] .planet-hero-copy h3{font-size:28px!important}
+  body.research-page[data-active-screen^="planet/"] .planet-card{min-height:0;padding:5px;gap:2px}
+  body.research-page[data-active-screen^="planet/"] .planet-card-orb{display:none}
+  body.research-page[data-active-screen^="planet/"] .planet-card-copy strong{font-size:15px}
+  body.research-page[data-active-screen^="planet/"] .planet-card-copy small{font-size:10px}
+  body.research-page[data-active-screen^="planet/"] .planet-card-cta{font-size:10px;line-height:1.1}
+  body.research-page[data-active-screen^="planet/"] .planet-card-arrow{font-size:16px}
+  body.research-page[data-active-screen^="planet/"] .planet-more{margin:0;min-height:0;padding:6px;font-size:11px;overflow-wrap:anywhere}
+}

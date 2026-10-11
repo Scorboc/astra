@@ -6,7 +6,23 @@ export type Wishes={original:string;confirmed:string;preserve:string;avoid:strin
 export type Rhythm={kind:'fixed'|'shifts'|'unknown';windows:string;resources:string;limits:string};
 export type ResearchAnswer={id:string;day:string;kind:'question'|'game'|'trial';prompt:string;options?:string[];choices:string[];note:string;source:'USER_STATEMENT'|'TASK_RESPONSE'|'SELF_REPORTED_ACTION';revision:number;recordedAt:string};
 export type ResearchMemory={week:number;from:string;to:string;note:string;certainty:string;source:'RETROSPECTIVE_USER_STATEMENT'};
-export type ResearchState={atlas?:AtlasEntry[];atlasHistory?:AtlasEntry[];version:1;step:0|1|2|3|4;complete:boolean;birth:Birth|null;birthDeferred:boolean;wishes:Wishes|null;rhythm:Rhythm|null;memories:ResearchMemory[];memoryDone:boolean;answers:ResearchAnswer[];history:ResearchAnswer[];profileHistory:{field:string;value:unknown;recordedAt:string}[];drafts:Record<string,Record<string,string|string[]>>;forecastMode:'open'|'blind';trialAccepted:string|null};
+export type PersonalTableRow={id:string;title:string;reason:string;createdAt:string;revision:number;marks:{day:string;status:'done'|'partial'|'rest';note:string}[]};
+export type ResearchState={atlas?:AtlasEntry[];atlasHistory?:AtlasEntry[];personalTable?:PersonalTableRow[];personalTableHistory?:PersonalTableRow[];version:1;step:0|1|2|3|4;complete:boolean;birth:Birth|null;birthDeferred:boolean;wishes:Wishes|null;rhythm:Rhythm|null;memories:ResearchMemory[];memoryDone:boolean;answers:ResearchAnswer[];history:ResearchAnswer[];profileHistory:{field:string;value:unknown;recordedAt:string}[];drafts:Record<string,Record<string,string|string[]>>;forecastMode:'open'|'blind';trialAccepted:string|null};
+export function savePersonalTableRow(s:ResearchState,input:{id?:string;title:string;reason:string},now:string):ResearchState{
+ const title=input.title.trim(),reason=input.reason.trim(),old=s.personalTable?.find(r=>r.id===input.id);
+ if(!title||title.length>100||reason.length>300||!Number.isFinite(Date.parse(now))||input.id&&!old)throw new Error('Укажи направление до 100 знаков и пояснение до 300.');
+ if(!old&&(s.personalTable?.length??0)>=8)throw new Error('В одной таблице может быть до восьми направлений.');
+ const row:PersonalTableRow={id:old?.id??`table-${now}`,title,reason,createdAt:now,revision:(old?.revision??0)+1,marks:old?.marks??[]};
+ return {...s,personalTable:[...(s.personalTable??[]).filter(r=>r.id!==row.id),row],personalTableHistory:old?[...(s.personalTableHistory??[]),old]:s.personalTableHistory??[],drafts:{...s.drafts,personalTable:{}}};
+}
+export function markPersonalTableRow(s:ResearchState,id:string,day:string,status:'done'|'partial'|'rest'|'clear',note:string):ResearchState{
+ const row=s.personalTable?.find(r=>r.id===id);
+ if(!row||!validDay(day)||!['done','partial','rest','clear'].includes(status)||note.length>300)throw new Error('Не удалось сохранить отметку.');
+ const marks=row.marks.filter(m=>m.day!==day);
+ if(status!=='clear')marks.push({day,status,note:note.trim()});
+ const next={...row,marks,revision:row.revision+1};
+ return {...s,personalTable:s.personalTable!.map(r=>r.id===id?next:r),personalTableHistory:[...(s.personalTableHistory??[]),row]};
+}
 export function saveAtlasEntry(s:ResearchState,input:{id?:string;kind:string;text:string;evidenceId:string;status:string},now:string):ResearchState{
  if(!['discovery','skill','decision','astrology'].includes(input.kind)||!input.text.trim()||input.text.length>1000||!['Исследую','Хочу продолжить','Отложено','Не подходит','Совпало','Частично','Не совпало','Недостаточно информации'].includes(input.status)||!Number.isFinite(Date.parse(now)))throw new Error('Проверь запись и её статус.');
  const evidence=s.answers.find(a=>a.id===input.evidenceId);if(input.evidenceId&&!evidence)throw new Error('Выбери существующую запись-основание.');
@@ -77,6 +93,7 @@ export function validResearch(value:unknown):value is ResearchState{
   if(!value||typeof value!=='object')return false;
   const s=value as ResearchState,short=(v:unknown,n=2000)=>typeof v==='string'&&v.length<=n;
   for(const entries of [s.atlas,s.atlasHistory])if(entries!==undefined&&(!Array.isArray(entries)||entries.length>1000||entries.some(e=>!e||!short(e.id,100)||!['discovery','skill','decision','astrology'].includes(e.kind)||!short(e.text,1000)||!short(e.evidenceId,80)||!short(e.status,80)||!Number.isInteger(e.revision)||e.revision<1||!(e.evidenceRevision===null||Number.isInteger(e.evidenceRevision)&&e.evidenceRevision>0)||!Number.isFinite(Date.parse(e.recordedAt)))))return false;
+  for(const rows of [s.personalTable,s.personalTableHistory])if(rows!==undefined&&(!Array.isArray(rows)||rows.length>1000||rows.some(r=>!r||!short(r.id,100)||!short(r.title,100)||!short(r.reason,300)||!Number.isFinite(Date.parse(r.createdAt))||!Number.isInteger(r.revision)||r.revision<1||!Array.isArray(r.marks)||r.marks.length>1000||r.marks.some(m=>!validDay(m.day)||!['done','partial','rest'].includes(m.status)||!short(m.note,300)))))return false;
   if(s.version!==1||![0,1,2,3,4].includes(s.step)||typeof s.complete!=='boolean'||typeof s.birthDeferred!=='boolean'||typeof s.memoryDone!=='boolean'||!['open','blind'].includes(s.forecastMode)||(s.trialAccepted!==null&&!validDay(s.trialAccepted)))return false;
   if(s.birth!==null){try{validateBirth(s.birth,'9999-12-31');}catch{return false;}}
   if(s.wishes!==null&&!['original','confirmed','preserve','avoid'].every(k=>short(s.wishes?.[k as keyof Wishes])))return false;

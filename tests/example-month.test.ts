@@ -8,6 +8,7 @@ import {ensureExampleMonth,MONTH_BACKUP} from '../src/galaxy/example-upgrade.ts'
 import {EXPEDITION_KEY,loadExpedition} from '../src/galaxy/expedition-storage.ts';
 import {createAccounts,accountStore} from '../src/galaxy/accounts.ts';
 import {exampleNatal,calculateNatal} from '../src/galaxy/natal.ts';
+import {natalBody} from '../src/galaxy/natal-ui.ts';
 import {MakeTime,Vector,RotateVector,Rotation_ECT_EQD,Rotation_EQD_HOR,Observer} from 'astronomy-engine';
 const day='2026-10-06';
 function storage(){const m=new Map<string,string>();return {getItem:(k:string)=>m.get(k)??null,setItem:(k:string,v:string)=>{m.set(k,v);},removeItem:(k:string)=>{m.delete(k);}};}
@@ -22,6 +23,20 @@ test('month release uses calendar duration, not perfect attendance',()=>{
  const s=exampleAccountSnapshot(day).expedition.research!;
  assert.equal(monthReady(s,'2026-10-05'),false);assert.equal(monthReady(s,day),true);
  assert.equal(monthReady({...s,answers:[s.answers[0]]},day),true);
+});
+test('natal map remains locked until the first month and explains the computed chart after release',()=>{
+ const s=exampleAccountSnapshot(day).expedition.research!;
+ const locked=natalBody(s,'2026-10-05');
+ assert.match(locked,/Карта откроется после первого месяца/);
+ assert.doesNotMatch(locked,/class="natal-wheel"/);
+ const open=natalBody(s,day);
+ assert.match(open,/Что показывает эта карта/);
+ assert.match(open,/Расчёт:/);
+ assert.match(open,/Традиционное прочтение:/);
+ assert.match(open,/Твой опыт:/);
+ assert.match(open,/Солнце \(Телец/);
+ assert.match(open,/Луну \(Весы/);
+ assert.match(open,/асцендент \(Лев/);
 });
 test('evidence is independent of natal data and preserves dissent',()=>{
  const s=exampleAccountSnapshot(day).expedition.research!;
