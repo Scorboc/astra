@@ -61,3 +61,5 @@
   .local-label{top:76px}
 }
 @media(max-height:520px){.main-nav a,.main-nav a:link{min-height:44px!important}.planetary-hall.research-page .journey-panel{top:62px;height:calc(100dvh - 124px)}}
+.camera-tools button{min-width:44px;min-height:44px}
+@media(max-width:700px){.camera-tools button{width:44px;height:44px}}

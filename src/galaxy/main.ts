@@ -67,7 +67,7 @@ root.innerHTML=`
  <div class="graphics-error" id="graphics-error" hidden><h2>Космос пока недоступен</h2><p>Браузер не предоставил доступ к 3D. Маршрут и записи доступны без графики.</p><a class="primary" href="/today">Открыть обычный интерфейс</a><button class="ghost" data-action="reload">Повторить</button></div>
  <dialog id="reader" aria-labelledby="reader-title"><button class="reader-close" data-action="close-reader" aria-label="Закрыть описание">×</button><span class="eyebrow">НАДПИСЬ НА СКАЛЕ</span><h2 id="reader-title">${ABOUT_TITLE}</h2>${ABOUT_PARAGRAPHS.map(t=>`<p>${t}</p>`).join('')}<p class="small-note">Ты управляешь маршрутом, можешь изменить любой ответ и сам выбираешь направление движения.</p><button class="primary" data-action="reader-start">Выбрать первый шаг ↗</button></dialog>`;
 
-function toast(message:string){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),6500);}
+function toast(message:string){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3200);}
 document.querySelector('.landing-bar .eyebrow')!.textContent='ИСТОК / ОПИСАНИЕ ASTRA';
 document.querySelector('[data-action="reader-start"]')!.textContent='Начать знакомство ↗';
 if(benchmark){
@@ -135,6 +135,7 @@ function sync(){
  if(journey.demo)$('demo-dock').innerHTML=`<div class="demo-heading"><span>ДЕМО / ВЫМЫШЛЕННЫЕ ДАННЫЕ</span><button data-action="exit-demo" aria-label="Выйти из демо">×</button></div><details><summary>Быстрый просмотр экранов</summary><div class="demo-stages">${['Начало','Рождение','Желания','Сегодня','Результаты'].map((t,i)=>`<button data-demo-stage="${i}">${t}</button>`).join('')}</div><p>Быстрый просмотр сбрасывает только демо и подставляет вымышленный профиль без достижений.</p></details>`;
  if(journey.demo)$('demo-dock').insertAdjacentHTML('beforeend',`<div class="demo-controls"><button data-action="demo-day">Демо-день ${expedition.demoDay+1} →</button><button data-action="demo-month">К дню 30</button></div>`);
 }
+function setPanelContext(label:string){const context=$('panel').querySelector<HTMLElement>('.panel-top .eyebrow');if(context&&label)context.textContent=label;}
 function applyRoute(){
  clockJourney();
  route=parseRoute(location.hash);
@@ -156,10 +157,11 @@ function applyRoute(){
  document.querySelectorAll<HTMLAnchorElement>('.main-nav a').forEach(a=>{if((navPlanet&&a.dataset.world===navPlanet)||(route==='observatory'&&a.dataset.world==='observatory'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  const activeSection=['today','research','planet/aurora'].includes(route)?'today':['astrology','forecast','astro-checks'].includes(route)?'astrology':['results','journal','planet/solis','planet/velir'].includes(route)?'results':route==='profile'?'profile':route==='observatory'?'observatory':'';
  document.querySelectorAll<HTMLAnchorElement>('.section-nav a').forEach(a=>{if(a.dataset.section===activeSection)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
- if(route==='observatory'){scene?.observatory();research.render('observatory');sync();$('panel-heading').focus({preventScroll:true});return;}
+ if(route==='observatory'){scene?.observatory();research.render('observatory');setPanelContext('Обсерватория · личный атлас');sync();$('panel-heading').focus({preventScroll:true});return;}
  if(accountUI.render(route)){scene?.present();sync();return;}
  if(research.render(route)){
   if(navPlanet&&!route.startsWith('planet/')){const exit=$('panel').querySelector<HTMLButtonElement>('.panel-top [data-action="close-panel"]');if(exit){exit.removeAttribute('data-action');exit.dataset.research=`go:planet/${navPlanet}`;exit.setAttribute('aria-label',`Вернуться на планету ${navPlanet}`);exit.innerHTML='← <span>В кабинет</span>';}}
+  if(navPlanet){const name=PLANETS.find(p=>p.id===navPlanet)?.name??'';const section=route.startsWith('planet/')?'Кабинет':route==='today'?'Сегодня':route==='results'?'Результаты':route==='astrology'?'Астрология':route==='profile'?'Профиль':'Исследование';setPanelContext(`${name} · ${section}`);}else setPanelContext(route==='profile'?'Профиль · личные сведения':'');
   if(route==='today')scene?.present();
   else if(route.startsWith('planet/')){
    scene?.focus(route.slice(7) as PlanetId,'hall');
@@ -275,7 +277,7 @@ $('cosmos').addEventListener('wheel',interruptTour,{passive:true});
 $('reader').addEventListener('close',()=>scene?.pause(readerWasPaused));
 root.addEventListener('pointerdown',interruptTour);root.addEventListener('keydown',interruptTour);root.addEventListener('input',interruptTour);
 window.addEventListener('hashchange',applyRoute);
-const onEscape=(e:KeyboardEvent)=>{if(e.key==='Escape'&&!($('reader') as HTMLDialogElement).open&&route!=='galaxy')go('galaxy');};document.addEventListener('keydown',onEscape);
+const onEscape=(e:KeyboardEvent)=>{const target=e.target as HTMLElement|null;if(e.key==='Escape'&&!target?.closest('input,textarea,select,[contenteditable="true"]')&&!($('reader') as HTMLDialogElement).open&&route!=='galaxy')go('galaxy');};document.addEventListener('keydown',onEscape);
 function graphicsFailed(){$('boot').hidden=true;$('graphics-error').hidden=false;}
 try{scene=createGalaxyScene($('cosmos'),$('planet-labels'),{pick:id=>go(id==='about'?'about':`planet/${id}`),observatory:()=>go('observatory'),landed:yes=>{landing=yes;if(yes&&route==='about')$('landing-status').textContent='История Astra на скале. Можно приблизить или открыть удобное чтение.';},failed:graphicsFailed});scene.ready.then(()=>$('boot').hidden=true);applyRoute();if(new URLSearchParams(location.search).get('demo')==='1')enterDemo();}catch(error){console.error('Galaxy initialization failed',error);graphicsFailed();}
 // Read-only diagnostics for the local test panel, never a mutation API.

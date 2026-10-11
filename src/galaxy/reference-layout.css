@@ -72,3 +72,67 @@ body.research-page .journey-panel .observatory-room-heading h3{font:clamp(38px,4
 .observatory-room-evidence{margin-top:20px;padding:16px 24px;border:1px solid #b6dcf077;border-radius:12px;background:#0b1c32d9}
 .observatory-room-evidence>summary{cursor:pointer;min-height:44px;color:#f2d9a8}
 @media(max-width:740px){.observatory-room{padding:75px 12px 28px}.observatory-room .personal-atlas{padding:14px}.observatory-room-evidence{padding:12px 15px}}
+/* Keep the return control in the reading flow; it must never cover a heading or form. */
+body.research-page:not(.account-auth) .journey-panel>.panel-scroll>.panel-top{position:relative;top:auto;left:auto;display:flex;justify-content:space-between;align-items:center;gap:12px;width:auto;margin:12px clamp(14px,3vw,32px) 0;padding:4px 8px 4px 14px;border-radius:14px}
+body.research-page:not(.account-auth) .panel-top .eyebrow{display:block;max-width:60%;font-size:11px;letter-spacing:.08em;line-height:1.4;color:#e8d5aa;overflow-wrap:anywhere}
+body.research-page:not(.account-auth) .journey-panel .panel-top button{position:static;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;min-width:44px;min-height:44px;padding:7px 10px;opacity:1;font-size:13px}
+body.research-page:not(.account-auth) .journey-panel .results-explorer{padding-top:16px}
+body.research-page:not(.account-auth) .journey-panel .observatory-room{padding-top:18px}
+body.research-page:not(.account-auth) .journey-panel .question-membrane{padding-top:24px}
+.results-mobile-summary{display:none}
+.observatory-start{min-height:48px;margin:10px 0 2px}
+@media(max-width:740px){
+  body.research-page:not(.account-auth) .journey-panel>.panel-scroll>.panel-top{margin:8px 10px 0;padding:3px 6px 3px 10px;min-height:52px}
+  body.research-page:not(.account-auth) .panel-top .eyebrow{font-size:10px;letter-spacing:.03em;max-width:52%}
+  body.research-page:not(.account-auth) .journey-panel .results-explorer{padding-top:12px}
+  body.research-page:not(.account-auth) .journey-panel .observatory-room{padding:16px 12px 28px}
+  .results-mobile-summary{display:block;margin:9px 0 13px;padding:12px 14px;background:#0b1e35e9;border:1px solid #aac9df78;border-radius:11px;scroll-margin-top:12px}
+  .results-mobile-summary strong{display:block;color:#f0d7a8;font-size:13px}
+  .results-mobile-summary p{margin:6px 0;color:#eef3f5;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+  .results-mobile-summary button{min-height:44px;color:#f0d7a8}
+  .results-list .result-row-select{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
+  .results-list .result-row-select span{display:none}
+  #result-detail{scroll-margin-top:12px}
+}
+
+/* Desktop reading rhythm: preserve the membrane, use its available height. */
+@media(min-width:741px){
+  body.account-auth.research-page .journey-panel{top:88px;height:calc(100dvh - 104px);max-height:none}
+  body.account-auth.research-page .journey-panel>.panel-scroll{inset:4% 9% 4%;padding:8px 16px 18px}
+  body.account-auth.research-page .journey-panel .panel-top{min-height:44px}
+  body.account-auth.research-page .journey-panel .membrane-divider{margin:2px auto}
+  body.account-auth.research-page .journey-panel h2{font-size:clamp(32px,2.8vw,40px);line-height:1.15;margin:8px 0 12px}
+  body.account-auth.research-page .journey-panel p.lead{margin:0 0 12px;line-height:1.45}
+  body.account-auth.research-page #account-form{gap:10px}
+  body.account-auth.research-page #account-form label{gap:4px;font-size:14px;line-height:1.35}
+  body.account-auth.research-page #account-form input{margin-top:0;min-height:46px;font-size:16px;line-height:1.4}
+  body.account-auth.research-page #account-form button[type=submit]{min-height:48px}
+  body.research-page:not(.account-auth)[data-active-screen=today] .journey-panel>.panel-scroll,
+  body.research-page:not(.account-auth)[data-active-screen=profile] .journey-panel>.panel-scroll{padding-inline:clamp(22px,3vw,44px)}
+  body.research-page:not(.account-auth)[data-active-screen=today] .journey-panel>.panel-scroll>.panel-top,
+  body.research-page:not(.account-auth)[data-active-screen=profile] .journey-panel>.panel-scroll>.panel-top{margin-inline:0}
+  .planet-card-copy strong{font-size:clamp(24px,1.9vw,29px);line-height:1.16}
+  .planet-card-copy small{font-size:14px;line-height:1.45}
+  .planet-card-cta{font-size:13px;line-height:1.3}
+}
+@media(min-width:741px){
+  body.research-page:not(.account-auth)[data-active-screen=today] .journey-panel>.panel-scroll,
+  body.research-page:not(.account-auth)[data-active-screen=profile] .journey-panel>.panel-scroll{padding-left:clamp(22px,3vw,44px)!important;padding-right:clamp(22px,3vw,44px)!important}
+  body.research-page:not(.account-auth)[data-active-screen=profile] .journey-panel .primary.wide{width:auto;min-width:280px;max-width:360px}
+}
+/* The public path is the user's own journey, not a gallery of sample screens. */
+.journey-panel [data-research="go:example"]{display:none}
+@media(max-width:740px){
+  body.account-auth.research-page .journey-panel{left:50%;right:auto;top:76px;bottom:auto;width:min(610px,calc(100vw - 24px));height:calc(100dvh - 88px);max-height:none;transform:translateX(-50%);padding:0;overflow:visible}
+  body.account-auth.research-page .journey-panel>.panel-scroll{inset:2.5% 5% 3%;padding:10px 14px 24px;overflow-y:auto;overflow-x:hidden;border-radius:20px}
+  body.account-auth.research-page .journey-panel .panel-top{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px}
+  body.account-auth.research-page .journey-panel .panel-top .eyebrow{min-width:0;max-width:48%;font-size:10px;line-height:1.35;letter-spacing:.05em;text-align:left}
+  body.account-auth.research-page .journey-panel .panel-top button{position:static;flex-shrink:0;max-width:50%;min-height:44px;font-size:13px;line-height:1.2;white-space:normal}
+  body.account-auth.research-page .journey-panel h2{font-size:clamp(27px,5vw,34px);line-height:1.17;margin:8px 0 12px}
+  body.account-auth.research-page .journey-panel p.lead{margin:0 0 12px;line-height:1.4}
+  body.account-auth.research-page #account-form{gap:8px}
+  body.account-auth.research-page #account-form label{gap:4px;font-size:14px;line-height:1.3}
+  body.account-auth.research-page #account-form input{margin-top:0;min-height:44px;font-size:16px}
+}
+body.account-auth .header-actions .account-link{display:none}
+body.account-auth.research-page .journey-panel>.panel-scroll{scrollbar-color:#6a8fa677 transparent}
