@@ -13,6 +13,11 @@
     "node": ">=24.0.0"
   },
   "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/exo-2": "^5.3.0",
+    "@fontsource/forum": "^5.3.0",
+    "@fontsource/oranienbaum": "^5.3.0",
+    "@fontsource/russo-one": "^5.3.0",
     "astronomy-engine": "^2.1.19",
     "lucide-react": "1.49.0",
     "playcanvas": "^2.23.1",

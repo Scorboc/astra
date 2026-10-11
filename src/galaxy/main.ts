@@ -23,6 +23,16 @@ import './planetary-hall.css';
 import './navigation-dock.css';
 import './world-cabinet.css';
 import './reference-layout.css';
+import '@fontsource/forum/cyrillic-400.css';
+import '@fontsource/forum/latin-400.css';
+import '@fontsource/cormorant-garamond/cyrillic-500.css';
+import '@fontsource/cormorant-garamond/latin-500.css';
+import '@fontsource/exo-2/cyrillic-500.css';
+import '@fontsource/exo-2/latin-500.css';
+import '@fontsource/oranienbaum/cyrillic-400.css';
+import '@fontsource/oranienbaum/latin-400.css';
+import '@fontsource/russo-one/cyrillic-400.css';
+import '@fontsource/russo-one/latin-400.css';
 import './council-halls.css';
 
 const $ = <E extends HTMLElement = HTMLElement>(id:string) => document.getElementById(id) as E;
@@ -161,8 +171,8 @@ function applyRoute(){
  if(route==='observatory'){scene?.observatory();research.render('observatory');setPanelContext('Обсерватория · личный атлас');sync();$('panel-heading').focus({preventScroll:true});return;}
  if(accountUI.render(route)){scene?.present();sync();return;}
  if(research.render(route)){
-  if(navPlanet&&!route.startsWith('planet/')){const exit=$('panel').querySelector<HTMLButtonElement>('.panel-top [data-action="close-panel"]');if(exit){exit.removeAttribute('data-action');exit.dataset.research=`go:planet/${navPlanet}`;exit.setAttribute('aria-label',`Вернуться на планету ${navPlanet}`);exit.innerHTML='← <span>В кабинет</span>';}}
-  if(navPlanet){const name=PLANETS.find(p=>p.id===navPlanet)?.name??'';const section=route.startsWith('planet/')?'Кабинет':route==='today'?'Сегодня':route==='results'?'Результаты':route==='astrology'?'Астрология':route==='profile'?'Профиль':'Исследование';setPanelContext(`${name} · ${section}`);}else setPanelContext(route==='profile'?'Профиль · личные сведения':'');
+  if(navPlanet&&!route.startsWith('planet/')){const exit=$('panel').querySelector<HTMLButtonElement>('.panel-top [data-action="close-panel"]');if(exit){exit.removeAttribute('data-action');exit.dataset.research=`go:planet/${navPlanet}`;exit.setAttribute('aria-label',`Вернуться на планету ${navPlanet}`);exit.innerHTML='← <span>На планету</span>';}}
+  if(navPlanet){const name=PLANETS.find(p=>p.id===navPlanet)?.name??'';const section=route.startsWith('planet/')?'':route==='today'?'Сегодня':route==='results'?'Результаты':route==='astrology'?'Астрология':route==='profile'?'Профиль':'Исследование';setPanelContext(section?`${name} · ${section}`:name);}else setPanelContext(route==='profile'?'Профиль · личные сведения':'');
   if(route==='today')scene?.present();
   else if(route.startsWith('planet/')){
    scene?.focus(route.slice(7) as PlanetId,'hall');
@@ -278,7 +288,7 @@ $('cosmos').addEventListener('wheel',interruptTour,{passive:true});
 $('reader').addEventListener('close',()=>scene?.pause(readerWasPaused));
 root.addEventListener('pointerdown',interruptTour);root.addEventListener('keydown',interruptTour);root.addEventListener('input',interruptTour);
 window.addEventListener('hashchange',applyRoute);
-const onEscape=(e:KeyboardEvent)=>{const target=e.target as HTMLElement|null;if(e.key==='Escape'&&!target?.closest('input,textarea,select,[contenteditable="true"]')&&!($('reader') as HTMLDialogElement).open&&route!=='galaxy')go('galaxy');};document.addEventListener('keydown',onEscape);
+const onEscape=(e:KeyboardEvent)=>{const target=e.target as HTMLElement|null;if(e.key==='Escape'&&!target?.closest('input,textarea,select,[contenteditable="true"]')&&!($('reader') as HTMLDialogElement).open&&route!=='galaxy'){if(!research.closeRoomMenu())go('galaxy');}};document.addEventListener('keydown',onEscape);
 function graphicsFailed(){$('boot').hidden=true;$('graphics-error').hidden=false;}
 try{scene=createGalaxyScene($('cosmos'),$('planet-labels'),{pick:id=>go(id==='about'?'about':`planet/${id}`),observatory:()=>go('observatory'),landed:yes=>{landing=yes;if(yes&&route==='about')$('landing-status').textContent='История Astra на скале. Можно приблизить или открыть удобное чтение.';},failed:graphicsFailed});scene.ready.then(()=>$('boot').hidden=true);applyRoute();if(new URLSearchParams(location.search).get('demo')==='1')enterDemo();}catch(error){console.error('Galaxy initialization failed',error);graphicsFailed();}
 // Read-only diagnostics for the local test panel, never a mutation API.

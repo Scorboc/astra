@@ -8,6 +8,21 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/cormorant-garamond':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/exo-2':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/forum':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/oranienbaum':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/russo-one':
+        specifier: ^5.3.0
+        version: 5.3.0
       astronomy-engine:
         specifier: ^2.1.19
         version: 2.1.19
@@ -44,6 +59,21 @@ importers:
         version: 8.3.2(@types/node@26.6.4)
 
 packages:
+
+  '@fontsource/cormorant-garamond@5.3.0':
+    resolution: {integrity: sha512-weuGsCirGVWBWqpt6YUp0yLThTe4G8YO45noq8wxeJCRvEpq5lFrxNMFSTxcyOyV5k5otzJ8guDzYegdYlcLMQ==}
+
+  '@fontsource/exo-2@5.3.0':
+    resolution: {integrity: sha512-jVI6qXPPuV1Fne7m2Hpyc9rTt4O7ZIo+wsUZZzAW+u/iHem4CyWXXCGUoSw3utZUW82/bsGVQO9yO+hDsjZH8A==}
+
+  '@fontsource/forum@5.3.0':
+    resolution: {integrity: sha512-wZmonoit7JhG5usRNScbeNBzqnqijKD7Kzv6pRBXklVdwsADNarLG/5K6+XoCMx3JyBAwg52TxO+dretsomNrQ==}
+
+  '@fontsource/oranienbaum@5.3.0':
+    resolution: {integrity: sha512-AB9D7JTbWUceEExPfGMn4gaJ3a9wb4F60ijNQIB2xPILgSjXlyonCHGqCmjfxRZmuK5yaF0blFmU3sNrIx82Qg==}
+
+  '@fontsource/russo-one@5.3.0':
+    resolution: {integrity: sha512-loHnqTq6D+H2WQdOB2pnAeCHbbsGqobmxnxU79MNFKjPWV2TPXdc78dbbkOAcWuKWDEY+FNXZFZ1nhaQvCWNAw==}
 
   '@oxc-project/types@0.152.0':
     resolution: {integrity: sha512-oM/5rLBm2tPkg0iBgkH/FOeR3PCDpY19GTgAZjMFM8h9WI9VW7cLgzp6nwtarYKmovavIQZ+Fe/RKX/8C8O/Rw==}
@@ -493,6 +523,16 @@ packages:
         optional: true
 
 snapshots:
+
+  '@fontsource/cormorant-garamond@5.3.0': {}
+
+  '@fontsource/exo-2@5.3.0': {}
+
+  '@fontsource/forum@5.3.0': {}
+
+  '@fontsource/oranienbaum@5.3.0': {}
+
+  '@fontsource/russo-one@5.3.0': {}
 
   '@oxc-project/types@0.152.0': {}
 
