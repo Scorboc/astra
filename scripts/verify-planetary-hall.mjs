@@ -20,6 +20,11 @@ try{
     await page.waitForURL('**/#observatory');
     await page.waitForSelector('.council-room[data-room="observatory"]');
     assert.equal(await page.locator('.council-room[data-room="observatory"]').count(),1,'observatory opens its illustrated hall');
+    await page.locator('.council-wordmark').evaluate(image=>image.decode());
+    assert.ok(await page.locator('.council-wordmark').evaluate(image=>image.naturalWidth>0),'observatory wordmark loads');
+    assert.equal(await page.locator('.main-nav').isVisible(),true,'planet dock remains visible in observatory');
+    assert.equal(await page.locator('.section-nav').isVisible(),false,'section navigation does not replace planet dock');
+    assert.equal(await page.locator('.main-nav a[href="#observatory"]').getAttribute('aria-current'),'page','observatory is selected in planet dock');
     assert.match(await page.locator('.council-scene').evaluate(el=>getComputedStyle(el).backgroundImage),/observatory-hall-v1\.webp/);
     assert.equal(await page.locator('.council-station').count(),4,'four on-image observatory controls');
     assert.equal(await page.locator('.council-menu:visible').count(),0,'no menu before a choice');
@@ -27,6 +32,7 @@ try{
     await page.screenshot({path:`artifacts/council-${name}-observatory-closed.png`});
     await page.locator('[data-research="room-open:1"]').click();
     assert.equal(await page.locator('#room-menu-1').isVisible(),true,'observations menu opens');
+    assert.match(await page.locator('#room-menu-1').evaluate(el=>getComputedStyle(el,'::before').backgroundImage),/observatory-hall-v1\.webp/,'observatory crystal window has its own hall detail');
     assert.equal(await page.locator('.observatory-room .personal-atlas').count(),1,'existing atlas remains available');
     await page.screenshot({path:`artifacts/council-${name}-observatory-open.png`});
     await page.locator('[data-research="atlas-new"]').click();
@@ -60,6 +66,8 @@ try{
       assert.equal(await page.locator('.council-station:visible').count(),3,world+' has three on-image controls');
       assert.equal(await page.locator('.council-rail,.council-info').count(),0,world+' has no duplicate side controls');
       assert.equal(await page.locator('.council-heading h3').textContent(),({origin:'Исток',aurora:'Аврора',velir:'Велир',nereya:'Нерея',solis:'Солис'})[world]);
+      await page.locator('.council-wordmark').evaluate(image=>image.decode());
+      assert.ok(await page.locator('.council-wordmark').evaluate(image=>image.naturalWidth>0),world+' approved wordmark loads');
       assert.match(await page.locator('.council-heading h3').evaluate(el=>getComputedStyle(el).fontFamily),new RegExp(({origin:'Forum',aurora:'Cormorant Garamond',velir:'Exo 2',nereya:'Oranienbaum',solis:'Russo One'})[world]));
       assert.equal(await page.locator('.council-menu:visible').count(),0,'menus start closed');
       assert.equal(await page.locator('.main-nav').isVisible(),true,'planet dock remains available');
@@ -69,6 +77,9 @@ try{
       await page.screenshot({path:`artifacts/council-${name}-${world}-closed.png`});
       await page.locator('[data-research="room-open:0"]').click();
       assert.equal(await page.locator('#room-menu-0').isVisible(),true,'selected point opens menu');
+      if(['origin','nereya','solis'].includes(world)){
+        assert.match(await page.locator('#room-menu-0').evaluate(el=>getComputedStyle(el,'::before').backgroundImage),new RegExp(world+'-hall-v2\\.webp'),world+' window includes only its own hall fragment');
+      }
       assert.equal(await page.locator('[data-research="room-open:0"]').getAttribute('aria-expanded'),'true');
       const roomFit=await page.locator('#room-menu-0').evaluate(el=>{const r=el.getBoundingClientRect(),frame=el.closest('.council-room').getBoundingClientRect(),button=el.querySelector('.council-primary').getBoundingClientRect();return {menuInside:r.top>=frame.top-2&&r.bottom<=frame.bottom+2,buttonInside:button.top>=r.top&&button.bottom<=r.bottom+2};});
       assert.ok(roomFit.menuInside&&roomFit.buttonInside,world+' contextual menu fits '+JSON.stringify(roomFit));

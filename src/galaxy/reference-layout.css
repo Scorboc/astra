@@ -138,8 +138,8 @@ body.account-auth .header-actions .account-link{display:none}
 body.account-auth.research-page .journey-panel>.panel-scroll{scrollbar-color:#6a8fa677 transparent}
 
 /* A planet entrance uses the available viewport after its return control. */
-body.research-page[data-active-screen^="planet/"] .section-nav{display:none!important}
-body.research-page[data-active-screen^="planet/"] .main-nav{display:grid!important}
+body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .section-nav{display:none!important}
+body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .main-nav{display:grid!important}
 body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll{display:flex;flex-direction:column;overflow:hidden}
 body.research-page[data-active-screen^="planet/"] .journey-panel>.panel-scroll>.panel-top{flex:none}
 body.research-page[data-active-screen^="planet/"] .planet-lobby{flex:1 1 auto;min-height:0;height:auto}
