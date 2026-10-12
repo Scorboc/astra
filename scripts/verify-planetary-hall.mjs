@@ -4,8 +4,9 @@ import assert from 'node:assert/strict';
 const base=process.env.ASTRA_URL||'http://127.0.0.1:5190/spatial/';
 const browser=await chromium.launch({headless:true,executablePath:'C:/Users/Admin/AppData/Local/ms-playwright/chromium-1234/chrome-win64/chrome.exe'});
 try{
-  for(const [name,width,height] of [['desktop',1440,900],['phone',375,812],['small-phone',320,568]]){
+  for(const [name,width,height] of [['desktop',1440,900],['phone',375,812],['small-phone',320,568],['landscape-phone',844,390],['small-landscape',667,375]]){
     const mobile=name!=='desktop';
+    const autoMenu=width<=740;
     const context=await browser.newContext({viewport:{width,height},isMobile:mobile,hasTouch:mobile,deviceScaleFactor:mobile?3:1});
     const page=await context.newPage(),errors=[];
     page.on('pageerror',error=>errors.push(error.message));
@@ -28,11 +29,14 @@ try{
     assert.equal(await page.locator('.main-nav a[href="#observatory"]').getAttribute('aria-current'),'page','observatory is selected in planet dock');
     assert.match(await page.locator('.council-scene').evaluate(el=>getComputedStyle(el).backgroundImage),/observatory-hall-v1\.webp/);
     assert.equal(await page.locator('.council-station').count(),4,'four on-image observatory controls');
-    assert.equal(await page.locator('.council-menu:visible').count(),mobile?1:0,'mobile shows its themed window on entry');
-    if(mobile)assert.equal(await page.locator('#room-menu-1').isVisible(),true,'mobile observatory opens observations');
+    assert.equal(await page.locator('.council-menu:visible').count(),autoMenu?1:0,'narrow rooms show their themed window on entry');
+    if(autoMenu)assert.equal(await page.locator('#room-menu-1').isVisible(),true,'narrow observatory opens observations');
+    assert.equal(await page.locator('.galaxy-header>.wordmark').isVisible(),false,'galaxy logo does not take hall space');
+    const shellFit=await page.evaluate(()=>{const hall=document.querySelector('.journey-panel').getBoundingClientRect(),dock=document.querySelector('.main-nav').getBoundingClientRect();return {hallTop:hall.top,hallBottom:hall.bottom,dockTop:dock.top,body:document.body.className,screen:document.body.dataset.activeScreen};});
+    assert.ok(shellFit.hallTop<=10&&shellFit.hallBottom<=shellFit.dockTop+3,'hall uses top space without covering dock '+JSON.stringify(shellFit));
     await page.waitForTimeout(1350);
     await page.screenshot({path:`artifacts/council-${name}-observatory-closed.png`});
-    if(mobile)await page.locator('#room-menu-1 [data-research="room-close"]').click();
+    if(autoMenu)await page.locator('#room-menu-1 [data-research="room-close"]').click();
     await page.locator('[data-research="room-open:1"]').click();
     assert.equal(await page.locator('#room-menu-1').isVisible(),true,'observations menu opens');
     assert.match(await page.locator('#room-menu-1').evaluate(el=>getComputedStyle(el,'::before').backgroundImage),/observatory-hall-v1\.webp/,'observatory crystal window has its own hall detail');
@@ -72,14 +76,14 @@ try{
       await page.locator('.council-wordmark').evaluate(image=>image.decode());
       assert.ok(await page.locator('.council-wordmark').evaluate(image=>image.naturalWidth>0),world+' approved wordmark loads');
       assert.match(await page.locator('.council-heading h3').evaluate(el=>getComputedStyle(el).fontFamily),new RegExp(({origin:'Forum',aurora:'Cormorant Garamond',velir:'Exo 2',nereya:'Oranienbaum',solis:'Russo One'})[world]));
-      assert.equal(await page.locator('.council-menu:visible').count(),mobile?1:0,'mobile shows themed window on entry');
-      if(mobile)assert.equal(await page.locator('#room-menu-0').isVisible(),true,'mobile world opens its first action');
+      assert.equal(await page.locator('.council-menu:visible').count(),autoMenu?1:0,'narrow rooms show themed window on entry');
+      if(autoMenu)assert.equal(await page.locator('#room-menu-0').isVisible(),true,'narrow world opens its first action');
       assert.equal(await page.locator('.main-nav').isVisible(),true,'planet dock remains available');
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
       assert.equal(overflow,false,world+' has no horizontal page overflow');
       await page.waitForTimeout(1350);
       await page.screenshot({path:`artifacts/council-${name}-${world}-closed.png`});
-      if(mobile)await page.locator('#room-menu-0 [data-research="room-close"]').click();
+      if(autoMenu)await page.locator('#room-menu-0 [data-research="room-close"]').click();
       await page.locator('[data-research="room-open:0"]').click();
       assert.equal(await page.locator('#room-menu-0').isVisible(),true,'selected point opens menu');
       if(['origin','nereya','solis'].includes(world)){
@@ -97,8 +101,8 @@ try{
       assert.equal(await page.locator('.panel-top button').count(),1,'subroom has a return control');
       await page.goBack();
       await page.waitForURL('**/#'+route);
-      await page.waitForFunction(({route,mobile})=>document.body.dataset.activeScreen===route&&document.querySelectorAll('.council-menu:not([hidden])').length===(mobile?1:0),{route,mobile});
-      assert.equal(await page.locator('.council-menu:visible').count(),mobile?1:0,'return restores the world entry state');
+      await page.waitForFunction(({route,autoMenu})=>document.body.dataset.activeScreen===route&&document.querySelectorAll('.council-menu:not([hidden])').length===(autoMenu?1:0),{route,autoMenu});
+      assert.equal(await page.locator('.council-menu:visible').count(),autoMenu?1:0,'return restores the world entry state');
     }
     assert.deepEqual(errors,[],name+' page errors');
     console.log(name,'PASS');
