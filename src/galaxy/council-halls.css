@@ -1,6 +1,8 @@
 /* The five planet halls and the observatory share one image-led interaction model. */
 body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .galaxy-header>.wordmark,
 body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .galaxy-header>.header-actions{display:none}
+body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .galaxy-header{pointer-events:none}
+body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .main-nav{pointer-events:auto}
 body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .journey-panel{top:8px!important;height:calc(100dvh - 102px)!important}
 body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .journey-panel{overflow:hidden;border:1px solid #b8d2f0a6;border-radius:15px;box-shadow:0 22px 55px #000b;background:#030a18}
 body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .journey-panel::before,

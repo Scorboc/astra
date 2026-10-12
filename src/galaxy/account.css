@@ -42,9 +42,9 @@
 .research-page .journey-panel .panel-top button{min-width:44px;min-height:44px}
 /* Keep the approved membrane edge; protect only the reading area. */
 .research-page .journey-panel>.panel-scroll,.research-page .journey-panel[data-presentation=content]>.panel-scroll{background:radial-gradient(ellipse at center,#020816f2 0%,#020816e8 55%,#020816b3 72%,transparent 100%);scrollbar-width:thin;scrollbar-color:#b6cddd #07101c;overscroll-behavior:contain;border-radius:28px}
-.space-hint{animation-name:space-hint-fade}
+.space-hint{animation-name:space-hint-fade;pointer-events:none;z-index:5}
 @keyframes space-hint-fade{from{opacity:0}to{opacity:1}}
-.space-hint button{min-width:44px;min-height:44px;flex-shrink:0}
+.space-hint button{min-width:44px;min-height:44px;flex-shrink:0;pointer-events:auto}
 .galaxy-header a{min-height:24px}
 .camera-tools{z-index:7}
 @media(max-width:700px){.camera-tools button{width:40px;height:40px}}
