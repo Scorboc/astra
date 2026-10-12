@@ -177,3 +177,58 @@ body.world-interior.research-page .journey-panel select:focus-visible{box-shadow
   }
   .council-room:is([data-room=origin],[data-room=nereya],[data-room=solis],[data-room=observatory]) .council-menu::after{inset:7px}
 }
+
+/* The two previously selected directions: Aurora's glass leaves and Velir's
+   optical instrument. Their live actions keep the same routes and labels. */
+.council-room[data-room=aurora] .council-station{
+  width:clamp(150px,14vw,205px);max-width:none;min-height:112px;
+  border:1px solid #d9ffeb;border-radius:68% 9% 64% 9% / 58% 8% 54% 8%;
+  background:linear-gradient(135deg,#c5ffe67a,#0a6170c7 23%,#031b31ed 70%,#b9ffe263);
+  box-shadow:0 20px 30px #0009,inset 0 0 28px #e0ffe955,0 0 13px #7cf5d64a;
+  backdrop-filter:blur(7px);font:500 17px/1.2 'Cormorant Garamond',Georgia,serif;
+}
+.council-room[data-room=aurora] .council-station-1{left:27%;bottom:19%;transform:translateX(-50%) rotate(-7deg)}
+.council-room[data-room=aurora] .council-station-2{left:50%;bottom:22%;border-radius:52% 52% 14% 14% / 42% 42% 10% 10%;transform:translateX(-50%)}
+.council-room[data-room=aurora] .council-station-3{left:73%;bottom:19%;border-radius:9% 68% 9% 64% / 8% 58% 8% 54%;transform:translateX(-50%) rotate(7deg)}
+.council-room[data-room=aurora] .council-station:hover,
+.council-room[data-room=aurora] .council-station:focus-visible,
+.council-room[data-room=aurora] .council-station[aria-expanded=true]{border-color:#fff0b8;box-shadow:0 22px 34px #000c,inset 0 0 32px #d8fff099,0 0 23px #7cf5d6}
+.council-room[data-room=aurora] .council-menu{
+  border:1px solid #d9ffeb;border-radius:36px 54px 32px 48px / 42px 44px 36px 40px;
+  background:linear-gradient(135deg,#82d9c47a,#0a4453f0 12%,#061b2bf6 63%,#0c4650ee);
+  box-shadow:0 24px 55px #000d,inset 0 0 0 7px #8eeaca24,inset 0 0 34px #84f6d244;
+}
+.council-room[data-room=aurora] .council-primary{border-color:#b6ffde;background:linear-gradient(110deg,#4e9885,#134550)}
+.council-room[data-room=velir] .council-stations::before{
+  content:"";position:absolute;left:50%;bottom:8%;width:min(38vw,470px);height:min(30vw,300px);
+  transform:translateX(-50%);border:1px solid #b3fcff69;border-radius:50%;pointer-events:none;
+  box-shadow:0 0 0 12px #79e2ff0b,0 0 0 13px #b3fcff42,inset 0 0 27px #6ecae64d,0 0 30px #6ecae64d;
+}
+.council-room[data-room=velir] .council-station{
+  border:1px solid #d6efff;border-radius:24px 38px 24px 38px;
+  background:linear-gradient(122deg,#cdeeff8c,#163f71e8 21%,#051c3bf0 67%,#89c1ff94);
+  box-shadow:0 12px 27px #000c,inset 0 0 18px #6ecae66b,0 0 15px #6ecae65c;
+  font:500 14px/1.2 'Exo 2',Arial,sans-serif;
+}
+.council-room[data-room=velir] .council-station-1{left:27%;bottom:27%}
+.council-room[data-room=velir] .council-station-2{left:50%;bottom:16%}
+.council-room[data-room=velir] .council-station-3{left:73%;bottom:27%}
+.council-room[data-room=velir] .council-menu{
+  border:1px solid #d6efff;border-radius:42px 42px 25px 25px / 34px 34px 25px 25px;
+  background:linear-gradient(122deg,#cdeeff8a,#163f71ee 15%,#051c3bf5 58%,#17426bf1);
+  box-shadow:0 24px 55px #000d,inset 0 0 0 8px #071932ab,inset 0 0 30px #6ecae657;
+}
+.council-room[data-room=velir] .council-primary{border-color:#b3fcff;background:linear-gradient(120deg,#245c7d,#0b2145)}
+@media(max-width:740px){
+  .council-room[data-room=aurora] .council-station{width:calc(33.333% - 16px);min-height:82px;padding:6px;font-size:13px}
+  .council-room[data-room=aurora] .council-station-1{left:17%;bottom:12%}
+  .council-room[data-room=aurora] .council-station-2{left:50%;bottom:14%}
+  .council-room[data-room=aurora] .council-station-3{left:83%;bottom:12%}
+  .council-room[data-room=velir] .council-stations::before{width:75%;height:17%;bottom:10%}
+  .council-room[data-room=velir] .council-station-1{left:17%;bottom:17%}
+  .council-room[data-room=velir] .council-station-2{left:50%;bottom:12%}
+  .council-room[data-room=velir] .council-station-3{left:83%;bottom:17%}
+}
+@media(max-width:740px) and (max-height:650px){
+  .council-room[data-room=aurora] .council-station{min-height:64px}
+}
