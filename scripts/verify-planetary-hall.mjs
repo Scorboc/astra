@@ -5,7 +5,8 @@ const base=process.env.ASTRA_URL||'http://127.0.0.1:5190/spatial/';
 const browser=await chromium.launch({headless:true,executablePath:'C:/Users/Admin/AppData/Local/ms-playwright/chromium-1234/chrome-win64/chrome.exe'});
 try{
   for(const [name,width,height] of [['desktop',1440,900],['phone',375,812],['small-phone',320,568]]){
-    const context=await browser.newContext({viewport:{width,height},isMobile:name!=='desktop',hasTouch:name!=='desktop'});
+    const mobile=name!=='desktop';
+    const context=await browser.newContext({viewport:{width,height},isMobile:mobile,hasTouch:mobile,deviceScaleFactor:mobile?3:1});
     const page=await context.newPage(),errors=[];
     page.on('pageerror',error=>errors.push(error.message));
     await page.goto(base+'#login',{waitUntil:'networkidle'});
@@ -27,9 +28,11 @@ try{
     assert.equal(await page.locator('.main-nav a[href="#observatory"]').getAttribute('aria-current'),'page','observatory is selected in planet dock');
     assert.match(await page.locator('.council-scene').evaluate(el=>getComputedStyle(el).backgroundImage),/observatory-hall-v1\.webp/);
     assert.equal(await page.locator('.council-station').count(),4,'four on-image observatory controls');
-    assert.equal(await page.locator('.council-menu:visible').count(),0,'no menu before a choice');
+    assert.equal(await page.locator('.council-menu:visible').count(),mobile?1:0,'mobile shows its themed window on entry');
+    if(mobile)assert.equal(await page.locator('#room-menu-1').isVisible(),true,'mobile observatory opens observations');
     await page.waitForTimeout(1350);
     await page.screenshot({path:`artifacts/council-${name}-observatory-closed.png`});
+    if(mobile)await page.locator('#room-menu-1 [data-research="room-close"]').click();
     await page.locator('[data-research="room-open:1"]').click();
     assert.equal(await page.locator('#room-menu-1').isVisible(),true,'observations menu opens');
     assert.match(await page.locator('#room-menu-1').evaluate(el=>getComputedStyle(el,'::before').backgroundImage),/observatory-hall-v1\.webp/,'observatory crystal window has its own hall detail');
@@ -69,12 +72,14 @@ try{
       await page.locator('.council-wordmark').evaluate(image=>image.decode());
       assert.ok(await page.locator('.council-wordmark').evaluate(image=>image.naturalWidth>0),world+' approved wordmark loads');
       assert.match(await page.locator('.council-heading h3').evaluate(el=>getComputedStyle(el).fontFamily),new RegExp(({origin:'Forum',aurora:'Cormorant Garamond',velir:'Exo 2',nereya:'Oranienbaum',solis:'Russo One'})[world]));
-      assert.equal(await page.locator('.council-menu:visible').count(),0,'menus start closed');
+      assert.equal(await page.locator('.council-menu:visible').count(),mobile?1:0,'mobile shows themed window on entry');
+      if(mobile)assert.equal(await page.locator('#room-menu-0').isVisible(),true,'mobile world opens its first action');
       assert.equal(await page.locator('.main-nav').isVisible(),true,'planet dock remains available');
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
       assert.equal(overflow,false,world+' has no horizontal page overflow');
       await page.waitForTimeout(1350);
       await page.screenshot({path:`artifacts/council-${name}-${world}-closed.png`});
+      if(mobile)await page.locator('#room-menu-0 [data-research="room-close"]').click();
       await page.locator('[data-research="room-open:0"]').click();
       assert.equal(await page.locator('#room-menu-0').isVisible(),true,'selected point opens menu');
       if(['origin','nereya','solis'].includes(world)){
@@ -92,8 +97,8 @@ try{
       assert.equal(await page.locator('.panel-top button').count(),1,'subroom has a return control');
       await page.goBack();
       await page.waitForURL('**/#'+route);
-      await page.waitForFunction(expected=>document.body.dataset.activeScreen===expected&&document.querySelectorAll('.council-menu:not([hidden])').length===0,route);
-      assert.equal(await page.locator('.council-menu:visible').count(),0,'return starts with unobstructed image');
+      await page.waitForFunction(({route,mobile})=>document.body.dataset.activeScreen===route&&document.querySelectorAll('.council-menu:not([hidden])').length===(mobile?1:0),{route,mobile});
+      assert.equal(await page.locator('.council-menu:visible').count(),mobile?1:0,'return restores the world entry state');
     }
     assert.deepEqual(errors,[],name+' page errors');
     console.log(name,'PASS');

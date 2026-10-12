@@ -21,7 +21,7 @@ type Host={state:()=>ResearchState|undefined;set:(s:ResearchState)=>void;today:(
 
 export function createResearchUI(h:Host){
   const observatory=true;
-  let current='today',opened=false,internalNavigation=false,editingDay='',selectedResultId='',selectedResultKind='all',selectedResultMonth='',selectedRoomMenu=-1;const positions=new Map<string,number>();
+  let current='today',opened=false,internalNavigation=false,editingDay='',selectedResultId='',selectedResultKind='all',selectedResultMonth='',selectedRoomMenu=-1,roomMenuDismissed=false;const positions=new Map<string,number>();
   const s=()=>h.state()??newResearch();
   const write=(value:ResearchState)=>{h.set(value);h.save();};
   const draft=(key:string,fallback:object)=>({...fallback,...s().drafts[key]});
@@ -68,8 +68,9 @@ export function createResearchUI(h:Host){
   const birthSummary=(b:Birth)=>field('Дата рождения',b.date)+field('Время рождения',b.accuracy==='unknown'?'Неизвестно — не подставляем условное время':`${b.time}${b.until?'–'+b.until:''} · ${b.accuracy==='exact'?'точное':'приблизительное'}`)+field('Место рождения',b.place);
   function welcome(){main('Сначала познакомимся','ИСТОК / НАЧАЛО',`<p class="lead">У тебя есть мечты, но пока нет понятного пути?</p><p>Расскажи о желаниях и обстоятельствах. Около месяца будем знакомиться через вопросы, игры, наблюдения и добровольные пробы. Затем обсудим варианты и соберём твою персональную инструкцию.</p><ol class="research-path"><li>Расскажешь о себе</li><li>Исследуешь интересы в своём темпе</li><li>Выберешь, к чему двигаться</li></ol>${button('begin','Начать знакомство ↗',true)}`,'galaxy');}
   function roomShell(id:string,title:string,description:string,items:{label:string;detail:string;content:string}[]){
+    if(selectedRoomMenu<0&&!roomMenuDismissed&&window.matchMedia('(max-width:740px)').matches)selectedRoomMenu=id==='observatory'?1:0;
     const wordmark=['origin','aurora','velir','nereya','solis','observatory'].includes(id)
-      ? `<img class="council-wordmark" src="/council-wordmarks/${id}-v1.png" alt="" aria-hidden="true" decoding="async">`
+      ? `<img class="council-wordmark" src="${import.meta.env.BASE_URL}council-wordmarks/${id}-v1.png" alt="" aria-hidden="true" decoding="async">`
       : '';
     return `<div class="council-room" data-room="${id}"><div class="council-scene" aria-hidden="true"></div><div class="council-shade" aria-hidden="true"></div><header class="council-heading"><h3>${wordmark}<span class="${wordmark?'sr-only':''}">${esc(title)}</span></h3><p>${esc(description)}</p></header><div class="council-stations" role="group" aria-label="Точки исследования">${items.map((item,index)=>`<button type="button" class="council-station council-station-${index+1}" data-research="room-open:${index}" aria-controls="room-menu-${index}" aria-expanded="${selectedRoomMenu===index}">${esc(item.label)}</button>`).join('')}</div>${items.map((item,index)=>`<section id="room-menu-${index}" class="council-menu" aria-label="${esc(item.label)}" tabindex="-1" ${selectedRoomMenu===index?'':'hidden'}><div class="council-menu-heading"><div><span class="council-menu-kicker">${esc(title)}</span><h4>${esc(item.label)}</h4></div><button type="button" class="council-menu-close" data-research="room-close" aria-label="Закрыть ${esc(item.label)}">×</button></div><p class="council-menu-detail">${esc(item.detail)}</p><div class="council-menu-body">${item.content}</div></section>`).join('')}</div>`;
   }
@@ -129,7 +130,7 @@ export function createResearchUI(h:Host){
     const r=aliases[route]??route;const screens:Record<string,()=>void>={journal:()=>main('Журнал экспедиции','ДАТЫ / ДЕЙСТВИЯ / НАБЛЮДЕНИЯ',journalBody(s(),h.today()),'results'),plan:()=>main('Мой план','РЕЗУЛЬТАТЫ / СЛЕДУЮЩИЙ ПЛАН',`<p class="lead">Персональный план ещё не сформирован.</p><p>Здесь появятся варианты с основаниями, выбором направления и отметками о выполнении. Пока можно проверить свои условия и вернуться к наблюдениям.</p>${s().rhythm?field('Доступное время',s().rhythm!.windows):'<p>Сначала выбери удобный ритм.</p>'}<ol class="research-path"><li>Сегодня: ${s().complete?'короткий вопрос, игра или добровольная проба':'закончить знакомство'}.</li><li>После шага: сохранить ответ и своё наблюдение.</li><li>Следующий визит: продолжить с учётом журнала.</li></ol>${button('go:today','К сегодняшнему шагу',true)}${button('go:rhythm','Изменить ритм')}${button('go:journal','Посмотреть журнал')}`,'today'),origin,'aurora-cabinet':auroraCabinet,'velir-cabinet':velirCabinet,'nereya-cabinet':nereyaCabinet,'solis-cabinet':solisCabinet,welcome,birth,'birth-review':birthReview,wishes,'wishes-review':wishesReview,rhythm,review,today,memories,research,astrology,forecast:()=>astrology('forecast'),'astro-checks':()=>astrology('astro-checks'),results,profile,example};
     screens.observatory=observatoryRoom;
     if(!screens[r])return false;
-    const oldScroll=document.getElementById('panel-scroll');if(oldScroll&&current)positions.set(current,oldScroll.scrollTop);if(r!==current)selectedRoomMenu=-1;if(opened&&r!==current)internalNavigation=true;opened=true;current=r;
+    const oldScroll=document.getElementById('panel-scroll');if(oldScroll&&current)positions.set(current,oldScroll.scrollTop);if(r!==current){selectedRoomMenu=-1;roomMenuDismissed=false;}if(opened&&r!==current)internalNavigation=true;opened=true;current=r;
     if(['review','wishes-review','birth-review'].includes(r)&&!s().complete){if(r==='review'&&(!s().wishes||!s().rhythm)){go(nextResearchRoute(s()));return true;}}
     try{screens[r]();}catch{birth();}
     if(r==='results'&&s().answers.length){
@@ -155,7 +156,7 @@ export function createResearchUI(h:Host){
       case 'research-forecast':write({...st,forecastMode:f.get('mode')==='open'?'open':'blind'});h.toast('Режим просмотра сохранён.');render('forecast');break;
     }return true;
   }
-  function closeRoomMenu(){const menu=document.querySelector<HTMLElement>('.council-menu:not([hidden])');if(!menu)return false;const index=Number(menu.id.slice(10));selectedRoomMenu=-1;menu.setAttribute('hidden','');const opener=document.querySelector<HTMLButtonElement>(`[data-research="room-open:${index}"]`);opener?.setAttribute('aria-expanded','false');opener?.focus({preventScroll:true});return true;}
+  function closeRoomMenu(){const menu=document.querySelector<HTMLElement>('.council-menu:not([hidden])');if(!menu)return false;const index=Number(menu.id.slice(10));selectedRoomMenu=-1;roomMenuDismissed=true;menu.setAttribute('hidden','');const opener=document.querySelector<HTMLButtonElement>(`[data-research="room-open:${index}"]`);opener?.setAttribute('aria-expanded','false');opener?.focus({preventScroll:true});return true;}
   function click(target:HTMLElement){const a=target.dataset.research;if(!a)return false;
     if(a==='room-close'){closeRoomMenu();return true;}
     if(a.startsWith('room-open:')){const index=Number(a.slice(10));if(!Number.isInteger(index))return true;const menu=document.getElementById(`room-menu-${index}`);if(!menu)return true;if(index===selectedRoomMenu){closeRoomMenu();return true;}if(selectedRoomMenu>=0){document.getElementById(`room-menu-${selectedRoomMenu}`)?.setAttribute('hidden','');document.querySelector<HTMLButtonElement>(`[data-research="room-open:${selectedRoomMenu}"]`)?.setAttribute('aria-expanded','false');}selectedRoomMenu=index;menu.removeAttribute('hidden');target.setAttribute('aria-expanded','true');menu.focus({preventScroll:true});return true;}

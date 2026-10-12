@@ -72,8 +72,8 @@ body.world-interior.research-page .journey-panel select:focus-visible{box-shadow
 @media(max-width:740px){
   body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .journey-panel>.panel-scroll>.panel-top{top:6px;right:7px}
   body.research-page:is([data-active-screen^="planet/"],[data-active-screen="observatory"]) .journey-panel>.panel-scroll>.panel-top button{min-height:40px;padding:5px 9px;font-size:11px}
-  .council-scene{background-position:center center}
-  .council-shade{background:linear-gradient(0deg,#020916cc,transparent 53%,#02091675)}
+  .council-scene{background-position:center center;filter:saturate(1.12) contrast(1.06) brightness(1.06)}
+  .council-shade{background:linear-gradient(0deg,#020916a3,transparent 45%,#0209164a)}
   .council-heading{top:12px;left:14px;right:94px;max-width:none;padding:0}
   .council-wordmark{height:clamp(66px,10vh,84px);max-width:min(62vw,235px)}
   body.research-page .journey-panel .council-heading h3{font-size:clamp(24px,7vw,34px)!important;margin-bottom:4px}
