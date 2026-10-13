@@ -1,0 +1,64 @@
+/* Replace the remaining generic navy UI surfaces, not the worlds' scenery. */
+.main-nav {
+  border-color: #c9add270;
+  background: linear-gradient(105deg, #1b1223ed, #0c0a18f2 52%, #211329ed);
+}
+body.research-page:not(.account-auth) .journey-panel > .panel-scroll {
+  border-color: #d0bcd25c;
+  background-color: #100c19;
+}
+body.research-page:not(.account-auth) .journey-panel > .panel-scroll > .panel-top {
+  border-color: #ceb7cb6e;
+  background: #1b1424d9;
+}
+@media (max-width: 740px) {
+  body.research-page:not(.account-auth) .section-nav {
+    border-top-color: #c6a9c183;
+    background: linear-gradient(100deg, #1a1121f5, #0c0a17f8 55%, #221328f5);
+  }
+}
+.research-page .research-main-card,
+.research-page .month-day,
+.research-page .results-month,
+.research-page .results-filters button,
+.research-page .results-list,
+.research-page .results-detail,
+.research-page .results-extra,
+.research-page .results-mobile-summary {
+  border-color: #d3b6d35c;
+  background: radial-gradient(ellipse at 100% 0, #8b47842e, transparent 48%),
+              linear-gradient(145deg, #211727e8, #0c0a18ee 65%, #231323e8);
+  color: #f7f1ee;
+}
+.research-page .results-filters button[aria-pressed=true] {
+  border-color: #ead1a1;
+  background: linear-gradient(125deg, #785069b8, #3b2843df);
+  color: #fff8e9;
+}
+.research-page .results-month button,
+.research-page .results-quote,
+.research-page .results-extra > summary {
+  background: #241a2ab8;
+  color: #f5e9e3;
+}
+.research-page .results-list th,
+.research-page .results-list td {
+  border-color: #d6bdd33d;
+}
+.research-page .results-list tr[data-selected=true] { background: #b672a52c; }
+.research-page .observatory-room .personal-atlas,
+.research-page .observatory-room-evidence {
+  border-color: #d9cae08a;
+  background: radial-gradient(ellipse at 100% 0, #ab8bb53b, transparent 44%),
+              linear-gradient(145deg, #25202dec, #0d0b18f0 72%, #20172fe9);
+  color: #f7f3f5;
+}
+.research-page .observatory-room .personal-atlas :is(input, textarea, select),
+.research-page .observatory-room .personal-atlas :is(button:not(.primary), summary) {
+  border-color: #cbb5d079;
+  background-color: #1d1728c9;
+}
+.council-room .council-menu-close {
+  border-color: color-mix(in srgb, var(--council-accent) 60%, #ffffff 20%);
+  background: color-mix(in srgb, var(--council-accent) 16%, #11101a);
+}

@@ -1,0 +1,68 @@
+/* The owner-approved terrain fragments replace only the hall action buttons.
+   The room art, headings, routes and content panels remain untouched. */
+.council-room[data-room=origin]{--fragment-image:url('/council-buttons/origin-fragments-v1.webp');--fragment-light:#ffae83}
+.council-room[data-room=aurora]{--fragment-image:url('/council-buttons/aurora-fragments-v1.webp');--fragment-light:#a9ffe2}
+.council-room[data-room=velir]{--fragment-image:url('/council-buttons/velir-fragments-v1.webp');--fragment-light:#b9d9ff}
+.council-room[data-room=nereya]{--fragment-image:url('/council-buttons/nereya-fragments-v1.webp');--fragment-light:#f3cf91}
+.council-room[data-room=solis]{--fragment-image:url('/council-buttons/solis-fragments-v1.webp');--fragment-light:#ffc18a}
+.council-room[data-room=observatory]{--fragment-image:url('/council-buttons/observatory-fragments-v1.webp');--fragment-light:#e7e3ff}
+
+.council-room[data-room] .council-station{
+  width:clamp(212px,22vw,310px);height:clamp(114px,13vw,165px);
+  min-width:0;min-height:0;max-width:none;padding:15px 34px;
+  border:0;border-radius:0;background:var(--fragment-image) no-repeat var(--fragment-x) center / 300% auto;
+  box-shadow:none;backdrop-filter:none;
+  color:#fff9ee;font:600 clamp(15px,1.35vw,19px)/1.18 var(--council-heading-font,Georgia,serif);
+  letter-spacing:.01em;text-align:center;text-shadow:0 2px 4px #000,0 3px 12px #000,0 0 20px #000;
+  display:grid;place-items:center;transform:translateX(-50%) rotate(0);filter:drop-shadow(0 15px 12px #0009);
+  transition:filter .2s ease,translate .2s ease;
+}
+.council-room[data-room] .council-station:hover,
+.council-room[data-room] .council-station[aria-expanded=true]{
+  border:0;background:var(--fragment-image) no-repeat var(--fragment-x) center / 300% auto;
+  box-shadow:none;filter:drop-shadow(0 14px 17px var(--fragment-light));translate:0 -4px;
+}
+.council-room[data-room] .council-station:focus-visible{
+  border:0;background:var(--fragment-image) no-repeat var(--fragment-x) center / 300% auto;
+  box-shadow:none;outline:2px solid var(--fragment-light);outline-offset:0;
+  filter:drop-shadow(0 0 15px var(--fragment-light));
+}
+.council-room[data-room] .council-station-1{--fragment-x:0%;left:25%;bottom:7%}
+.council-room[data-room] .council-station-2{--fragment-x:50%;left:50%;bottom:7%}
+.council-room[data-room] .council-station-3{--fragment-x:100%;left:75%;bottom:7%}
+.council-room[data-room=velir] .council-stations::before{display:none}
+.council-room[data-room=observatory] .council-station{background-size:400% auto}
+.council-room[data-room=observatory] .council-station:hover,
+.council-room[data-room=observatory] .council-station:focus-visible,
+.council-room[data-room=observatory] .council-station[aria-expanded=true]{background-size:400% auto}
+.council-room[data-room=observatory] .council-station-1{--fragment-x:0%;left:21%;bottom:44%}
+.council-room[data-room=observatory] .council-station-2{--fragment-x:33.333%;left:50%;bottom:25%}
+.council-room[data-room=observatory] .council-station-3{--fragment-x:66.667%;left:78%;bottom:44%}
+.council-room[data-room=observatory] .council-station-4{--fragment-x:100%;left:25%;bottom:5%}
+
+@media(max-width:740px){
+  .council-room[data-room] .council-station{
+    width:31%;height:clamp(76px,12vh,112px);min-height:0;max-width:none;
+    padding:10px 8px;font-size:clamp(11px,2.85vw,14px);line-height:1.1;
+  }
+  .council-room[data-room] .council-station-1{left:17%;bottom:7%}
+  .council-room[data-room] .council-station-2{left:50%;bottom:7%}
+  .council-room[data-room] .council-station-3{left:83%;bottom:7%}
+  .council-room[data-room=observatory] .council-station{width:42%;height:clamp(72px,11vh,102px)}
+  .council-room[data-room=observatory] .council-station-1{left:27%;bottom:20%}
+  .council-room[data-room=observatory] .council-station-2{left:73%;bottom:20%}
+  .council-room[data-room=observatory] .council-station-3{left:27%;bottom:7%}
+  .council-room[data-room=observatory] .council-station-4{left:73%;bottom:7%}
+}
+@media(orientation:landscape) and (max-height:600px){
+  .council-room[data-room] .council-station{width:clamp(92px,13vw,155px);height:clamp(55px,13vh,75px);padding:5px;font-size:11px}
+  .council-room[data-room] .council-station-1{left:10%;bottom:5%}
+  .council-room[data-room] .council-station-2{left:25%;bottom:5%}
+  .council-room[data-room] .council-station-3{left:40%;bottom:5%}
+  .council-room[data-room=observatory] .council-station{width:clamp(92px,12vw,145px);height:clamp(55px,13vh,75px)}
+  .council-room[data-room=observatory] .council-station-1{left:8%;bottom:24%}
+  .council-room[data-room=observatory] .council-station-2{left:22%;bottom:24%}
+  .council-room[data-room=observatory] .council-station-3{left:8%;bottom:5%}
+  .council-room[data-room=observatory] .council-station-4{left:22%;bottom:5%}
+}
+@media(prefers-reduced-motion:reduce){.council-room[data-room] .council-station{transition:none}}

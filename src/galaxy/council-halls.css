@@ -190,9 +190,9 @@ body.world-interior.research-page .journey-panel select:focus-visible{box-shadow
 .council-room[data-room=observatory]{
   --window-shape:49px 72px 57px 42px / 45px 55px 68px 47px;
   --window-inner-shape:38px 60px 46px 31px / 34px 44px 56px 35px;
-  --window-rim:#d7f0ffc0;--window-inner-rim:#e4f6ff91;--window-glow:#91d9ff58;
-  --window-surface:linear-gradient(125deg,#e9f5ffd1,#215c87d6 11%,#071c36ef 27%,#071529f5 75%,#bed9ffab 100%);
-  --window-button:linear-gradient(111deg,#8fd1f052,#071627ef 34%,#163758e8);
+  --window-rim:#eadfffcf;--window-inner-rim:#f1e9ff9c;--window-glow:#b595e858;
+  --window-surface:linear-gradient(125deg,#f1eaffd1,#564169d9 11%,#261b35f1 27%,#100d1ef5 75%,#d2c3f2ad 100%);
+  --window-button:linear-gradient(111deg,#c6acec57,#191425f0 34%,#4a325be8);
   --window-button-shape:21px 17px 23px 16px;
   --window-echo:url('/council-halls/observatory-hall-v1.webp');--window-echo-position:73% 38%;--window-echo-opacity:.42;
 }

@@ -73,3 +73,23 @@
   .research-page .journey-panel .invitation-action{min-height:45px;font-size:15px}
 }
 @media(prefers-reduced-motion:reduce){.membrane-sparks{animation:none}}
+
+/* The standalone about-reader was the remaining opaque blue window. */
+#reader {
+  border: 2px solid transparent !important;
+  border-radius: 43px 62px 48px 59px / 59px 42px 61px 46px;
+  background:
+    radial-gradient(ellipse at 7% 13%, #9753cd29, transparent 37%),
+    radial-gradient(ellipse at 93% 83%, #27bdda24, transparent 39%),
+    linear-gradient(145deg, #080a1eea, #100b25ed) padding-box,
+    conic-gradient(from 25deg, #83eaf5, #ba84fa 30%, #fa7ad1 55%, #68d8f4 82%, #83eaf5) border-box !important;
+  box-shadow: 0 25px 110px #0009, 0 0 30px #ba69ed51 !important;
+  color: #f7f0f8;
+  backdrop-filter: blur(16px);
+}
+#reader p { color: #e2dbea; }
+#reader .small-note { color: #d1c1db; }
+#reader .reader-close { color: #f7e7fa; }
+@media(max-width:600px) {
+  #reader { padding: 35px 26px 27px; border-radius: 29px 42px 35px 38px / 43px 30px 44px 32px; }
+}

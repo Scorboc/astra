@@ -76,33 +76,22 @@ try{
       await page.locator('.council-wordmark').evaluate(image=>image.decode());
       assert.ok(await page.locator('.council-wordmark').evaluate(image=>image.naturalWidth>0),world+' approved wordmark loads');
       assert.match(await page.locator('.council-heading h3').evaluate(el=>getComputedStyle(el).fontFamily),new RegExp(({origin:'Forum',aurora:'Cormorant Garamond',velir:'Exo 2',nereya:'Oranienbaum',solis:'Russo One'})[world]));
-      assert.equal(await page.locator('.council-menu:visible').count(),autoMenu?1:0,'narrow rooms show themed window on entry');
-      if(autoMenu)assert.equal(await page.locator('#room-menu-0').isVisible(),true,'narrow world opens its first action');
+      assert.equal(await page.locator('.council-menu').count(),0,'planet action has no duplicate intermediate menu');
       assert.equal(await page.locator('.main-nav').isVisible(),true,'planet dock remains available');
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
       assert.equal(overflow,false,world+' has no horizontal page overflow');
       await page.waitForTimeout(1350);
       await page.screenshot({path:`artifacts/council-${name}-${world}-closed.png`});
-      if(autoMenu)await page.locator('#room-menu-0 [data-research="room-close"]').click();
-      await page.locator('[data-research="room-open:0"]').click();
-      assert.equal(await page.locator('#room-menu-0').isVisible(),true,'selected point opens menu');
-      if(['origin','nereya','solis'].includes(world)){
-        assert.match(await page.locator('#room-menu-0').evaluate(el=>getComputedStyle(el,'::before').backgroundImage),new RegExp(world+'-hall-v2\\.webp'),world+' window includes only its own hall fragment');
-      }
-      assert.equal(await page.locator('[data-research="room-open:0"]').getAttribute('aria-expanded'),'true');
-      const roomFit=await page.locator('#room-menu-0').evaluate(el=>{const r=el.getBoundingClientRect(),frame=el.closest('.council-room').getBoundingClientRect(),button=el.querySelector('.council-primary').getBoundingClientRect();return {menuInside:r.top>=frame.top-2&&r.bottom<=frame.bottom+2,buttonInside:button.top>=r.top&&button.bottom<=r.bottom+2};});
-      assert.ok(roomFit.menuInside&&roomFit.buttonInside,world+' contextual menu fits '+JSON.stringify(roomFit));
-      await page.screenshot({path:`artifacts/council-${name}-${world}-open.png`});
-      const destination=(await page.locator('#room-menu-0 .council-primary').getAttribute('data-research')).slice(3);
-      await page.locator('#room-menu-0 .council-primary').click();
+      const destination=(await page.locator('.council-station-1').getAttribute('data-research')).slice(3);
+      await page.locator('.council-station-1').click();
       await page.waitForURL('**/#'+destination);
       await page.waitForFunction(expected=>document.body.dataset.activeScreen===expected,destination);
       await page.waitForSelector('.panel-top button');
       assert.equal(await page.locator('.panel-top button').count(),1,'subroom has a return control');
       await page.goBack();
       await page.waitForURL('**/#'+route);
-      await page.waitForFunction(({route,autoMenu})=>document.body.dataset.activeScreen===route&&document.querySelectorAll('.council-menu:not([hidden])').length===(autoMenu?1:0),{route,autoMenu});
-      assert.equal(await page.locator('.council-menu:visible').count(),autoMenu?1:0,'return restores the world entry state');
+      await page.waitForFunction(route=>document.body.dataset.activeScreen===route,route);
+      assert.equal(await page.locator('.council-menu').count(),0,'return restores the planet without a duplicate menu');
     }
     assert.deepEqual(errors,[],name+' page errors');
     console.log(name,'PASS');
