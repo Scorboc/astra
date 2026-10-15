@@ -108,7 +108,7 @@ export function initialState(): DemoState {
       criterion: "Подготовить три короткие заметки за месяц.",
       track: "creative",
     },
-    schedule: { days: [1, 3, 5], minutes: 40, time: "19:00", budget: 0 },
+    schedule: { days: [0, 2, 4], minutes: 40, time: "19:00", budget: 0 },
     observations: samples.map(([date, outcome, minutes, note], i) => ({
       id: `obs-${i + 1}`,
       subjectId: SUBJECT,

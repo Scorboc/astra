@@ -12,6 +12,6 @@ export function membraneFrame(){return `<svg class="membrane-art" viewBox="400 9
     <radialGradient id="membrane-shade"><stop offset="0" stop-color="#020816" stop-opacity=".84"/><stop offset=".55" stop-color="#020816" stop-opacity=".76"/><stop offset=".82" stop-color="#020816" stop-opacity=".4"/><stop offset="1" stop-color="#020816" stop-opacity="0"/></radialGradient>
   </defs>
   <path d="${silhouette}" fill="url(#membrane-shade)"/>
-  <image href="${assetUrl('/ui/nebula-membrane-approved.png')}" x="0" y="0" width="1672" height="941" mask="url(#membrane-rim)" opacity=".55"/>
+  <image href="${assetUrl('/ui/nebula-membrane-approved.webp')}" x="0" y="0" width="1672" height="941" mask="url(#membrane-rim)" opacity=".55"/>
   <g class="membrane-sparks" fill="#fff4d7"><circle cx="594" cy="180" r="2"/><circle cx="1137" cy="155" r="2.2"/><circle cx="1280" cy="355" r="1.8"/><circle cx="577" cy="671" r="1.5"/><circle cx="1189" cy="752" r="2"/><circle cx="885" cy="797" r="1.6"/></g>
 </svg>`;}

@@ -27,7 +27,7 @@ export const GOALS: Record<Goal['track'], Goal> = {
 };
 export function newJourney(demo = false): Journey {
   const data = initialState();
-  return { data: { ...data, observations: [], history: [], processedRequests: [], approvedPlan: null, goal: { ...GOALS.creative }, schedule: { days: [1, 3, 5], minutes: 15, time: '19:00', budget: 0 } }, stage: 0, reflection: '', reflectionHistory: [], demo };
+  return { data: { ...data, observations: [], history: [], processedRequests: [], approvedPlan: null, goal: { ...GOALS.creative }, schedule: { days: [0, 2, 4], minutes: 15, time: '19:00', budget: 0 } }, stage: 0, reflection: '', reflectionHistory: [], demo };
 }
 export function configureJourney(j: Journey, goal: Goal, schedule: Schedule): Journey {
   const data = updateSchedule(updateGoal(j.data, goal), schedule);

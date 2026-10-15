@@ -22,7 +22,9 @@ export function createAccounts(storage:SessionStore,session:SessionStore){
     const account:Account={id:crypto.randomUUID(),login,name,salt,hash,example};
     storage.setItem(KEY,JSON.stringify([...rows,account]));return account;
   }
-  return {current,
+  // A visitor with no own account on this device is new, even if the shared example exists.
+  function hasOwnAccount(){try{return all().some(a=>!a.example);}catch{return true;}}
+  return {current,hasOwnAccount,
     async register(login:string,password:string,name:string){if(normalize(login)==='1')throw new Error('Логин 1 занят тестовым профилем. Выбери другой.');return add(login,password,name);},
     async login(login:string,password:string){
       login=normalize(login);let account=all().find(a=>a.login===login);
