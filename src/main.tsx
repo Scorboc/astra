@@ -4,9 +4,10 @@ import { App } from "./App";
 import { Router } from "./router";
 import { StoreProvider } from "./store";
 import "./styles.css";
+import { stripBase, withBase } from "./asset-url";
 
-if (location.pathname === "/") {
-  location.replace("/spatial/");
+if (stripBase(location.pathname) === "/") {
+  location.replace(withBase("/spatial/"));
 } else {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>

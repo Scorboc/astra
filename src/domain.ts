@@ -366,18 +366,32 @@ export function isStale(state: DemoState): boolean {
   );
 }
 
-export function reportData(state: DemoState) {
+// Defaults describe the fixed demo programme; real journeys pass their own period.
+export function reportData(
+  state: DemoState,
+  {
+    from = DEMO_START,
+    to = "2026-10-02",
+    generatedForDate = DEMO_TODAY,
+    synthetic = true,
+  }: {
+    from?: string;
+    to?: string;
+    generatedForDate?: string;
+    synthetic?: boolean;
+  } = {},
+) {
   return {
     format: "astra-demo-report",
     schemaVersion: 1,
-    synthetic: true,
-    generatedForDate: DEMO_TODAY,
+    synthetic,
+    generatedForDate,
     subjectId: state.subjectId,
     revision: state.revision,
     goal: state.goal,
     schedule: state.schedule,
-    period: { from: DEMO_START, to: "2026-10-02" },
-    summary: summarize(state.observations),
+    period: { from, to },
+    summary: summarize(state.observations, from, to, state.subjectId),
     observations: state.observations,
     observationHistory: state.history,
     plan: state.approvedPlan,

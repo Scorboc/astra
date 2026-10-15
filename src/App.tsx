@@ -29,6 +29,7 @@ import {
   Target,
 } from "lucide-react";
 import { Link, useRouter } from "./router";
+import { withBase } from "./asset-url";
 import { useStore } from "./store";
 import {
   DEMO_TODAY,
@@ -226,7 +227,7 @@ export function App() {
             <strong>{current.title}</strong>
           </span>
           <div className="topbar-end">
-            <a href="/spatial/#galaxy" className="demo-chip" aria-label="Открыть трёхмерную галактику">Галактика ↗</a>
+            <Link href="/spatial/#galaxy" className="demo-chip" aria-label="Открыть трёхмерную галактику">Галактика ↗</Link>
             <span className="demo-chip">Демо</span>
             <span className="top-date">3 октября 2026</span>
             <Link
@@ -1205,7 +1206,7 @@ function Discoveries() {
           </Notice>
           <button
             className="button secondary full"
-            onClick={() => { window.location.href = "/spatial/#astrology"; }}
+            onClick={() => { window.location.href = withBase("/spatial/#astrology"); }}
           >
             Перейти к карте
           </button>

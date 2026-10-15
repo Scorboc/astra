@@ -28,32 +28,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec tsc -b
+      - run: pnpm test
       - run: pnpm exec vite build
         env:
           VITE_BASE: /astra/
-      - name: Adapt absolute asset links for project Pages path
-        run: |
-          node --input-type=module - <<'NODE'
-          import { readdir, readFile, writeFile, stat } from 'node:fs/promises';
-          import { join } from 'node:path';
-          async function visit(dir) {
-            for (const name of await readdir(dir)) {
-              const file = join(dir, name);
-              if ((await stat(file)).isDirectory()) await visit(file);
-              else if (/\.(html|js|css|svg)$/.test(name)) {
-                let text = await readFile(file, 'utf8');
-                for (const path of ['spatial/', 'universe/', 'benchmark-origin/', 'ui/', 'favicon.svg']) {
-                  text = text
-                    .replaceAll(`"/${path}`, `"/astra/${path}`)
-                    .replaceAll(`'/${path}`, `'/astra/${path}`)
-                    .replaceAll('`/' + path, '`/astra/' + path);
-                }
-                await writeFile(file, text);
-              }
-            }
-          }
-          await visit('dist');
-          NODE
+      # Pages has no SPA rewrites: serve the app shell for deep links like /astra/today.
+      - name: Add SPA fallback for direct links
+        run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
