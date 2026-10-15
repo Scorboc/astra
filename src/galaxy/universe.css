@@ -20,7 +20,7 @@
  .flight-strip{left:23px;right:auto;bottom:158px;width:238px;padding:8px 10px;border-radius:24px 31px 25px 34px/29px 23px 36px 25px;background:#07152642;border-color:#8be6f34f;box-shadow:0 0 22px #53d8ff18,0 0 30px #d054ff12}.flight-strip p{display:none}.flight-top{gap:5px;margin:0}#flight-world{font-size:14px}
  .view-modes button{padding:8px 10px;font-size:9px;min-height:34px}
  .intro,.is-demo .intro{left:25px;right:45px;top:auto;bottom:270px}.intro h1{font-size:34px}
- .intro>p:not(.eyebrow){font-size:11px}.intro .eyebrow{font-size:7px}
+ .intro>p:not(.eyebrow){font-size:15px}.intro .eyebrow{font-size:12px}
  .intro-actions .text-button{display:none}.intro-actions .primary{background:#081722bd}
  .cosmos canvas{touch-action:none}.camera-tools{top:110px;bottom:auto}
  .planet-label{max-width:140px}.planet-label small{max-width:120px}

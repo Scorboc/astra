@@ -15,7 +15,7 @@ test('observatory points new and returning visitors to real next steps',()=>{
  const s=exampleAccountSnapshot('2026-10-06').expedition.research!;
  assert.match(observatoryToday(s,'2026-10-09'),/Открыть сегодняшний вопрос/);
  assert.match(observatoryToday(s,'2026-10-06'),/На сегодня достаточно/);
- assert.match(observatoryToday(s,'2026-10-09'),/На чём остановились · 2026-10-06/);
+ assert.match(observatoryToday(s,'2026-10-09'),/На чём остановились · 6 октября/);
 });
 test('atlas handles no evidence and keeps provenance and uncertainty',()=>{
  assert.match(observationAtlas(newResearch()),/Пока нет сохранённых наблюдений/);

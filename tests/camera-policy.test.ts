@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {compactViewport,clampDistance,originTextureSize} from '../src/galaxy/camera-policy.js';
+import {compactViewport,clampDistance,originTextureSize,originPreviewSize} from '../src/galaxy/camera-policy.js';
 import {readFileSync} from 'node:fs';
 test('restored flight camera uses only the original vertical travel gesture',()=>{
  const code=readFileSync(new URL('../src/galaxy/playcanvas-world.js',import.meta.url),'utf8');
@@ -25,4 +25,7 @@ test('the living scene keeps independent planet and volumetric motion',()=>{
  assert.ok(code.includes('world.entity.rotateLocal(0,delta*world.spin,0)'));
  assert.ok(code.includes("mist.material.setParameter('time',elapsed*4)"));
  assert.ok(code.includes('host.dataset.animationTime=elapsed.toFixed(3)'));
+});
+test('first view loads a lighter Origin map than the close-up', () => {
+ assert.equal(originPreviewSize(true, 16384), 2048); assert.equal(originPreviewSize(false, 16384), 4096); assert.equal(originPreviewSize(false, 4096), 4096);
 });

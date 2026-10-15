@@ -29,6 +29,8 @@ import {
   Target,
 } from "lucide-react";
 import { Link, useRouter } from "./router";
+import { withBase } from "./asset-url";
+import { count, dayLabel } from "./ru";
 import { useStore } from "./store";
 import {
   DEMO_TODAY,
@@ -226,9 +228,9 @@ export function App() {
             <strong>{current.title}</strong>
           </span>
           <div className="topbar-end">
-            <a href="/spatial/#galaxy" className="demo-chip" aria-label="Открыть трёхмерную галактику">Галактика ↗</a>
+            <Link href="/spatial/#galaxy" className="demo-chip" aria-label="Открыть трёхмерную галактику">Галактика ↗</Link>
             <span className="demo-chip">Демо</span>
-            <span className="top-date">3 октября 2026</span>
+            <span className="top-date" title="Дата демонстрационной программы">{dayLabel(DEMO_TODAY, true)}</span>
             <Link
               href="/spatial/#profile"
               className="avatar small"
@@ -412,12 +414,12 @@ function Today() {
                 <Tag>НАБЛЮДЕНИЕ</Tag>
                 <h3>
                   {summary.recorded
-                    ? `${summary.completed} завершённые пробы за неделю`
+                    ? `${count(summary.completed, "завершённая проба", "завершённые пробы", "завершённых проб")} за неделю`
                     : "Первые наблюдения впереди"}
                 </h3>
                 <p>
                   {summary.recorded
-                    ? `Из ${summary.recorded} записей за ${summary.days} дней. Это ваши отметки, а не оценка способностей.`
+                    ? `Из ${count(summary.recorded, "записи", "записей", "записей")} за ${count(summary.days, "день", "дня", "дней")}. Это ваши отметки, а не оценка способностей.`
                     : "Отметьте несколько небольших действий, когда будет удобно."}
                 </p>
                 <span className="inline-link">
@@ -1068,20 +1070,20 @@ function Discoveries() {
         <Stat
           title="Записей за неделю"
           value={`${summary.recorded}`}
-          detail={`26 сентября — 2 октября · ${summary.days} дней`}
+          detail={`26 сентября — 2 октября · ${count(summary.days, "день", "дня", "дней")}`}
           icon={<BookOpen size={20} />}
         />
         <Stat
           title="Завершённых проб"
           value={`${summary.completed}`}
-          detail={`Из ${summary.recorded} записей · по самоотчёту`}
+          detail={`Из ${count(summary.recorded, "записи", "записей", "записей")} · по самоотчёту`}
           icon={<CheckCircle2 size={20} />}
         />
         <Stat
           title="Времени в записях"
           value={`${summary.minutes}`}
           unit="мин"
-          detail={`${summary.unknownMinutes} запись без времени`}
+          detail={`${count(summary.unknownMinutes, "запись", "записи", "записей")} без времени`}
           icon={<Clock3 size={20} />}
         />
       </div>
@@ -1205,7 +1207,7 @@ function Discoveries() {
           </Notice>
           <button
             className="button secondary full"
-            onClick={() => { window.location.href = "/spatial/#astrology"; }}
+            onClick={() => { window.location.href = withBase("/spatial/#astrology"); }}
           >
             Перейти к карте
           </button>
@@ -1262,7 +1264,7 @@ function Evidence() {
       <section className="card form-card">
         <Tag color="blue">ВЫЧИСЛЕНИЕ ПО ЗАПИСЯМ</Tag>
         <h2>
-          {summary.completed} завершённых пробы из {summary.recorded} записей
+          {count(summary.completed, "завершённая проба", "завершённые пробы", "завершённых проб")} из {count(summary.recorded, "записи", "записей", "записей")}
         </h2>
         <p>
           Считаем записи со статусом «Сделано» в выбранном периоде. Частичные
@@ -1553,7 +1555,7 @@ function Report() {
           К этому снимку плана привязаны {plan.evidenceIds.length} записей.{" "}
           {data.planStale
             ? "Текущая сводка уже изменилась; сохранённые шаги показаны без пересчёта."
-            : `В текущей недельной сводке ${data.summary.completed} завершённых пробы из ${data.summary.recorded} записей.`}
+            : `В текущей недельной сводке ${count(data.summary.completed, "завершённая проба", "завершённые пробы", "завершённых проб")} из ${count(data.summary.recorded, "записи", "записей", "записей")}.`}
         </p>
         <Notice>
           Отчёт собран из ответов, отметок и истории изменений. Выбранный

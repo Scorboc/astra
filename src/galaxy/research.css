@@ -64,3 +64,6 @@
 @keyframes membrane-current{to{filter:hue-rotate(28deg) drop-shadow(0 0 9px #69e9ff) drop-shadow(0 0 18px #d550ff)}}
 @media(max-width:700px){.research-page .journey-panel,.research-page.is-demo .journey-panel{background:radial-gradient(ellipse at 4% 0,#9d71ff2b,transparent 31%),radial-gradient(ellipse at 100% 27%,#31c8ff27,transparent 29%),radial-gradient(ellipse at 62% 100%,#ff4fd826,transparent 36%),linear-gradient(145deg,#07162b48,#07111e2b);border-radius:42px 66px 51px 73px/61px 42px 78px 49px;backdrop-filter:blur(11px) saturate(1.5) brightness(.98)}}
 @media(prefers-reduced-motion:reduce){.research-page .journey-panel{animation:none}}
+
+/* Text links in result lists are tap targets too: at least 44px tall (WCAG 2.5.8, audit 2026-10-15). */
+.research-evidence>a,.results-list>a,.month-review details p>a{display:inline-flex;align-items:center;min-height:44px}

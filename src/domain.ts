@@ -108,7 +108,7 @@ export function initialState(): DemoState {
       criterion: "Подготовить три короткие заметки за месяц.",
       track: "creative",
     },
-    schedule: { days: [1, 3, 5], minutes: 40, time: "19:00", budget: 0 },
+    schedule: { days: [0, 2, 4], minutes: 40, time: "19:00", budget: 0 },
     observations: samples.map(([date, outcome, minutes, note], i) => ({
       id: `obs-${i + 1}`,
       subjectId: SUBJECT,
@@ -366,18 +366,32 @@ export function isStale(state: DemoState): boolean {
   );
 }
 
-export function reportData(state: DemoState) {
+// Defaults describe the fixed demo programme; real journeys pass their own period.
+export function reportData(
+  state: DemoState,
+  {
+    from = DEMO_START,
+    to = "2026-10-02",
+    generatedForDate = DEMO_TODAY,
+    synthetic = true,
+  }: {
+    from?: string;
+    to?: string;
+    generatedForDate?: string;
+    synthetic?: boolean;
+  } = {},
+) {
   return {
     format: "astra-demo-report",
     schemaVersion: 1,
-    synthetic: true,
-    generatedForDate: DEMO_TODAY,
+    synthetic,
+    generatedForDate,
     subjectId: state.subjectId,
     revision: state.revision,
     goal: state.goal,
     schedule: state.schedule,
-    period: { from: DEMO_START, to: "2026-10-02" },
-    summary: summarize(state.observations),
+    period: { from, to },
+    summary: summarize(state.observations, from, to, state.subjectId),
     observations: state.observations,
     observationHistory: state.history,
     plan: state.approvedPlan,

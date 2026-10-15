@@ -195,6 +195,29 @@ test("REPRO-01: export uses same stored plan and computed summary", () => {
   assert.deepEqual(reportData(s), report);
   assert.equal(report.synthetic, true);
 });
+test("Export of a real journey uses its own period and is not marked synthetic", () => {
+  let s = initialState();
+  s = saveObservation(
+    s,
+    { energy: "", outcome: "done", minutes: "12", note: "", requestId: "r-nov" },
+    "2026-11-03T10:00:00Z",
+    undefined,
+    "2026-11-03",
+  );
+  const report = reportData(s, {
+    from: "2026-11-01",
+    to: "2026-11-05",
+    generatedForDate: "2026-11-05",
+    synthetic: false,
+  });
+  assert.equal(report.synthetic, false);
+  assert.equal(report.generatedForDate, "2026-11-05");
+  assert.deepEqual(report.period, { from: "2026-11-01", to: "2026-11-05" });
+  assert.equal(report.summary.days, 5);
+  assert.equal(report.summary.recorded, 1);
+  assert.equal(report.summary.minutes, 12);
+  assert.deepEqual(report.summary.ids, ["obs-2026-11-03"]);
+});
 test("Free text stays data and cannot alter planner constraints", () => {
   const s = saveObservation(
     initialState(),

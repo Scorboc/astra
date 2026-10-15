@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import type { ReactNode, MouseEvent, AnchorHTMLAttributes } from "react";
+import { stripBase, withBase } from "./asset-url";
 
 const RouterContext = createContext({
   path: "/spatial/",
@@ -13,16 +14,18 @@ const RouterContext = createContext({
 });
 const positions = new Map<string, number>();
 export function Router({ children }: { children: ReactNode }) {
-  const [path, setPath] = useState(
-    location.pathname === "/" ? "/spatial/" : location.pathname,
-  );
+  const [path, setPath] = useState(() => {
+    const current = stripBase(location.pathname);
+    return current === "/" ? "/spatial/" : current;
+  });
   const [popped, setPopped] = useState(false);
   useEffect(() => {
-    if (location.pathname === "/") history.replaceState({}, "", "/spatial/");
+    if (stripBase(location.pathname) === "/")
+      history.replaceState({}, "", withBase("/spatial/"));
     history.scrollRestoration = "manual";
     const onPop = () => {
       setPopped(true);
-      setPath(location.pathname);
+      setPath(stripBase(location.pathname));
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
@@ -38,7 +41,7 @@ export function Router({ children }: { children: ReactNode }) {
   const navigate = (next: string) => {
     if (next === path) return;
     positions.set(path, window.scrollY);
-    history.pushState({}, "", next);
+    history.pushState({}, "", withBase(next));
     setPopped(false);
     setPath(next);
   };
@@ -75,7 +78,7 @@ export function Link({
     }
   };
   return (
-    <a {...props} href={href} onClick={click}>
+    <a {...props} href={href.startsWith("/") ? withBase(href) : href} onClick={click}>
       {children}
     </a>
   );
