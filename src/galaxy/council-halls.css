@@ -24,12 +24,16 @@ body.research-page:is([data-active-screen^="planet/"],[data-active-screen="obser
 .council-room[data-room=observatory]{--council-accent:#f2d193;--council-heading-font:'Cormorant Garamond',Georgia,serif;--council-tone:#091322f2}
 .council-scene,.council-shade{position:absolute;inset:0;pointer-events:none}
 .council-scene{z-index:-2;background-position:center;background-size:cover}
-.council-room[data-room=origin] .council-scene{background-image:url('/council-halls/origin-hall-v2.webp')}
-.council-room[data-room=aurora] .council-scene{background-image:url('/council-halls/aurora-hall-v1.webp')}
-.council-room[data-room=velir] .council-scene{background-image:url('/council-halls/velir-hall-v2.webp')}
-.council-room[data-room=nereya] .council-scene{background-image:url('/council-halls/nereya-hall-v2.webp')}
-.council-room[data-room=solis] .council-scene{background-image:url('/council-halls/solis-hall-v2.webp')}
-.council-room[data-room=observatory] .council-scene{background-image:url('/council-halls/observatory-hall-v1.webp')}
+.council-scene::after{content:"";position:absolute;inset:0;opacity:.06;background:radial-gradient(ellipse at 52% 56%,var(--council-accent),transparent 28%),radial-gradient(circle at 22% 48%,#fff9d0,transparent 7%);mix-blend-mode:screen;animation:hall-radiance 13s ease-in-out infinite alternate;pointer-events:none}
+@keyframes hall-radiance{from{opacity:.015}to{opacity:.085}}
+.motion-paused .council-scene::after{animation:none;opacity:.025}
+@media(prefers-reduced-motion:reduce){.council-scene::after{animation:none;opacity:.025}}
+.council-room[data-room=origin] .council-scene{background-image:url('/council-halls/origin-hall-cinematic-v3.webp')}
+.council-room[data-room=aurora] .council-scene{background-image:url('/council-halls/aurora-hall-cinematic-v3.webp')}
+.council-room[data-room=velir] .council-scene{background-image:url('/council-halls/velir-hall-cinematic-v3.webp')}
+.council-room[data-room=nereya] .council-scene{background-image:url('/council-halls/nereya-hall-cinematic-v3.webp')}
+.council-room[data-room=solis] .council-scene{background-image:url('/council-halls/solis-hall-cinematic-v3.webp')}
+.council-room[data-room=observatory] .council-scene{background-image:url('/council-halls/observatory-hall-cinematic-v3.webp')}
 .council-shade{z-index:-1;background:linear-gradient(0deg,#020816b8,transparent 30%,transparent 75%,#02081685),linear-gradient(90deg,#0208168f,transparent 32%,transparent 75%,#02081640)}
 .council-heading{position:absolute;z-index:2;top:clamp(24px,4vh,48px);left:clamp(26px,4vw,64px);max-width:min(55%,720px);padding:10px 16px 12px 0;text-shadow:0 2px 17px #000f}
 .council-wordmark{display:block;width:auto;height:clamp(98px,13vh,122px);max-width:min(42vw,480px);object-fit:contain;object-position:left center;filter:drop-shadow(0 3px 10px #000e)}
@@ -167,7 +171,7 @@ body.world-interior.research-page .journey-panel select:focus-visible{box-shadow
   --window-surface:linear-gradient(124deg,#6a6e7080,#101820f4 16%,#090f17f2 57%,#302020f5 81%,#aa583cc9);
   --window-button:linear-gradient(110deg,#171e25ef,#111722ef 50%,#643729e8);
   --window-button-shape:19px 13px 20px 12px;
-  --window-echo:url('/council-halls/origin-hall-v2.webp');--window-echo-position:8% 54%;--window-echo-opacity:.38;
+  --window-echo:url('/council-halls/origin-hall-cinematic-v3.webp');--window-echo-position:8% 54%;--window-echo-opacity:.38;
 }
 .council-room[data-room=nereya]{
   --window-shape:49% 49% 29px 29px / 18% 18% 29px 29px;
@@ -176,7 +180,7 @@ body.world-interior.research-page .journey-panel select:focus-visible{box-shadow
   --window-surface:linear-gradient(145deg,#f2d89e7d,#203342ef 17%,#061624f5 54%,#70543aed 94%);
   --window-button:linear-gradient(90deg,#614b34ed,#132838f2 19%,#091927f0);
   --window-button-shape:28px 15px 15px 28px;
-  --window-echo:url('/council-halls/nereya-hall-v2.webp');--window-echo-position:50% 8%;--window-echo-opacity:.28;
+  --window-echo:url('/council-halls/nereya-hall-cinematic-v3.webp');--window-echo-position:50% 8%;--window-echo-opacity:.28;
 }
 .council-room[data-room=solis]{
   --window-shape:41px 58px 47px 32px / 36px 31px 54px 41px;
@@ -185,7 +189,7 @@ body.world-interior.research-page .journey-panel select:focus-visible{box-shadow
   --window-surface:linear-gradient(135deg,#e3dde180,#262737ed 12%,#0b1021f3 44%,#3f1a32f4 79%,#fa744da1);
   --window-button:linear-gradient(103deg,#362438f0,#0b1828f0 63%,#a14755d9);
   --window-button-shape:17px 23px 17px 23px;
-  --window-echo:url('/council-halls/solis-hall-v2.webp');--window-echo-position:29% 35%;--window-echo-opacity:.3;
+  --window-echo:url('/council-halls/solis-hall-cinematic-v3.webp');--window-echo-position:29% 35%;--window-echo-opacity:.3;
 }
 .council-room[data-room=observatory]{
   --window-shape:49px 72px 57px 42px / 45px 55px 68px 47px;
@@ -194,7 +198,7 @@ body.world-interior.research-page .journey-panel select:focus-visible{box-shadow
   --window-surface:linear-gradient(125deg,#f1eaffd1,#564169d9 11%,#261b35f1 27%,#100d1ef5 75%,#d2c3f2ad 100%);
   --window-button:linear-gradient(111deg,#c6acec57,#191425f0 34%,#4a325be8);
   --window-button-shape:21px 17px 23px 16px;
-  --window-echo:url('/council-halls/observatory-hall-v1.webp');--window-echo-position:73% 38%;--window-echo-opacity:.42;
+  --window-echo:url('/council-halls/observatory-hall-cinematic-v3.webp');--window-echo-position:73% 38%;--window-echo-opacity:.42;
 }
 @media(max-width:740px){
   .council-room:is([data-room=origin],[data-room=nereya],[data-room=solis],[data-room=observatory]) .council-menu::before{

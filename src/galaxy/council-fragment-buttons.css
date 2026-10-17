@@ -35,10 +35,10 @@
 .council-room[data-room=observatory] .council-station:hover,
 .council-room[data-room=observatory] .council-station:focus-visible,
 .council-room[data-room=observatory] .council-station[aria-expanded=true]{background-size:400% auto}
-.council-room[data-room=observatory] .council-station-1{--fragment-x:0%;left:21%;bottom:44%}
-.council-room[data-room=observatory] .council-station-2{--fragment-x:33.333%;left:50%;bottom:25%}
-.council-room[data-room=observatory] .council-station-3{--fragment-x:66.667%;left:78%;bottom:44%}
-.council-room[data-room=observatory] .council-station-4{--fragment-x:100%;left:25%;bottom:5%}
+.council-room[data-room=observatory] .council-station-1{--fragment-x:0%;left:21%;bottom:38%}
+.council-room[data-room=observatory] .council-station-2{--fragment-x:33.333%;left:53%;bottom:32%}
+.council-room[data-room=observatory] .council-station-3{--fragment-x:66.667%;left:83%;bottom:28%}
+.council-room[data-room=observatory] .council-station-4{--fragment-x:100%;left:15%;bottom:5%}
 
 @media(max-width:740px){
   .council-room[data-room] .council-station{

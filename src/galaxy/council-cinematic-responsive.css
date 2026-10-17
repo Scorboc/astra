@@ -1,0 +1,29 @@
+/* Same approved halls, with image budgets matched to the actual viewport. */
+@media(max-width:740px) and (orientation:portrait){
+.council-room[data-room=origin]{--window-echo:url('/council-halls/origin-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=origin] .council-scene{background-image:url('/council-halls/origin-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=aurora]{--window-echo:url('/council-halls/aurora-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=aurora] .council-scene{background-image:url('/council-halls/aurora-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=velir]{--window-echo:url('/council-halls/velir-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=velir] .council-scene{background-image:url('/council-halls/velir-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=nereya]{--window-echo:url('/council-halls/nereya-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=nereya] .council-scene{background-image:url('/council-halls/nereya-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=solis]{--window-echo:url('/council-halls/solis-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=solis] .council-scene{background-image:url('/council-halls/solis-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=observatory]{--window-echo:url('/council-halls/observatory-hall-cinematic-v3-mobile.webp')}
+.council-room[data-room=observatory] .council-scene{background-image:url('/council-halls/observatory-hall-cinematic-v3-mobile.webp')}
+}
+@media(orientation:landscape) and (max-height:600px){
+.council-room[data-room=origin]{--window-echo:url('/council-halls/origin-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=origin] .council-scene{background-image:url('/council-halls/origin-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=aurora]{--window-echo:url('/council-halls/aurora-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=aurora] .council-scene{background-image:url('/council-halls/aurora-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=velir]{--window-echo:url('/council-halls/velir-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=velir] .council-scene{background-image:url('/council-halls/velir-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=nereya]{--window-echo:url('/council-halls/nereya-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=nereya] .council-scene{background-image:url('/council-halls/nereya-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=solis]{--window-echo:url('/council-halls/solis-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=solis] .council-scene{background-image:url('/council-halls/solis-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=observatory]{--window-echo:url('/council-halls/observatory-hall-cinematic-v3-compact.webp')}
+.council-room[data-room=observatory] .council-scene{background-image:url('/council-halls/observatory-hall-cinematic-v3-compact.webp')}
+}

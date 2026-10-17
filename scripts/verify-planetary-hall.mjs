@@ -27,7 +27,7 @@ try{
     assert.equal(await page.locator('.main-nav').isVisible(),true,'planet dock remains visible in observatory');
     assert.equal(await page.locator('.section-nav').isVisible(),false,'section navigation does not replace planet dock');
     assert.equal(await page.locator('.main-nav a[href="#observatory"]').getAttribute('aria-current'),'page','observatory is selected in planet dock');
-    assert.match(await page.locator('.council-scene').evaluate(el=>getComputedStyle(el).backgroundImage),/observatory-hall-v1\.webp/);
+    assert.match(await page.locator('.council-scene').evaluate(el=>getComputedStyle(el).backgroundImage),/observatory-hall-cinematic-v3(?:-mobile|-compact)?\.webp/);
     assert.equal(await page.locator('.council-station').count(),4,'four on-image observatory controls');
     assert.equal(await page.locator('.council-menu:visible').count(),autoMenu?1:0,'narrow rooms show their themed window on entry');
     if(autoMenu)assert.equal(await page.locator('#room-menu-1').isVisible(),true,'narrow observatory opens observations');
@@ -39,7 +39,7 @@ try{
     if(autoMenu)await page.locator('#room-menu-1 [data-research="room-close"]').click();
     await page.locator('[data-research="room-open:1"]').click();
     assert.equal(await page.locator('#room-menu-1').isVisible(),true,'observations menu opens');
-    assert.match(await page.locator('#room-menu-1').evaluate(el=>getComputedStyle(el,'::before').backgroundImage),/observatory-hall-v1\.webp/,'observatory crystal window has its own hall detail');
+    assert.match(await page.locator('#room-menu-1').evaluate(el=>getComputedStyle(el,'::before').backgroundImage),/observatory-hall-cinematic-v3(?:-mobile|-compact)?\.webp/,'observatory crystal window has its own hall detail');
     assert.equal(await page.locator('.observatory-room .personal-atlas').count(),1,'existing atlas remains available');
     await page.screenshot({path:`artifacts/council-${name}-observatory-open.png`});
     await page.locator('[data-research="atlas-new"]').click();
