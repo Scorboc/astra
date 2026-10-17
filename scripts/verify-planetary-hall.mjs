@@ -5,6 +5,7 @@ const base=process.env.ASTRA_URL||'http://127.0.0.1:5190/spatial/';
 const browser=await chromium.launch({headless:true,executablePath:'C:/Users/Admin/AppData/Local/ms-playwright/chromium-1234/chrome-win64/chrome.exe'});
 try{
   for(const [name,width,height] of [['desktop',1440,900],['phone',375,812],['small-phone',320,568],['landscape-phone',844,390],['small-landscape',667,375]]){
+    if(process.env.ASTRA_VIEW&&process.env.ASTRA_VIEW!==name)continue;
     const mobile=name!=='desktop';
     // Halls now open on their own art with points; no themed window opens by itself.
     const autoMenu=false;
