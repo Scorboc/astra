@@ -24,10 +24,10 @@ body.research-page:is([data-active-screen^="planet/"],[data-active-screen="obser
 .council-room[data-room=observatory]{--council-accent:#f2d193;--council-heading-font:'Cormorant Garamond',Georgia,serif;--council-tone:#091322f2}
 .council-scene,.council-shade{position:absolute;inset:0;pointer-events:none}
 .council-scene{z-index:-2;background-position:center;background-size:cover}
-.council-scene::after{content:"";position:absolute;inset:0;opacity:.06;background:radial-gradient(ellipse at 52% 56%,var(--council-accent),transparent 28%),radial-gradient(circle at 22% 48%,#fff9d0,transparent 7%);mix-blend-mode:screen;animation:hall-radiance 13s ease-in-out infinite alternate;pointer-events:none}
+.council-scene::after,.hall-map::after{content:"";position:absolute;inset:0;opacity:.06;background:radial-gradient(ellipse at 52% 56%,var(--council-accent),transparent 28%),radial-gradient(circle at 22% 48%,#fff9d0,transparent 7%);mix-blend-mode:screen;animation:hall-radiance 13s ease-in-out infinite alternate;pointer-events:none}
 @keyframes hall-radiance{from{opacity:.015}to{opacity:.085}}
-.motion-paused .council-scene::after{animation:none;opacity:.025}
-@media(prefers-reduced-motion:reduce){.council-scene::after{animation:none;opacity:.025}}
+.motion-paused .council-scene::after,.motion-paused .hall-map::after{animation:none;opacity:.025}
+@media(prefers-reduced-motion:reduce){.council-scene::after,.hall-map::after{animation:none;opacity:.025}}
 .council-room[data-room=origin] .council-scene{background-image:url('/council-halls/origin-hall-cinematic-v3.webp')}
 .council-room[data-room=aurora] .council-scene{background-image:url('/council-halls/aurora-hall-cinematic-v3.webp')}
 .council-room[data-room=velir] .council-scene{background-image:url('/council-halls/velir-hall-cinematic-v3.webp')}

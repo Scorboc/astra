@@ -6,7 +6,8 @@ const browser=await chromium.launch({headless:true,executablePath:'C:/Users/Admi
 try{
   for(const [name,width,height] of [['desktop',1440,900],['phone',375,812],['small-phone',320,568],['landscape-phone',844,390],['small-landscape',667,375]]){
     const mobile=name!=='desktop';
-    const autoMenu=width<=740;
+    // Halls now open on their own art with points; no themed window opens by itself.
+    const autoMenu=false;
     const context=await browser.newContext({viewport:{width,height},isMobile:mobile,hasTouch:mobile,deviceScaleFactor:mobile?3:1});
     const page=await context.newPage(),errors=[];
     page.on('pageerror',error=>errors.push(error.message));
@@ -27,8 +28,8 @@ try{
     assert.equal(await page.locator('.main-nav').isVisible(),true,'planet dock remains visible in observatory');
     assert.equal(await page.locator('.section-nav').isVisible(),false,'section navigation does not replace planet dock');
     assert.equal(await page.locator('.main-nav a[href="#observatory"]').getAttribute('aria-current'),'page','observatory is selected in planet dock');
-    assert.match(await page.locator('.council-scene').evaluate(el=>getComputedStyle(el).backgroundImage),/observatory-hall-cinematic-v3(?:-mobile|-compact)?\.webp/);
-    assert.equal(await page.locator('.council-station').count(),4,'four on-image observatory controls');
+    assert.match(await page.locator('.hall-art').getAttribute('src'),/observatory-hall-cinematic-v3\.webp/);
+    assert.equal(await page.locator('.hall-spot').count(),4,'four points on observatory objects');
     assert.equal(await page.locator('.council-menu:visible').count(),autoMenu?1:0,'narrow rooms show their themed window on entry');
     if(autoMenu)assert.equal(await page.locator('#room-menu-1').isVisible(),true,'narrow observatory opens observations');
     assert.equal(await page.locator('.galaxy-header>.wordmark').isVisible(),false,'galaxy logo does not take hall space');
@@ -37,7 +38,7 @@ try{
     await page.waitForTimeout(1350);
     await page.screenshot({path:`artifacts/council-${name}-observatory-closed.png`});
     if(autoMenu)await page.locator('#room-menu-1 [data-research="room-close"]').click();
-    await page.locator('[data-research="room-open:1"]').click();
+    await page.locator('.hall-spot[data-research="room-open:1"]').click();
     assert.equal(await page.locator('#room-menu-1').isVisible(),true,'observations menu opens');
     assert.match(await page.locator('#room-menu-1').evaluate(el=>getComputedStyle(el,'::before').backgroundImage),/observatory-hall-cinematic-v3(?:-mobile|-compact)?\.webp/,'observatory crystal window has its own hall detail');
     assert.equal(await page.locator('.observatory-room .personal-atlas').count(),1,'existing atlas remains available');
@@ -51,16 +52,16 @@ try{
     await page.waitForFunction(()=>[...document.querySelectorAll('.observatory-room .atlas-record')].some(el=>el.textContent?.includes('Проверочная запись в обсерватории')));
     assert.equal(await page.locator('#room-menu-1').isVisible(),true,'observations menu stays open after saving');
     await page.locator('#room-menu-1 [data-research="room-close"]').click();
-    await page.locator('[data-research="room-open:2"]').click();
+    await page.locator('.hall-spot[data-research="room-open:2"]').click();
     assert.equal(await page.locator('#room-menu-2').isVisible(),true,'personal table menu opens');
     assert.equal(await page.locator('#room-menu-1').isVisible(),false,'previous menu stays closed');
     await page.keyboard.press('Escape');
     assert.equal(await page.locator('.council-menu:visible').count(),0,'Escape closes only the menu');
     assert.ok(page.url().endsWith('#observatory'));
-    await page.locator('[data-research="room-open:0"]').click();
+    await page.locator('.hall-spot[data-research="room-open:0"]').click();
     assert.equal(await page.locator('#room-menu-0 [data-research="go:astrology"]').count(),1,'astrology retains its own route');
     await page.locator('#room-menu-0 [data-research="room-close"]').click();
-    await page.locator('[data-research="room-open:3"]').click();
+    await page.locator('.hall-spot[data-research="room-open:3"]').click();
     assert.equal(await page.locator('#room-menu-3').isVisible(),true,'source records are available');
     await page.locator('#room-menu-3 [data-research="room-close"]').click();
     await page.goBack();
@@ -70,7 +71,7 @@ try{
       const route=`planet/${world}`;
       await page.goto(base+'#'+route,{waitUntil:'networkidle'});
       await page.waitForSelector(`.council-room[data-room="${world}"]`);
-      assert.equal(await page.locator('.council-station:visible').count(),3,world+' has three on-image controls');
+      assert.equal(await page.locator('.hall-spot').count(),3,world+' has three points on its objects');
       assert.equal(await page.locator('.council-rail,.council-info').count(),0,world+' has no duplicate side controls');
       assert.equal(await page.locator('.council-heading h3').textContent(),({origin:'Исток',aurora:'Аврора',velir:'Велир',nereya:'Нерея',solis:'Солис'})[world]);
       await page.locator('.council-wordmark').evaluate(image=>image.decode());
@@ -82,8 +83,10 @@ try{
       assert.equal(overflow,false,world+' has no horizontal page overflow');
       await page.waitForTimeout(1350);
       await page.screenshot({path:`artifacts/council-${name}-${world}-closed.png`});
-      const destination=(await page.locator('.council-station-1').getAttribute('data-research')).slice(3);
-      await page.locator('.council-station-1').click();
+      await page.locator('.hall-spot[data-spot="0"]').click();
+      const open=page.locator('#spot-card-0 [data-research^="go:"]');
+      const destination=(await open.getAttribute('data-research')).slice(3);
+      await open.click();
       await page.waitForURL('**/#'+destination);
       await page.waitForFunction(expected=>document.body.dataset.activeScreen===expected,destination);
       await page.waitForSelector('.panel-top button');

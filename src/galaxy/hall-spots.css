@@ -1,0 +1,75 @@
+/* Card rules carry the panel's own prefix: generic .journey-panel text and button rules are more specific otherwise.
+   Hall points (owner-approved 2026-10-16): actions sit on objects in the hall art.
+   The name rides on a pill (60% glass, 4.5:1 or better over the brightest pixels of every hall);
+   the explanation lives in a card opened by the point. Phones get a sideways panorama and a switcher. */
+.council-room[data-room=origin]{--hall-glow:#ffae83}
+.council-room[data-room=aurora]{--hall-glow:#9fe8ff}
+.council-room[data-room=velir]{--hall-glow:#b9d9ff}
+.council-room[data-room=nereya]{--hall-glow:#f3cf91}
+.council-room[data-room=solis]{--hall-glow:#d9a8ff}
+.council-room[data-room=observatory]{--hall-glow:#e7e3ff}
+
+.council-room.has-map{container-type:size}
+.council-room.has-map .council-scene,.council-room.has-map .council-shade{display:none}
+.hall-pan{position:absolute;inset:0;z-index:0;overflow:hidden;container-type:size}
+/* Same box as background-size:cover, so fractions of the art land on the same pixels. */
+.hall-map{position:absolute;left:50%;top:50%;translate:-50% -50%;width:max(100cqw,calc(100cqh * var(--ar)));height:max(100cqh,calc(100cqw / var(--ar)))}
+.hall-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none}
+.hall-map-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,#020816a3,transparent 32%)}
+.hall-intro-shade{position:absolute;z-index:1;top:0;left:0;width:min(66%,820px);height:min(50%,360px);pointer-events:none;background:radial-gradient(120% 120% at 0 0,rgba(6,12,22,.84) 42%,rgba(6,12,22,.5) 66%,transparent 90%)}
+.council-room.intro-right .hall-intro-shade{left:auto;right:0;background:radial-gradient(120% 120% at 100% 0,rgba(6,12,22,.84) 42%,rgba(6,12,22,.5) 66%,transparent 90%)}
+.council-room.has-map .council-heading{text-shadow:none}
+.council-room.intro-right .council-heading{left:auto;right:clamp(26px,4vw,64px);max-width:min(30%,420px);text-align:right}
+.council-room.intro-right .council-heading p{margin-left:auto!important}
+.council-room.intro-right .council-wordmark{margin-left:auto;object-position:right center}
+
+.hall-spot{position:absolute;z-index:3;width:44px;height:44px;translate:-50% -50%;margin:0;padding:0;border:0;border-radius:50%;background:none;color:inherit;font:inherit;cursor:pointer;display:grid;place-items:center}
+.hall-spot::before{content:"";position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--hall-glow);animation:hall-ping 2.6s ease-out infinite;pointer-events:none}
+.hall-spot:nth-of-type(2)::before{animation-delay:.4s}
+.hall-spot:nth-of-type(3)::before{animation-delay:.8s}
+/* A dark ring keeps the point visible over glowing objects of the same colour (Aurora's holograms). */
+.hall-dot{width:16px;height:16px;border-radius:50%;background:var(--hall-glow);box-shadow:0 0 0 3px rgba(6,12,22,.88),0 0 0 6px color-mix(in srgb,var(--hall-glow) 70%,transparent),0 0 24px 4px var(--hall-glow);transition:scale .15s,background .15s}
+.hall-pill{position:absolute;white-space:nowrap;padding:5px 12px 6px;border-radius:999px;background:rgba(6,12,22,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid transparent;font:400 14px/1.15 Forum,'Cormorant Garamond',Georgia,serif;letter-spacing:.08em;text-transform:uppercase;color:#fbf2dc;transition:border-color .15s}
+.hall-spot-below .hall-pill{top:calc(100% + 2px);left:50%;translate:-50% 0}
+.hall-spot-above .hall-pill{bottom:calc(100% + 2px);left:50%;translate:-50% 0}
+.hall-spot-right .hall-pill{left:calc(100% + 2px);top:50%;translate:0 -50%}
+.hall-spot-left .hall-pill{right:calc(100% + 2px);top:50%;translate:0 -50%}
+.hall-spot:hover .hall-dot,.hall-spot[aria-expanded=true] .hall-dot{background:#fff;scale:1.25}
+.hall-spot:hover .hall-pill,.hall-spot[aria-expanded=true] .hall-pill{border-color:color-mix(in srgb,var(--hall-glow) 60%,transparent)}
+.hall-spot:focus-visible{outline:2px solid var(--hall-glow);outline-offset:2px}
+@keyframes hall-ping{from{transform:scale(.5);opacity:.9}to{transform:scale(1.7);opacity:0}}
+
+.hall-card{position:absolute;z-index:6;width:min(280px,82cqw);translate:-50% 30px;display:grid;gap:8px;padding:14px 16px;border-radius:14px;background:rgba(8,14,26,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid color-mix(in srgb,var(--hall-glow) 45%,transparent);box-shadow:0 18px 40px #000a;color:#e9eef5;text-align:left}
+.hall-card-above{translate:-50% calc(-100% - 30px)}
+.hall-card-start{translate:-22px 30px}
+.hall-card-start.hall-card-above{translate:-22px calc(-100% - 30px)}
+.hall-card-end{translate:calc(-100% + 22px) 30px}
+.hall-card-end.hall-card-above{translate:calc(-100% + 22px) calc(-100% - 30px)}
+.research-page .journey-panel .council-room.has-map .hall-card strong{font:400 21px/1.1 Forum,Georgia,serif;color:var(--hall-glow)}
+.research-page .journey-panel[data-presentation] .council-room.has-map .hall-card p{margin:0;font:400 14px/1.45 'Exo 2',Arial,sans-serif;color:#d3dbe6}
+.hall-card-actions{display:flex;gap:8px;align-items:center}
+.research-page .journey-panel .council-room.has-map .hall-card-actions .primary{width:auto;min-height:40px;margin:0;padding:9px 18px;font-size:14px}
+.research-page .journey-panel .council-room.has-map .hall-card-actions .text-button{min-height:40px;margin:0;font-size:13.5px}
+.hall-sheet{display:none}
+
+@media(max-width:740px){
+  /* Phone: the hall becomes a sideways panorama; names move to the switcher at the bottom. */
+  .hall-pan{bottom:74px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
+  .hall-pan::-webkit-scrollbar{display:none}
+  .hall-map{position:relative;left:0;top:0;translate:none;height:100%;width:calc(100cqh * var(--ar))}
+  .hall-pill{display:none}
+  .hall-intro-shade,.council-room.intro-right .hall-intro-shade{left:0;right:0;width:auto;height:min(38%,260px);background:linear-gradient(rgba(6,12,22,.86) 55%,transparent)}
+  .council-room.intro-right .council-heading{left:14px;right:94px;max-width:none;text-align:left}
+  .council-room.intro-right .council-heading p{margin-left:0!important}
+  .council-room.intro-right .council-wordmark{margin-left:0;object-position:left center}
+  .hall-card{width:min(260px,78cqw)}
+  .hall-sheet{position:absolute;z-index:5;left:10px;right:10px;bottom:10px;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;padding:5px;border-radius:16px;background:rgba(8,14,26,.8);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid #ffffff22}
+  .hall-sheet button{min-height:48px;margin:0;padding:6px 4px;border:1px solid transparent;border-radius:11px;background:transparent;color:#e7ecf3;font:500 12.5px/1.15 'Exo 2',Arial,sans-serif;cursor:pointer}
+  .hall-sheet button[aria-expanded=true]{border-color:color-mix(in srgb,var(--hall-glow) 55%,transparent);color:var(--hall-glow);background:color-mix(in srgb,var(--hall-glow) 9%,transparent)}
+  .hall-sheet button:focus-visible{outline:2px solid var(--hall-glow);outline-offset:1px}
+}
+@media(prefers-reduced-motion:reduce){.hall-spot::before{animation:none;opacity:.55}.hall-dot{transition:none}}
+@media(max-width:740px){
+  .hall-card-pan,.hall-card-pan.hall-card-start,.hall-card-pan.hall-card-end{translate:-50% 30px}
+  .hall-card-pan.hall-card-above,.hall-card-pan.hall-card-start.hall-card-above,.hall-card-pan.hall-card-end.hall-card-above{translate:-50% calc(-100% - 30px)}
+}

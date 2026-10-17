@@ -39,6 +39,7 @@ import './council-halls.css';
 import './panel-color-cleanup.css';
 import './council-fragment-buttons.css';
 import './council-cinematic-responsive.css';
+import './hall-spots.css';
 
 const $ = <E extends HTMLElement = HTMLElement>(id:string) => document.getElementById(id) as E;
 const esc = (v:unknown) => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
