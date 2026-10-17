@@ -18,7 +18,7 @@ test('zoom remains bounded after repeated input',()=>{
  for(let i=0;i<200;i++)distance=clampDistance(distance*1.1,32,90);assert.equal(distance,90);
 });
 test('mobile and limited graphics devices do not request 8K',()=>{
- assert.equal(originTextureSize(true,16384),4096);assert.equal(originTextureSize(false,4096),4096);assert.equal(originTextureSize(false,16384),8192);
+ assert.equal(originTextureSize(true,16384),4096);assert.equal(originTextureSize(false,4096),4096);assert.equal(originTextureSize(false,16384),4096);assert.equal(originTextureSize(false,2048),2048);
 });
 test('the living scene keeps independent planet and volumetric motion',()=>{
  const code=readFileSync(new URL('../src/galaxy/playcanvas-world.js',import.meta.url),'utf8');

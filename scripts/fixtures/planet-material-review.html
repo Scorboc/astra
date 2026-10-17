@@ -1,0 +1,18 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASTRA material verification</title>
+<link rel="icon" href="/favicon.svg">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
+#cosmos,#labels{position:absolute;inset:0}canvas{display:block;width:100%;height:100%}#labels{display:none}
+</style>
+<div id="cosmos"></div><div id="labels"></div>
+<script type="module">
+import {createGalaxyScene} from '/src/galaxy/playcanvas-world.js';
+const scene=createGalaxyScene(document.getElementById('cosmos'),document.getElementById('labels'),{pick(){},landed(){},failed(){document.body.dataset.failed='true'}});
+window.reviewScene=scene;
+await scene.ready;
+scene.pause(true);
+document.body.dataset.ready='true';
+</script>
