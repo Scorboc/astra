@@ -18,7 +18,7 @@ def main():
 
     def hover_scene(page):
         # Labels legitimately intercept the center of the canvas. Find a real unobstructed point.
-        point = page.locator('#cosmos canvas').evaluate('''canvas => {
+        point = page.locator('#cosmos canvas:not(.castle-flight)').evaluate('''canvas => {
           for(const fy of [.35,.5,.65,.75])for(const fx of [.8,.65,.9,.5,.35]){
             const x=innerWidth*fx,y=innerHeight*fy;
             if(document.elementFromPoint(x,y)===canvas)return {x,y};
@@ -119,62 +119,28 @@ def main():
             assert page.locator('.castle-orbit').count() == 0
             frame_start = len([u for u in requests if '/castle-orbit/transparent/f' in u])
             assert not any('observatory.glb' in u or 'architecture-reference-v2.webp' in u for u in requests)
-            assert frame_start == 21, 'Frames must not load on initial galaxy entry'
-            flight_point = hover_scene(page)
-            for _ in range(100):
-                if page.locator('.castle-orbit').count():
-                    break
-                if mobile:
-                    cdp.send('Input.dispatchTouchEvent', {'type': 'touchStart', 'touchPoints': [{'x': flight_point['x'], 'y': flight_point['y'], 'id': 1}]})
-                    for step in range(1, 7):
-                        cdp.send('Input.dispatchTouchEvent', {'type': 'touchMove', 'touchPoints': [{'x': flight_point['x'], 'y': flight_point['y'] - step * 16, 'id': 1}]})
-                        page.wait_for_timeout(20)
-                    cdp.send('Input.dispatchTouchEvent', {'type': 'touchEnd', 'touchPoints': []})
-                else:
-                    page.mouse.wheel(0, 180)
-                    page.wait_for_timeout(65)
-            page.wait_for_selector('.castle-orbit', timeout=15000)
-            page.wait_for_function("document.querySelector('.castle-orbit')?.dataset.loaded === '21'")
-            assert len([u for u in requests if '/castle-orbit/transparent/f' in u]) == frame_start + 21
+            assert 21 <= frame_start <= 22, 'Only the small central view may load on initial galaxy entry'
+            hover_scene(page)
+            page.mouse.wheel(0, 180)
+            page.wait_for_timeout(400)
+            assert page.locator('.castle-orbit').count() == 0
             page.wait_for_function("document.querySelector('#cosmos').dataset.rendering === 'active'")
-            assert page.locator('.castle-orbit').evaluate("e => getComputedStyle(e).backgroundColor === 'rgba(0, 0, 0, 0)'")
-            before = page.locator('#cosmos').get_attribute('data-flight')
-            camera_before = page.locator('#cosmos').get_attribute('data-camera-position')
+            assert page.locator('#cosmos').get_attribute('data-castle-orbit') == 'continuous'
             animation_before = float(page.locator('#cosmos').get_attribute('data-animation-time'))
             page.wait_for_timeout(250)
-            assert page.locator('#cosmos').get_attribute('data-camera-position') == camera_before
             assert float(page.locator('#cosmos').get_attribute('data-animation-time')) > animation_before
-            page.screenshot(path=str(output / f'{name}-galaxy.png'))
-            if name == 'desktop':
-                for index in [0, 20]:
-                    page.locator('.castle-orbit input').fill(str(index))
-                    page.screenshot(path=str(output / f'{name}-galaxy-angle-{index}.png'))
-                page.locator('.castle-orbit input').fill('10')
-            # All original planet/observatory navigation remains above the viewer.
+            # The continuous passage itself is covered by verify-castle-flight.py.
             assert page.locator('.main-nav a').count() == 6
             for a in page.locator('.main-nav a').all():
                 r = a.bounding_box()
                 assert r and r['y'] + r['height'] <= height + 1, r
                 assert a.evaluate('e => {const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}')
-            page.get_by_role('button', name='Продолжить полёт').click()
-            assert page.locator('.castle-orbit').count() == 0
-            page.wait_for_timeout(300)
-            assert page.locator('#cosmos').get_attribute('data-flight') == before
-            assert page.locator('#cosmos').get_attribute('data-camera-position') == camera_before
-            assert page.locator('#cosmos').get_attribute('data-rendering') == 'active'
-            # Continue forward out of the trigger area; do not reopen at the same spot.
-            hover_scene(page)
-            for _ in range(25):
-                page.mouse.wheel(0, 180)
-                page.wait_for_timeout(65)
-            assert page.locator('.castle-orbit').count() == 0
-            assert float(page.locator('#cosmos').get_attribute('data-flight')) > float(before)
             assert not errors, {'errors': errors, 'httpErrors': http_errors}
             assert not http_errors, http_errors
             assert not [u for u in requests if urlsplit(u).hostname not in ('127.0.0.1', 'localhost')], requests
             report.append({'viewport': name, 'size': [width, height], 'frames': 21, 'pixels': pixels, 'geometry': geometry,
-                           'flightAtExit': before, 'errors': errors, 'httpErrors': http_errors, 'warnings': warnings})
-            print(f'{name}: all 21 frames, mouse/touch/keyboard, reduced motion, auto approach/exit: PASS', flush=True)
+                           'continuousGalaxy': True, 'errors': errors, 'httpErrors': http_errors, 'warnings': warnings})
+            print(f'{name}: standalone 21 frames, mouse/touch/keyboard, reduced motion, galaxy link: PASS', flush=True)
             context.close()
 
         # A failed frame stays an explicit load failure; retry must restore the real frame.
@@ -212,6 +178,7 @@ def main():
             page.locator(f'.main-nav [data-world="{world}"]').click()
             expected = '#observatory' if world == 'observatory' else f'#planet/{world}'
             page.wait_for_function('expected => location.hash === expected', arg=expected)
+            page.wait_for_function("document.body.classList.contains('world-interior')")
             assert page.locator('body').evaluate("e => e.classList.contains('world-interior')")
             assert page.locator('.castle-orbit').count() == 0
             page.go_back(wait_until='networkidle')
