@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <script>
+      // The live scene defaults to the approved V8 look and the Blender-exported model.
+      // Pass ?style=none or ?model=v4 to see the earlier versions.
+      (function () {
+        var q = new URLSearchParams(location.search);
+        var changed = false;
+        if (!q.has("style")) { q.set("style", "v8"); changed = true; }
+        if (!q.has("model")) { q.set("model", "v8"); changed = true; }
+        if (changed) history.replaceState(null, "", location.pathname + "?" + q.toString() + location.hash);
+      })();
+    </script>
+    <title>ASTRA · отдельная проверка модели</title>
+    <link rel="icon" href="./favicon.svg" />
+    <style>html,body{color:#f1e7d4;background:#030207;width:100%;height:100%;margin:0;font:14px system-ui;overflow:hidden}canvas{touch-action:none;width:100%;height:100%;display:block}nav{bottom:max(12px, env(safe-area-inset-bottom));gap:8px;display:flex;position:fixed;left:50%;transform:translate(-50%)}button{min-height:44px;color:inherit;white-space:nowrap;cursor:pointer;background:#17130dd9;border:1px solid #bca77e88;border-radius:7px;padding:10px 16px}button:focus-visible{outline-offset:3px;outline:2px solid #ffe3a1}#status{left:16px;top:max(12px, env(safe-area-inset-top));color:#d4c7aa;pointer-events:none;max-width:90%;font-size:12px;position:fixed}#failure{background:#17130d;place-content:center;padding:24px;display:grid;position:fixed;inset:20%}#failure[hidden]{display:none}</style>
+    <script type="module" crossorigin src="./assets/index-CLca2w5b.js"></script>
+  </head>
+  <body>
+    <canvas id="scene" aria-label="Отдельная 3D-модель обсерватории"></canvas>
+    <div id="status">Загрузка отдельной модели…</div>
+    <nav aria-label="Проверка ракурсов">
+      <button id="front">Спереди</button><button id="side">Сбоку</button
+      ><button id="motion" aria-pressed="false">Пауза эффектов</button>
+    </nav>
+    <div id="failure" hidden></div>
+  </body>
+</html>
