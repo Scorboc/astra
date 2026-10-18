@@ -1,0 +1,59 @@
+{
+ "source": "gothic-control.blend (V8 lighting)",
+ "pass": "Cycles DIFFUSE DIRECT+INDIRECT, no colour",
+ "samples": 48,
+ "target": "HDR vertex illumination, per-vertex",
+ "encoding": "sqrt-normalized",
+ "bakedMaterial": "Control pearl stone",
+ "linearGain": 40.891772975922166,
+ "linearPeak": 40.891772975922166,
+ "sceneModified": false,
+ "mainSiteIntegrated": false,
+ "stats": {
+  "Control crystal": {
+   "base": 1156,
+   "final": 1156,
+   "verts": 788
+  },
+  "Control foliage": {
+   "base": 1152,
+   "final": 1152,
+   "verts": 1440
+  },
+  "Control glass": {
+   "base": 25392,
+   "final": 25392,
+   "verts": 12848
+  },
+  "Control gold": {
+   "base": 1454620,
+   "final": 230000,
+   "verts": 122192
+  },
+  "Control light": {
+   "base": 3092,
+   "final": 3092,
+   "verts": 1640
+  },
+  "Control stone": {
+   "base": 1077104,
+   "final": 330000,
+   "verts": 171692
+  },
+  "Control vault": {
+   "base": 6144,
+   "final": 6144,
+   "verts": 3201
+  },
+  "Control window": {
+   "base": 4473,
+   "final": 4473,
+   "verts": 4544
+  },
+  "Reflective platform and bridge": {
+   "base": 195,
+   "final": 195,
+   "verts": 196
+  }
+ }
+}
