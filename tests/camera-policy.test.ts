@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {compactViewport,clampDistance,originTextureSize,originPreviewSize} from '../src/galaxy/camera-policy.js';
+import {compactViewport,clampDistance,originTextureSize,originPreviewSize,detailSize} from '../src/galaxy/camera-policy.js';
 import {readFileSync} from 'node:fs';
 test('restored flight camera uses only the original vertical travel gesture',()=>{
  const code=readFileSync(new URL('../src/galaxy/playcanvas-world.js',import.meta.url),'utf8');
@@ -18,7 +18,7 @@ test('zoom remains bounded after repeated input',()=>{
  for(let i=0;i<200;i++)distance=clampDistance(distance*1.1,32,90);assert.equal(distance,90);
 });
 test('mobile and limited graphics devices do not request 8K',()=>{
- assert.equal(originTextureSize(true,16384),4096);assert.equal(originTextureSize(false,4096),4096);assert.equal(originTextureSize(false,16384),4096);assert.equal(originTextureSize(false,2048),2048);
+ assert.equal(originTextureSize(true,16384),2048);assert.equal(originTextureSize(false,4096),4096);assert.equal(originTextureSize(false,16384),4096);assert.equal(originTextureSize(false,2048),2048);
 });
 test('the living scene keeps independent planet and volumetric motion',()=>{
  const code=readFileSync(new URL('../src/galaxy/playcanvas-world.js',import.meta.url),'utf8');
@@ -28,4 +28,7 @@ test('the living scene keeps independent planet and volumetric motion',()=>{
 });
 test('first view loads a lighter Origin map than the close-up', () => {
  assert.equal(originPreviewSize(true, 16384), 2048); assert.equal(originPreviewSize(false, 16384), 4096); assert.equal(originPreviewSize(false, 4096), 4096);
+});
+test('phones load 2048 planet maps, desktops 4096', () => {
+ assert.equal(detailSize(true), 2048); assert.equal(detailSize(false), 4096);
 });
