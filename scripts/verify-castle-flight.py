@@ -12,6 +12,7 @@ def main():
     parser.add_argument('--output', default='artifacts/castle-flight-check')
     parser.add_argument('--quick', action='store_true')
     parser.add_argument('--profile', choices=['desktop','phone','landscape'])
+    parser.add_argument('--record-video', action='store_true')
     args = parser.parse_args()
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
@@ -27,7 +28,8 @@ def main():
         if args.profile:
             profiles=[profile for profile in profiles if profile[0]==args.profile]
         for name, width, height, mobile in profiles[:1] if args.quick else profiles:
-            context = browser.new_context(viewport={'width': width, 'height': height}, is_mobile=mobile, has_touch=mobile, device_scale_factor=2 if mobile else 1)
+            video={'record_video_dir':str(output/'video'),'record_video_size':{'width':width,'height':height}} if args.record_video else {}
+            context = browser.new_context(viewport={'width': width, 'height': height}, is_mobile=mobile, has_touch=mobile, device_scale_factor=2 if mobile else 1,**video)
             page = context.new_page()
             errors, http_errors, requests = [], [], []
             page.on('pageerror', lambda e: errors.append(str(e)))
@@ -65,12 +67,25 @@ def main():
                 count = round((desired - current) / .035)
                 for _ in range(abs(count)):
                     page.keyboard.press('ArrowDown' if count > 0 else 'ArrowUp')
+                page.wait_for_timeout(120)
+                residual=desired-float(snapshot()['flight'])
+                if abs(residual)>.000001:
+                    point=scene.locator('canvas:not(.castle-flight)').evaluate('''canvas=>{
+                        for(const fy of [.45,.6,.3])for(const fx of [.25,.45,.7,.85]){
+                            const x=innerWidth*fx,y=innerHeight*fy;
+                            if(document.elementFromPoint(x,y)===canvas)return {x,y};
+                        }return null;
+                    }''')
+                    assert point
+                    page.mouse.move(point['x'],point['y'])
+                    page.mouse.wheel(0,residual/.00032)
                 page.wait_for_timeout(600)
                 state = snapshot()
                 if 12 <= pose['node'] <= 15:
                     page.wait_for_function("document.querySelector('#cosmos').dataset.castleLoaded === '21'")
                     state = snapshot()
                 assert state.get('castleOrbit') == 'continuous'
+                assert state.get('castleProjection') == 'world-capture-plane'
                 assert page.locator('.castle-orbit').count() == 0
                 assert scene.evaluate('e=>!e.inert')
                 assert page.locator('#intro').evaluate('e=>Number(getComputedStyle(e).opacity)<.05')
@@ -80,6 +95,12 @@ def main():
                 if 12 <= pose['node'] <= 15:
                     assert state.get('castleSupported') == 'true', state
                     assert abs(float(state['castleElevation']) + 11.3864) < .2, state
+                    comparison=scene.evaluate('''e=>({box:e.querySelector('.castle-flight').getBoundingClientRect().toJSON(),
+                        declared:e.dataset.castleBounds.split(',').map(Number)})''')
+                    actual_box,declared=comparison['box'],comparison['declared']
+                    # Browser CSS matrices use compositor float precision;
+                    # allow subpixel rounding, not a different projection.
+                    assert all(abs(actual_box[k]-v)<.3 for k,v in zip(['x','y','width','height'],declared)),comparison
                 if pose['node'] == 14:
                     x0,y0,w0,h0 = map(float,state['castleBounds'].split(','))
                     assert x0 >= -1 and x0+w0 <= width+1 and y0 >= -1 and y0+h0 <= height+1, state
@@ -96,6 +117,12 @@ def main():
                         page.screenshot(path=str(output/'phone-rotated.png'))
                         page.set_viewport_size({'width':width,'height':height})
                         page.wait_for_timeout(300)
+            centers=[]
+            for record in records:
+                if record['node'] in (13,14,15):
+                    x0,_,w0,_=map(float,record['state']['castleBounds'].split(','))
+                    centers.append(x0+w0/2)
+            assert max(centers)-min(centers)>width*.06,centers
             # One more wheel/touch gesture must continue, not hit a castle hold.
             page.emulate_media(reduced_motion='no-preference')
             focus_scene()
@@ -151,7 +178,8 @@ def main():
             assert not http_errors, http_errors
             assert not [u for u in requests if '/observatory' in u and '.glb' in u], requests
             assert all('/astra/' in u for u in requests if '/castle-orbit/transparent/' in u)
-            report.append({'viewport': name, 'records': records, 'reverseSamples':samples, 'errors': errors, 'httpErrors': http_errors})
+            report.append({'viewport': name, 'records': records, 'dollyCenters':centers, 'reverseSamples':samples,
+                           'video':str(page.video.path()) if args.record_video else None,'errors': errors, 'httpErrors': http_errors})
             print(name + ': continuous passage, screenshots, input: PASS', flush=True)
             context.close()
         # One temporary central-frame failure: bounded retry, no flight lock.

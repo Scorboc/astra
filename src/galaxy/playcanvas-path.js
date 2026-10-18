@@ -27,9 +27,9 @@ function routePosition(t,compact){
   const radius=r+(Math.max(r,minimum)-r)*weight;
   const angle=Math.atan2(z,x);
   // A portrait-safe distance puts Velir between the eye and the frontal castle.
-  // Keep the phone's close pass on the clear +13..+35 degree side of the arc.
-  // The desktop retains the full frontal passage. Both use existing Cycles views.
-  const viewAngle=compact?angle+(angle*.3+24*Math.PI/180-angle)*weight:angle;
+  // A narrower, off-axis pass avoids a showcase orbit. Both use existing views.
+  const passingAngle=compact?angle*.2+24*Math.PI/180:angle*.6;
+  const viewAngle=angle+(passingAngle-angle)*weight;
   position.x=CASTLE_CENTER[0]+Math.cos(viewAngle)*radius;position.z=CASTLE_CENTER[2]+Math.sin(viewAngle)*radius;
   const y=CASTLE_CENTER[1]+radius*CASTLE_ELEVATION;
   position.y+=(y-position.y)*weight;
@@ -42,9 +42,34 @@ function routePosition(t,compact){
 const ARC_SAMPLES=3600;
 function makeArc(compact){const samples=[{t:0,length:0}];let length=0,last=routePosition(0,compact);for(let i=1;i<=ARC_SAMPLES;i++){const at=routePosition(i/ARC_SAMPLES,compact);length+=at.distance(last);samples.push({t:i/ARC_SAMPLES,length});last=at;}return {samples,length};}
 const arcs=[makeArc(false),makeArc(true)];
+const ENTRY_NODE=10.2,HERO_NODE=12.5,EXIT_NODE=15.5,RETURN_NODE=18.1;
+function boundaryShot(node,compact){const t=node/points.length,position=routePosition(t,compact),direction=pointAt(targets,t).sub(position),distance=direction.length();return {direction:direction.normalize(),distance};}
+const shots=[false,true].map(compact=>({entry:boundaryShot(ENTRY_NODE,compact),exit:boundaryShot(RETURN_NODE,compact),
+ entryTravel:flightAtNode(ENTRY_NODE,compact),heroTravel:flightAtNode(HERO_NODE,compact),exitTravel:flightAtNode(EXIT_NODE,compact),returnTravel:flightAtNode(RETURN_NODE,compact)}));
 function parameter(value,compact){const {samples:arc,length}=arcs[compact?1:0],distance=wrapFlight(value)/FLIGHT_PERIOD*length;let lo=0,hi=arc.length-1;while(hi-lo>1){const mid=(lo+hi)>>1;if(arc[mid].length<distance)lo=mid;else hi=mid;}const a=arc[lo],b=arc[hi];return a.t+(b.t-a.t)*(distance-a.length)/(b.length-a.length||1);}
 export function flightAtNode(index,compact=false){const {samples:arc,length}=arcs[compact?1:0],at=index/points.length*ARC_SAMPLES,lo=Math.floor(at),a=arc[lo],b=arc[Math.min(lo+1,arc.length-1)];return (a.length+(b.length-a.length)*(at-lo))/length*FLIGHT_PERIOD;}
 export function flightStops(compact=false){return [0,2,4,6,8].map(i=>flightAtNode(i,compact));}
 export const FLIGHT_STOPS=flightStops();
 export function flightWorld(value,compact=false){const stops=flightStops(compact),t=wrapFlight(value);if(t>stops[4])return 'Возвращение к Истоку';const names=['Исток','Аврора','Велир','Нерея','Солис'];let nearest=0;for(let i=1;i<stops.length;i++)if(Math.abs(t-stops[i])<Math.abs(t-stops[nearest]))nearest=i;return names[nearest];}
-export function flightPose(value,compact=false){const t=parameter(value,compact),node=t*points.length,position=routePosition(t,compact),target=pointAt(targets,t);const lock=smooth(11,12,node)*(1-smooth(15.8,16.8,node));target.lerp(target,new Vec3(...CASTLE_CENTER),lock);return {position,target};}
+export function flightPose(value,compact=false){
+ const t=parameter(value,compact),node=t*points.length,position=routePosition(t,compact),target=pointAt(targets,t);
+ // A short dolly shot, not an orbit with the building mechanically pinned to
+ // the crosshair. A stable world heading lets it enter and leave the frame.
+ const heading=compact?24*Math.PI/180:0;
+ if(node>ENTRY_NODE&&node<RETURN_NODE){
+  const shot=new Vec3(-Math.cos(heading),-CASTLE_ELEVATION,-Math.sin(heading)).normalize(),boundary=shots[compact?1:0];
+  // Rotation is eased over physical travel too. Node indices compress on the
+  // phone's wide-radius arc and would otherwise produce a sudden head turn.
+  const leaving=node>EXIT_NODE,at=wrapFlight(value);
+  const framing=leaving?smooth(boundary.exitTravel,boundary.returnTravel,at):smooth(boundary.entryTravel,boundary.heroTravel,at);
+  const from=leaving?shot:boundary.entry.direction,to=leaving?boundary.exit.direction:shot;
+  const distance=leaving?60:boundary.entry.distance,endDistance=leaving?boundary.exit.distance:60;
+  const angle=Math.acos(Math.max(-1,Math.min(1,from.dot(to)))),sine=Math.sin(angle);
+  let forward;
+  if(angle<.0001)forward=from.clone().lerp(from,to,framing).normalize();
+  else if(Math.abs(sine)<.0001){const tangent=new Vec3(-from.z,0,from.x);if(tangent.length()<.0001)tangent.set(1,0,0);tangent.normalize();forward=from.clone().mulScalar(Math.cos(Math.PI*framing)).add(tangent.mulScalar(Math.sin(Math.PI*framing)));}
+  else forward=from.clone().mulScalar(Math.sin((1-framing)*angle)/sine).add(to.clone().mulScalar(Math.sin(framing*angle)/sine));
+  target.copy(position).add(forward.mulScalar(distance+(endDistance-distance)*framing));
+ }
+ return {position,target};
+}
