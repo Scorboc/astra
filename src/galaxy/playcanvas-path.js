@@ -1,5 +1,5 @@
 import {Vec3} from 'playcanvas';
-import {CASTLE_CENTER,CASTLE_ELEVATION,CASTLE_CLOSE_RADIUS,CASTLE_PHONE_RADIUS} from './castle-flight-model.ts';
+import {LIVE_CASTLE_CENTER as CASTLE_CENTER,LIVE_CASTLE_EYE,LIVE_CASTLE_AIM,LIVE_CASTLE_RADIUS as CASTLE_CLOSE_RADIUS,LIVE_CASTLE_PHONE_RADIUS as CASTLE_PHONE_RADIUS} from './castle-live-model.ts';
 
 // Preserved spatial route from the camera used before the observatory build.
 export const WORLDS={origin:{position:[-8,0,0],radius:5.5},aurora:{position:[7,14,-34],radius:4.5},velir:{position:[-7,-1,-68],radius:4.2},nereya:{position:[8,2,-106],radius:4.8},solis:{position:[-4,4,-145],radius:5.8},about:{position:[-16,9,-21],radius:3.2}};
@@ -31,12 +31,21 @@ function routePosition(t,compact){
   const passingAngle=compact?angle*.2+24*Math.PI/180:angle*.6;
   const viewAngle=angle+(passingAngle-angle)*weight;
   position.x=CASTLE_CENTER[0]+Math.cos(viewAngle)*radius;position.z=CASTLE_CENTER[2]+Math.sin(viewAngle)*radius;
-  const y=CASTLE_CENTER[1]+radius*CASTLE_ELEVATION;
+  // A real floor has depth: keep the eye above the bridge, never below it as
+  // the former distant-image capture cone did on the compact rail.
+  const y=LIVE_CASTLE_EYE;
   position.y+=(y-position.y)*weight;
  }
  // Preserve the previous phone rail's 1.5-unit safety offset at the planets.
  // Fade it out only inside the calibrated castle section.
  if(compact)position.z+=1.5*(1-weight);
+ // Only the observatory detour needs renewed clearance after raising its eye
+ // above the real bridge. Preserve all original planet stops and the first view.
+ const clearance=smooth(10.5,11.2,node)*(1-smooth(17,17.5,node));
+ if(clearance)for(const [id,world] of Object.entries(WORLDS))if(id!=='about'){
+  const away=position.clone().sub(new Vec3(...world.position)),distance=away.length(),minimum=world.radius+1.6;
+  if(distance<minimum+1&&distance>.00001){const safe=distance<=minimum-1?minimum:minimum+(distance-minimum+1)**2/4;position.add(away.mulScalar((safe-distance)/distance*clearance));}
+ }
  return position;
 }
 const ARC_SAMPLES=3600;
@@ -57,7 +66,7 @@ export function flightPose(value,compact=false){
  // the crosshair. A stable world heading lets it enter and leave the frame.
  const heading=compact?24*Math.PI/180:0;
  if(node>ENTRY_NODE&&node<RETURN_NODE){
-  const shot=new Vec3(-Math.cos(heading),-CASTLE_ELEVATION,-Math.sin(heading)).normalize(),boundary=shots[compact?1:0];
+  const shot=new Vec3(-Math.cos(heading),(LIVE_CASTLE_AIM-LIVE_CASTLE_EYE)/(compact?CASTLE_PHONE_RADIUS:CASTLE_CLOSE_RADIUS),-Math.sin(heading)).normalize(),boundary=shots[compact?1:0];
   // Rotation is eased over physical travel too. Node indices compress on the
   // phone's wide-radius arc and would otherwise produce a sudden head turn.
   const leaving=node>EXIT_NODE,at=wrapFlight(value);

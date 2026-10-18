@@ -1,4 +1,4 @@
-"""Continuous castle passage on a built /astra/ site; fresh synthetic contexts only."""
+"""Historical prerender passage check. The live V8 integration uses verify-castle-live.py."""
 import argparse
 import json
 import subprocess

@@ -23,7 +23,8 @@ test('world projection scales with distance, never projects a castle behind the 
 });
 test('the galaxy has no automatic fullscreen inspection or camera hold',()=>{
  const source=readFileSync(new URL('../src/galaxy/playcanvas-world.js',import.meta.url),'utf8');
- assert.ok(source.includes('mountCastleFlight'));
+ assert.ok(source.includes('mountLiveCastle'));
+ assert.ok(!source.includes('mountCastleFlight'));
  for(const removed of ['castleHold','openCastleOrbit','createApproachGate','mountCastleOrbit'])assert.ok(!source.includes(removed),removed);
  const compositor=readFileSync(new URL('../src/galaxy/castle-flight.js',import.meta.url),'utf8');
  assert.ok(compositor.includes("pointerEvents:'none'"));

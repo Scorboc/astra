@@ -6,7 +6,7 @@ import {PLANETS} from './journey.ts';
 import {assetUrl} from '../asset-url.ts';
 import {preloadPlanetPreviews} from './planet-preload.js';
 import {applyPlanetFinish,applyDetailedPlanetFinish} from './playcanvas-materials.js';
-import {mountCastleFlight} from './castle-flight.js';
+import {LIVE_CASTLE_EYE,LIVE_CASTLE_AIM} from './castle-live-model.ts';
 import {addOriginInscription} from './playcanvas-inscription.js';
 import {planetHazeParticles} from './playcanvas-haze.js';
 import {applyCoastMaterials} from './playcanvas-coast.js';
@@ -17,7 +17,7 @@ export function createGalaxyScene(host,labelHost,callbacks){
  const canvas=document.createElement('canvas');canvas.tabIndex=0;canvas.setAttribute('aria-label','Вселенная ASTRA. Колесо и свайп — полёт, нажатие на планету — открыть её.');host.append(canvas);
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let paused=reduced.matches,disposed=false,stage=0,mode='flight',app,device,camera,frame,station,effectsLayer,coast,coastPromise,observatoryPromise;
- let castleFlight;
+ let liveCastle;const castleAbort=new AbortController();
  let elapsed=0,travel=0,desiredTravel=0,yaw=0,pitch=0,press=null,transition,landed=false,pinchDistance=0;
  const activePointers=new Map();
  let panCenter=null;
@@ -39,16 +39,17 @@ export function createGalaxyScene(host,labelHost,callbacks){
  function overview(){setModeValue('map');fly(new pc.Vec3(compact()?100:74,72,compact()?128:48),new pc.Vec3(-10,0,-66),2.3);}
  function present(){setModeValue('focus');fly(new pc.Vec3(-1,4,19),new pc.Vec3(4,4,-25),1.4);}
  function focus(id,composition='center'){if(id==='about'){land();return;}if(id==='origin')upgradeOrigin();else void loadDetailedWorld(worlds.find(w=>w.id===id));const spec=WORLDS[id];if(!spec)return;setModeValue('focus');focusRadius=spec.radius;const p=vec(spec.position);const look=p.clone().add(new pc.Vec3(composition==='hall'&&!compact()?spec.radius*1.7:0,0,0));fly(p.clone().add(new pc.Vec3(spec.radius*.9,spec.radius*.65,spec.radius*(compact()?6.4:3.7))),look);}
- function observatory(){setModeValue('observatory');void loadObservatory();const p=vec(OBSERVATORY_POSITION);fly(p.clone().add(new pc.Vec3(compact()?54:23.4,1.35,0)),p.clone().add(new pc.Vec3(0,5.76,0)));}
+ function observatory(){setModeValue('observatory');void loadObservatory();const p=vec(OBSERVATORY_POSITION);fly(new pc.Vec3(p.x+(compact()?72:27),LIVE_CASTLE_EYE,p.z),new pc.Vec3(p.x,LIVE_CASTLE_AIM,p.z));}
  async function land(){setModeValue('surface');upgradeOrigin();host.dataset.landscape='loading';try{if(!app)await ready;if(disposed||mode!=='surface')return;coastPromise??=Promise.all([load('Istok coast','container',assetUrl('/benchmark-origin/coast.glb')),load('coast stone','texture',assetUrl('/benchmark-origin/stone.webp'))]).then(([a,stone])=>{coast=a.resource.instantiateRenderEntity();coast.setLocalScale(.22,.22,.22);coast.setPosition(-8,5.64,0);app.root.addChild(coast);stone.resource.anisotropy=device.maxAnisotropy;applyCoastMaterials(pc,coast,stone.resource);const inscription=addOriginInscription(pc,device,coast);cleanup.push(()=>inscription.destroy());return coast;});await coastPromise;if(disposed||mode!=='surface')return;coast.enabled=true;host.dataset.landscape='ready';fly(new pc.Vec3(compact()?-8:-7.94,5.98,compact()?1.1:.88),new pc.Vec3(-8,5.88,-.198),2.2);}catch(error){coastPromise=null;host.dataset.landscape='failed';console.error(error);}}
  function scrub(value){if(!Number.isFinite(value))return;document.body.classList.add('exploring');if(mode!=='flight')setModeValue('flight');transition=undefined;desiredTravel=value;}
  async function loadObservatory(){if(!app){await ready;if(disposed)return;}if(observatoryPromise)return observatoryPromise;observatoryPromise=(async()=>{
-  // The navigation anchor stays in place; the pre-render now belongs to the
-  // world projection instead of an automatic fullscreen modal.
+  // The navigation anchor exists while the actual GLB/materials load, without
+  // blocking planet previews or mounting the standalone demo's second engine.
   station=new pc.Entity('ASTRA observatory');station.setPosition(...OBSERVATORY_POSITION);station.setLocalScale(.6,.6,.6);station.setEulerAngles(0,OBSERVATORY_ROTATION*180/Math.PI,0);app.root.addChild(station);
-  const button=document.createElement('button');button.className='planet-label observatory-label';button.textContent='Обсерватория';button.setAttribute('aria-label','Открыть обсерваторию');button.addEventListener('click',callbacks.observatory);labelHost.append(button);labels.push({button,entity:station,offset:12.7});host.dataset.observatory='ready';
-  castleFlight=mountCastleFlight(host,camera,worlds,pc);
- })().catch(error=>{host.dataset.observatory='failed';console.error(error);});return observatoryPromise;}
+  const button=document.createElement('button');button.className='planet-label observatory-label';button.textContent='Обсерватория';button.setAttribute('aria-label','Открыть обсерваторию');button.addEventListener('click',callbacks.observatory);labelHost.append(button);labels.push({button,entity:station,offset:12.7});
+  const {mountLiveCastle}=await import('./castle-live.js');if(disposed)return;
+  liveCastle=await mountLiveCastle({app,device,camera,host,compact:compact(),signal:castleAbort.signal});if(disposed){liveCastle.destroy();return;}host.dataset.observatory='ready';
+ })().catch(error=>{if(!disposed){host.dataset.observatory='failed';console.error(error);}});return observatoryPromise;}
  function createNebulae(){
   let seed=8714;const random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
   const quad=new pc.Mesh(device);quad.setPositions([-.5,-.5,0,.5,-.5,0,.5,.5,0,-.5,.5,0]);quad.setUvs(0,[0,0,1,0,1,1,0,1]);quad.setIndices([0,1,2,0,2,3]);quad.update();
@@ -81,13 +82,13 @@ void main(){vec2 p=(uv-.5)*2.;float edge=1.-smoothstep(.15,1.,length(p));vec2 dr
   }
   createBackdrop();createAsteroids();createNebulae();
   let frameCount=0,total=0;
-  app.on('update',dt=>{if(disposed)return;const obscured=document.hidden||document.body.classList.contains('world-interior');app.autoRender=!obscured;host.dataset.rendering=obscured?'suspended':'active';if(obscured){castleFlight?.update(false);return;}camera.camera.nearClip=mode==='surface'?.025:.5;frame.bloom.intensity=mode==='surface'?.10:mode==='observatory'?.22:.34;frame.taa.enabled=false;frame.update();const delta=Math.min(dt,.05);if(!paused)elapsed+=dt;
+  app.on('update',dt=>{if(disposed)return;const obscured=document.hidden||document.body.classList.contains('world-interior');app.autoRender=!obscured;host.dataset.rendering=obscured?'suspended':'active';if(obscured){liveCastle?.update(elapsed,false);return;}camera.camera.nearClip=mode==='surface'?.025:.5;frame.bloom.intensity=mode==='surface'?.10:mode==='observatory'?.22:.34;frame.taa.enabled=false;frame.update();const delta=Math.min(dt,.05);if(!paused)elapsed+=dt;
    if(mode==='flight'&&transition===undefined){const gap=desiredTravel-travel,step=reduced.matches?Math.abs(gap):Math.min(Math.abs(gap),delta*.32);travel+=Math.sign(gap)*step;const pose=flightPose(travel,compact());desiredPosition=position(pose.position);desiredTarget=position(pose.target);}
    const speed=transition===0?1:1-Math.exp(-delta*(transition?5/transition:8));const pos=camera.getPosition().clone().lerp(camera.getPosition(),desiredPosition,speed);target.lerp(target,desiredTarget,speed);if(transition!==undefined&&pos.distance(desiredPosition)<.04&&target.distance(desiredTarget)<.04){transition=undefined;if(mode==='surface'&&coast?.enabled&&!landed){landed=true;callbacks.landed(true);}}
    if(mode!=='flight'){const offset=pos.clone().sub(target),angle=yaw,x=offset.x*Math.cos(angle)+offset.z*Math.sin(angle),z=offset.z*Math.cos(angle)-offset.x*Math.sin(angle);pos.set(target.x+x,target.y+offset.y+pitch,target.z+z);if(yaw||pitch)desiredPosition.copy(pos);if(!yaw&&!pitch&&pos.distance(desiredPosition)<.001&&target.distance(desiredTarget)<.001){pos.copy(desiredPosition);target.copy(desiredTarget);}}camera.setPosition(pos);camera.lookAt(target);yaw=pitch=0;
    if(!paused)for(const world of worlds)world.entity.rotateLocal(0,delta*world.spin,0);
    if(station)station.enabled=mode!=='surface';
-   castleFlight?.update(mode!=='surface');
+   liveCastle?.update(elapsed,mode!=='surface');
    for(const mist of mists){if(mist.haze){const h=mist.haze,t=elapsed*h.form.speed,distance=camera.getPosition().distance(h.center)/h.radius,smooth=(a,b,x)=>{const v=Math.max(0,Math.min(1,(x-a)/(b-a)));return v*v*(3-2*v);},visibility=1-smooth(30,44,distance),lod=h.index%3===0?1:1-smooth(5,11,distance);mist.entity.enabled=mode!=='surface'&&visibility*lod>.001;if(!mist.entity.enabled)continue;const q=new pc.Quat().setFromEulerAngles(h.form.tilt*180/Math.PI,(Math.sin(t*.045+h.phase)*.10+(h.form.name==='inclined-nebula-ring'?.55:0))*180/Math.PI,(Math.sin(t*.035+h.phase)*.065+(h.form.name==='inclined-nebula-ring'?.22:0))*180/Math.PI),at=q.transformVector(h.base.clone().mulScalar(1+Math.sin(t*.22+h.index*1.7+h.phase)*.035));mist.entity.setPosition(at.add(h.center));mist.material.setParameter('opacity',h.opacity*(.88+.12*Math.sin(t*.28+h.index+h.phase))*visibility*lod*h.form.density);}if(mist.base){const at=mist.base.clone();at.y+=Math.sin(elapsed*.35+mist.index)*.32;mist.entity.setPosition(at);}if(mist.coil){mist.entity.setPosition(serpentSpiralPose(mist.coil.u,Math.sin(elapsed*.30+mist.coil.sectionIndex)*.32).position);}mist.entity.lookAt(camera.getPosition());mist.material.setParameter('time',elapsed*4);if(mist.flash){const pulse=paused?0:mist.schedule.sample(elapsed).pulse;mist.material.setParameter('flash',pulse);mist.material.setParameter('opacity',pulse);mist.entity.enabled=pulse>.005;}}
    // Labels never cover the intro copy: a label that would land on it is hidden for that frame.
     const introEl=document.getElementById('intro'),introBox=introEl&&!introEl.hidden&&introEl.offsetParent?introEl.getBoundingClientRect():null,hostBox=introBox?host.getBoundingClientRect():null;
@@ -116,6 +117,6 @@ void main(){vec2 p=(uv-.5)*2.;float edge=1.-smoothstep(.15,1.,length(p));vec2 dr
  function zoomScale(factor){const offset=desiredPosition.clone().sub(desiredTarget),minimum=mode==='observatory'?(compact()?32:15):mode==='surface'?.8:focusRadius*(compact()?5.8:2.6),maximum=mode==='observatory'?90:mode==='surface'?3:focusRadius*12;offset.normalize().mulScalar(clampDistance(desiredPosition.distance(desiredTarget)*factor,minimum,maximum));desiredPosition=desiredTarget.clone().add(offset);transition=reduced.matches?0:undefined;}
  function zoom(direction){if(mode==='flight'){scrub(desiredTravel+direction*.035);return;}zoomScale(direction>0?.9:1.1);}
  function pause(value){paused=value;if(transition!==undefined)transition=0;document.body.classList.toggle('motion-paused',value);try{sessionStorage.setItem('astra.motion-paused',String(value));}catch{}}
- function dispose(){disposed=true;castleFlight?.destroy();cleanup.forEach(fn=>fn());labels.forEach(l=>l.button.remove());frame?.destroy();app?.destroy();canvas.remove();delete document.body.dataset.cameraMode;}
+ function dispose(){disposed=true;castleAbort.abort();liveCastle?.destroy();cleanup.forEach(fn=>fn());labels.forEach(l=>l.button.remove());frame?.destroy();app?.destroy();canvas.remove();delete document.body.dataset.cameraMode;}
  return {ready,home,overview,present,focus,land,observatory,setProgress(value){stage=value;for(let i=0;i<labels.length;i++)labels[i].button.classList.toggle('unexplored',i>stage);},setMode(value){value==='map'?overview():home(true);},scrub,stats,zoom,pause,get paused(){return paused;},dispose};
 }

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {flightPose,flightAtNode,flightStops,FLIGHT_PERIOD,FLIGHT_STOPS,WORLDS} from '../src/galaxy/playcanvas-path.js';
 import {CASTLE_CENTER,CASTLE_ELEVATION,CASTLE_PHONE_RADIUS,CASTLE_CLOSE_RADIUS,castleBearing,projectedCastle} from '../src/galaxy/castle-flight-model.ts';
+import {LIVE_CASTLE_EYE,LIVE_CASTLE_AIM,LIVE_CASTLE_FLOOR} from '../src/galaxy/castle-live-model.ts';
 test('restored pre-observatory camera route is closed and finite',()=>{
  const start=flightPose(0),end=flightPose(FLIGHT_PERIOD);assert.ok(start.position.distance(end.position)<1e-6);assert.ok(start.target.distance(end.target)<1e-6);
  for(let i=0;i<=2000;i++){const pose=flightPose(i/2000*FLIGHT_PERIOD);for(const value of [pose.position.x,pose.position.y,pose.position.z,pose.target.x,pose.target.y,pose.target.z])assert.ok(Number.isFinite(value));}
@@ -11,15 +12,15 @@ test('planet stops retain their order on the constant-speed route',()=>{
  for(let i=1;i<FLIGHT_STOPS.length;i++)assert.ok(FLIGHT_STOPS[i]>FLIGHT_STOPS[i-1]);
 });
 test('equal travel steps cover nearly equal physical distances',()=>{
- for(const compact of [false,true]){const distances=[];for(let i=0;i<400;i++){const a=flightPose(i/400*FLIGHT_PERIOD,compact).position,b=flightPose((i+1)/400*FLIGHT_PERIOD,compact).position;distances.push(a.distance(b));}
+ for(const compact of [false,true]){const distances=[];for(let i=0;i<400;i++){let length=0;for(let j=0;j<4;j++){const a=flightPose((i+j/4)/400*FLIGHT_PERIOD,compact).position,b=flightPose((i+(j+1)/4)/400*FLIGHT_PERIOD,compact).position;length+=a.distance(b);}distances.push(length);}
  const average=distances.reduce((sum,value)=>sum+value,0)/distances.length;assert.ok(Math.max(...distances.map(value=>Math.abs(value-average)))/average<.08);
  }
 });
-test('low castle passage matches the actual Cycles elevation and frame cone',()=>{
+test('live castle passage keeps the eye above the real floor and respects the close radius',()=>{
  for(const compact of [false,true])for(let node=12;node<=16;node+=.01){
   const pose=flightPose(flightAtNode(node,compact),compact),bearing=castleBearing(pose.position);
   assert.ok(bearing.supported,`outside the 80 degree arc at ${node}`);
-  assert.ok(Math.abs((pose.position.y-CASTLE_CENTER[1])/bearing.radius-CASTLE_ELEVATION)<.00001);
+  assert.ok(pose.position.y>LIVE_CASTLE_FLOOR+.5);
   assert.ok(bearing.radius>=(compact?CASTLE_PHONE_RADIUS:CASTLE_CLOSE_RADIUS)-.001);
  }
 });
@@ -27,7 +28,7 @@ test('the close dolly holds a world heading, not the castle crosshair',()=>{
  for(const compact of [false,true])for(let node=12.5;node<=15.5;node+=.05){
   const pose=flightPose(flightAtNode(node,compact),compact);
   const forward=pose.target.clone().sub(pose.position).normalize(),angle=compact?24*Math.PI/180:0;
-  const expected={x:-Math.cos(angle),y:-CASTLE_ELEVATION,z:-Math.sin(angle)},length=Math.hypot(expected.x,expected.y,expected.z);
+  const expected={x:-Math.cos(angle),y:(LIVE_CASTLE_AIM-LIVE_CASTLE_EYE)/(compact?CASTLE_PHONE_RADIUS:CASTLE_CLOSE_RADIUS),z:-Math.sin(angle)},length=Math.hypot(expected.x,expected.y,expected.z);
   assert.ok(forward.distance({x:expected.x/length,y:expected.y/length,z:expected.z/length})<.00001);
  }
  const pass=flightAtNode(14),a=flightPose(pass),b=flightPose(pass+.001);

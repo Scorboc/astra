@@ -119,17 +119,17 @@ def main():
             assert page.locator('.castle-orbit').count() == 0
             frame_start = len([u for u in requests if '/castle-orbit/transparent/f' in u])
             assert not any('observatory.glb' in u or 'architecture-reference-v2.webp' in u for u in requests)
-            assert 21 <= frame_start <= 22, 'Only the small central view may load on initial galaxy entry'
+            assert frame_start == 21, 'The galaxy must not request any prerendered frames'
             hover_scene(page)
             page.mouse.wheel(0, 180)
             page.wait_for_timeout(400)
             assert page.locator('.castle-orbit').count() == 0
             page.wait_for_function("document.querySelector('#cosmos').dataset.rendering === 'active'")
-            assert page.locator('#cosmos').get_attribute('data-castle-orbit') == 'continuous'
+            page.wait_for_function("document.querySelector('#cosmos').dataset.castleRender === 'live-3d-v8'",timeout=90000)
             animation_before = float(page.locator('#cosmos').get_attribute('data-animation-time'))
             page.wait_for_timeout(250)
             assert float(page.locator('#cosmos').get_attribute('data-animation-time')) > animation_before
-            # The continuous passage itself is covered by verify-castle-flight.py.
+            # The live GLB passage itself is covered by verify-castle-live.py.
             assert page.locator('.main-nav a').count() == 6
             for a in page.locator('.main-nav a').all():
                 r = a.bounding_box()
@@ -137,7 +137,7 @@ def main():
                 assert a.evaluate('e => {const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}')
             assert not errors, {'errors': errors, 'httpErrors': http_errors}
             assert not http_errors, http_errors
-            assert not [u for u in requests if urlsplit(u).hostname not in ('127.0.0.1', 'localhost')], requests
+            assert not [u for u in requests if u.startswith('http') and urlsplit(u).hostname not in ('127.0.0.1', 'localhost')], requests
             report.append({'viewport': name, 'size': [width, height], 'frames': 21, 'pixels': pixels, 'geometry': geometry,
                            'continuousGalaxy': True, 'errors': errors, 'httpErrors': http_errors, 'warnings': warnings})
             print(f'{name}: standalone 21 frames, mouse/touch/keyboard, reduced motion, galaxy link: PASS', flush=True)
