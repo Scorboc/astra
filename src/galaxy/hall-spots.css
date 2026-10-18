@@ -19,6 +19,8 @@
 .hall-intro-shade{position:absolute;z-index:1;top:0;left:0;width:min(66%,820px);height:min(50%,360px);pointer-events:none;background:radial-gradient(120% 120% at 0 0,rgba(6,12,22,.84) 42%,rgba(6,12,22,.5) 66%,transparent 90%)}
 .council-room.intro-right .hall-intro-shade{left:auto;right:0;background:radial-gradient(120% 120% at 100% 0,rgba(6,12,22,.84) 42%,rgba(6,12,22,.5) 66%,transparent 90%)}
 .council-room.has-map .council-heading{text-shadow:none}
+/* The hall description sits on the bright art of the cinematic halls: give it the same glass as the pills. */
+.council-room.has-map .council-heading p{background:rgba(6,12,22,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:12px;padding:8px 12px;width:fit-content;max-width:min(100%,560px);text-shadow:none;color:#fbf2dc!important}
 .council-room.intro-right .council-heading{left:auto;right:clamp(26px,4vw,64px);max-width:min(30%,420px);text-align:right}
 .council-room.intro-right .council-heading p{margin-left:auto!important}
 .council-room.intro-right .council-wordmark{margin-left:auto;object-position:right center}
