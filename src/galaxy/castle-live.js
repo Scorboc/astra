@@ -4,6 +4,7 @@ import {assetUrl} from '../asset-url.ts';
 import {applyCastleSurfaces} from './castle-live-surfaces.js';
 import {createCastleVolumes, createCastleGlows} from './castle-live-effects.js';
 import {createCastleWindowLight} from './castle-window-light.js';
+import {createCastleLayers,createCastleDepthOccluders} from './castle-layers.js';
 import {LIVE_CASTLE_POSITION,LIVE_CASTLE_SCALE,LIVE_CASTLE_ROTATION,LIVE_CASTLE_FLOOR,LIVE_CASTLE_ASSET_ROOT} from './castle-live-model.ts';
 
 // Live V8 architecture/effects from PR #10, mounted in the ONE galaxy AppBase.
@@ -13,7 +14,7 @@ export async function mountLiveCastle({app,device,camera,host,compact,signal}) {
   const base='observatory-gothic/control-v8/';
   dracoInitialize({jsUrl:url(base+'decoder/draco_decoder.js'),wasmUrl:url(base+'decoder/draco_decoder.wasm'),numWorkers:2,lazyInit:true});
   const assets=[],layers=[],ownedMaterials=new Set(),ownedMeshes=new Set();
-  let atlas,root,reflection,reflectionTarget,reflectionTexture,mirrorMaterial,volume,disposed=false;
+  let atlas,root,reflection,reflectionTarget,reflectionTexture,mirrorMaterial,volume,depthOccluders,disposed=false;
   const dead=()=>disposed||signal.aborted;
   function releaseAsset(a){a.unload();app.assets.remove(a);}
   async function load(name,type,path){
@@ -35,12 +36,11 @@ export async function mountLiveCastle({app,device,camera,host,compact,signal}) {
       }catch(error){if(a&&app.assets.get(a.id))releaseAsset(a);if(dead()||attempt===1)throw error;await new Promise(resolve=>setTimeout(resolve,600));}
     }
   }
-  function layer(name){const l=new pc.Layer({name:'ASTRA castle '+name});app.scene.layers.push(l);layers.push(l);return l;}
   function ownMaterial(material){ownedMaterials.add(material);return material;}
   function cleanup(){
     if(disposed)return;disposed=true;signal.removeEventListener('abort',cleanup);
     camera.camera.layers=camera.camera.layers.filter(id=>!layers.some(l=>l.id===id));
-    root?.destroy();reflection?.destroy();
+    depthOccluders?.destroy();root?.destroy();reflection?.destroy();
     for(const l of layers)app.scene.layers.remove(l);
     for(const m of ownedMaterials)m.destroy();for(const m of ownedMeshes)m.destroy();
     reflectionTarget?.destroy();reflectionTexture?.destroy();atlas?.destroy();
@@ -62,8 +62,9 @@ export async function mountLiveCastle({app,device,camera,host,compact,signal}) {
     if(dead())throw new Error('Castle load cancelled');
     root=new pc.Entity('ASTRA live observatory V8');root.enabled=false;
     root.setPosition(...LIVE_CASTLE_POSITION);root.setLocalScale(LIVE_CASTLE_SCALE,LIVE_CASTLE_SCALE,LIVE_CASTLE_SCALE);root.setEulerAngles(0,LIVE_CASTLE_ROTATION,0);app.root.addChild(root);
-    const modelLayer=layer('architecture'),plasmaLayer=layer('plasma'),floorLayer=layer('mirror');
-    camera.camera.layers=[...camera.camera.layers,modelLayer.id,plasmaLayer.id,floorLayer.id];
+    const [depthLayer,modelLayer,plasmaLayer,floorLayer]=createCastleLayers(app.scene.layers);layers.push(depthLayer,modelLayer,plasmaLayer,floorLayer);
+    camera.camera.layers=[...camera.camera.layers,depthLayer.id,modelLayer.id,plasmaLayer.id,floorLayer.id];
+    depthOccluders=createCastleDepthOccluders(pc,app.defaultLayerWorld,depthLayer);
     const model=architecture.instantiateRenderEntity();root.addChild(model);
     let floor;
     for(const r of model.findComponents('render')){
@@ -123,7 +124,7 @@ export async function mountLiveCastle({app,device,camera,host,compact,signal}) {
     reflectionTexture=new pc.Texture(device,{name:'Castle V8 HDR mirror',width:mirrorSize,height:mirrorSize,format:PIXELFORMAT_RGBA16F,mipmaps:false,minFilter:FILTER_LINEAR,magFilter:FILTER_LINEAR,addressU:pc.ADDRESS_CLAMP_TO_EDGE,addressV:pc.ADDRESS_CLAMP_TO_EDGE});
     reflectionTarget=new pc.RenderTarget({colorBuffer:reflectionTexture,depth:true,samples:Math.min(compact?2:4,device.maxSamples)});
     reflection=new pc.Entity('Castle V8 reflection camera');reflection.enabled=false;
-    reflection.addComponent('camera',{priority:-1,renderTarget:reflectionTarget,nearClip:.1,farClip:1800,clearColor:new pc.Color(.003,.002,.009),layers:camera.camera.layers.filter(id=>id!==floorLayer.id)});
+    reflection.addComponent('camera',{priority:-1,renderTarget:reflectionTarget,nearClip:.1,farClip:1800,clearColor:new pc.Color(.003,.002,.009),layers:camera.camera.layers.filter(id=>id!==floorLayer.id&&id!==depthLayer.id)});
     reflection.camera.gammaCorrection=pc.GAMMA_NONE;reflection.camera.toneMapping=pc.TONEMAP_NONE;app.root.addChild(reflection);
     mirrorMaterial=ownMaterial(new pc.ShaderMaterial({uniqueName:'castle-v8-physical-mirror',attributes:{aPosition:pc.SEMANTIC_POSITION},vertexGLSL:'attribute vec3 aPosition;uniform mat4 matrix_model;uniform mat4 matrix_viewProjection;uniform mat4 reflectedVP;varying vec4 projected;varying vec3 surfaceWorld;void main(){vec4 w=matrix_model*vec4(aPosition,1.);surfaceWorld=w.xyz;projected=reflectedVP*w;gl_Position=matrix_viewProjection*w;}',fragmentGLSL:`varying vec4 projected;varying vec3 surfaceWorld;uniform sampler2D reflection;uniform sampler2D studioRadiance;uniform vec3 view_position;uniform mat4 castleWorldToLocal;
 void main(){vec2 uv=projected.xy/max(projected.w,.0001)*.5+.5;float valid=step(0.,uv.x)*step(uv.x,1.)*step(0.,uv.y)*step(uv.y,1.);
@@ -149,7 +150,7 @@ c+=vec3(1.,.76,.38)*(rings*.85+spokes*.45+rose*1.1)*fade*1.3;gl_FragColor=vec4(c
     host.dataset.castleSurfaceProfile=finish.profile;host.dataset.castleBakedEncoding=baked.encoding;host.dataset.castleWorldMatrix=[...root.getWorldTransform().data].join(',');
     host.dataset.castleTriangles=String(model.findComponents('render').flatMap(r=>r.meshInstances).reduce((s,m)=>s+m.mesh.primitive.reduce((n,p)=>n+(p.type===4?p.count/3:0),0),0));
     return {root,update(time,visible=true){
-      if(dead())return;root.enabled=visible;
+      if(dead())return;root.enabled=visible;depthOccluders.update(visible);host.dataset.castleDepthMode='world-depth-only';host.dataset.castleDepthInstances=String(depthOccluders.count);
       const center=root.getPosition().clone().add(new pc.Vec3(0,8*LIVE_CASTLE_SCALE,0)),delta=center.clone().sub(camera.getPosition()),distance=delta.length(),depth=delta.dot(camera.forward),screen=camera.camera.worldToScreen(center),extent=depth>0?20*host.clientHeight/(2*Math.tan(camera.camera.fov*Math.PI/360)*depth):0;
       const inView=depth>0&&screen.x+extent>0&&screen.x-extent<host.clientWidth&&screen.y+extent>0&&screen.y-extent<host.clientHeight;
       const near=visible&&inView&&distance<(compact?110:65)&&camera.getPosition().y>LIVE_CASTLE_FLOOR+.05;
