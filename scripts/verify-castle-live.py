@@ -12,6 +12,7 @@ def main():
     p.add_argument('--record-video',action='store_true')
     p.add_argument('--failure-only',action='store_true')
     args=p.parse_args();base=args.base.rstrip('/')+'/';out=Path(args.output);out.mkdir(parents=True,exist_ok=True)
+    allowed_hosts={'127.0.0.1','localhost',urlsplit(base).hostname}
     command="import{flightAtNode}from'./src/galaxy/playcanvas-path.js';console.log(JSON.stringify([false,true].map(c=>[12,13,14,15,16,18].map(node=>({node,travel:flightAtNode(node,c)})))))"
     poses=json.loads(subprocess.check_output(['node','--input-type=module','-e',command],text=True));report=[]
     with sync_playwright() as pw:
@@ -87,7 +88,7 @@ def main():
             page.wait_for_function("document.querySelector('#cosmos')?.dataset.rendering==='active'")
             assert not any('/castle-orbit/transparent/' in u or '/castle-live/assets/' in u for u in requests)
             assert not any('/castle-live/universe/' in u and any(x in u for x in ['origin-moon','aurora-detailed','velir-detailed','sky-nebula']) for u in requests)
-            assert not any(urlsplit(u).hostname not in ('127.0.0.1','localhost') for u in requests if u.startswith('http'))
+            assert not any(urlsplit(u).hostname not in allowed_hosts for u in requests if u.startswith('http'))
             assert not errors,errors;assert not http,http
             report.append({'profile':name,'size':[w,h],'initial':initial,'records':records,'errors':errors,'httpErrors':http,'resources':requests,'video':str(page.video.path()) if page.video else None})
             ctx.close();(out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8');print(name+': live GLB, delayed load, mirror, gestures, reduced motion: PASS',flush=True)
