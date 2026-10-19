@@ -1,0 +1,139 @@
+{
+  "kind": "Blender Cycles transparent frame sequence; not real-time 3D",
+  "date": "2026-10-18",
+  "width": 1550,
+  "height": 1014,
+  "samples": 72,
+  "webpQuality": 88,
+  "alpha": "RGBA; each frame has both fully transparent and opaque pixels",
+  "source": "Owner's gothic-control.blend and V8f look; original opaque PR #8 files retained",
+  "totalBytes": 5772206,
+  "frames": [
+    {
+      "file": "f00.webp",
+      "angle": -40,
+      "bytes": 259006,
+      "sha256": "3eef058aea6126a26be1752cd1945a420c6bd044cd9e667c5022b65fa55dd890"
+    },
+    {
+      "file": "f01.webp",
+      "angle": -36,
+      "bytes": 261256,
+      "sha256": "9ef65851d80ede4e1c9f2e6ac9de95f5d53644bbfca9c881e223273a224c4ba4"
+    },
+    {
+      "file": "f02.webp",
+      "angle": -32,
+      "bytes": 264332,
+      "sha256": "99933278a17ad34c9c0d988547a3055614bef988e498a13af30dc4ecb1e7f45b"
+    },
+    {
+      "file": "f03.webp",
+      "angle": -28,
+      "bytes": 269442,
+      "sha256": "e4ba6b2c24b3c664c367dcfa137019c1e9b00f2ccfb57462aac8ad8ff8f11682"
+    },
+    {
+      "file": "f04.webp",
+      "angle": -24,
+      "bytes": 273112,
+      "sha256": "2e927bd213c2f32f234cfd514bd113b1c3fa51404c0eed5d3703a3be8ddf2946"
+    },
+    {
+      "file": "f05.webp",
+      "angle": -20,
+      "bytes": 276200,
+      "sha256": "2d5f5947df63f737ae9435c5dbe4a74fb0bd428bb7d44d087b61788eb8908854"
+    },
+    {
+      "file": "f06.webp",
+      "angle": -16,
+      "bytes": 280516,
+      "sha256": "b00c31890fa177271249627708ed8d0ef6d6fd1802216de9452ba349962c01d6"
+    },
+    {
+      "file": "f07.webp",
+      "angle": -12,
+      "bytes": 278374,
+      "sha256": "8e69ec1a0e324be86976b3ffd0b5211544b3e2e579ed68bfe8b02fd1a8473b53"
+    },
+    {
+      "file": "f08.webp",
+      "angle": -8,
+      "bytes": 275602,
+      "sha256": "73b7f17d3bbf0174fa1ea0eb875f3092540e29200ee6278ec3c6dae95eb15cd9"
+    },
+    {
+      "file": "f09.webp",
+      "angle": -4,
+      "bytes": 285104,
+      "sha256": "c4b1b952e4b8515dec29abf87ad4471f6f606ac66f58e3eacc74842e25f97e35"
+    },
+    {
+      "file": "f10.webp",
+      "angle": 0,
+      "bytes": 296448,
+      "sha256": "f6aa41e2fb14716ccdd405666bc94edd5a9163bc8d6bdbfc1daffae3889c4955"
+    },
+    {
+      "file": "f11.webp",
+      "angle": 4,
+      "bytes": 290058,
+      "sha256": "51994749b93f97f0402dd3b1cc78db34e4b867e4438b2bf8402a70c246635fe2"
+    },
+    {
+      "file": "f12.webp",
+      "angle": 8,
+      "bytes": 278580,
+      "sha256": "1f6f3de385b609b416acfae9a062ef6e0795dd754a234bad86f72970772ce829"
+    },
+    {
+      "file": "f13.webp",
+      "angle": 12,
+      "bytes": 280738,
+      "sha256": "fcb9e5d884b8d2e5fc171b751fecd33b6ec9d81b6ea97e4618ec2eca97742c92"
+    },
+    {
+      "file": "f14.webp",
+      "angle": 16,
+      "bytes": 283018,
+      "sha256": "9a29b3f4844042df2993fb27a2aaf80dc0de4590083eedeac1f582fcd03023fc"
+    },
+    {
+      "file": "f15.webp",
+      "angle": 20,
+      "bytes": 282144,
+      "sha256": "d89f50c1c4f42c2cde0bb9456e0675ae736465b667953e8475edab7d1158eeeb"
+    },
+    {
+      "file": "f16.webp",
+      "angle": 24,
+      "bytes": 277132,
+      "sha256": "33a3568e2a1753537b43ff48459d127d69d23c96bdadc50ee8e7110f9b910124"
+    },
+    {
+      "file": "f17.webp",
+      "angle": 28,
+      "bytes": 273368,
+      "sha256": "ef9d6a8ceb46064a7b60559326f6329ebc3bfd1af9e6440684fefae282cdaa30"
+    },
+    {
+      "file": "f18.webp",
+      "angle": 32,
+      "bytes": 266976,
+      "sha256": "32571bef66fe5e4d59e27e92a7e6d72ecb4b30453787c4b0786ac2bcbaab0c56"
+    },
+    {
+      "file": "f19.webp",
+      "angle": 36,
+      "bytes": 263650,
+      "sha256": "ea828465049fefa1356712aafb1450db46786c05b1e6eed844e118dcff14b003"
+    },
+    {
+      "file": "f20.webp",
+      "angle": 40,
+      "bytes": 257150,
+      "sha256": "cdc44d6a226a050b27972f7b05f6c21e194731e276e05846aeabd1d2cfe368f0"
+    }
+  ]
+}

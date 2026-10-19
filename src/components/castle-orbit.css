@@ -1,0 +1,40 @@
+.castle-orbit {
+  position: fixed; inset: 0; z-index: 5; display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 96px max(8px, env(safe-area-inset-left));
+  color: #f2efe8; background: transparent; font: 14px/1.4 system-ui, 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+}
+.castle-orbit--standalone { position: fixed; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+.castle-orbit *, .castle-orbit *::before, .castle-orbit *::after { box-sizing: border-box; }
+.castle-orbit__top { display: flex; justify-content: flex-end; }
+.castle-orbit button {
+  appearance: none; font: inherit; min-width: 44px; min-height: 44px; margin: 0;
+  color: #f2efe8; border: 1px solid #f2efe845; border-radius: 999px;
+  padding: 8px 14px; background: #08070eeb; cursor: pointer;
+}
+.castle-orbit button:hover { border-color: #e7d8a6; }
+.castle-orbit button:focus-visible, .castle-orbit input:focus-visible, .castle-orbit__stage:focus-visible {
+  outline: 2px solid #8fd8c8; outline-offset: -2px;
+}
+.castle-orbit__stage { min-width: 0; min-height: 0; position: relative; touch-action: pan-y pinch-zoom; cursor: grab; user-select: none; -webkit-user-select: none; }
+.castle-orbit__stage.is-dragging { cursor: grabbing; }
+.castle-orbit .castle-orbit__stage canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; touch-action: inherit; }
+.castle-orbit__status { min-height: 20px; text-align: center; color: #bcb8c8; font-size: 12px; }
+.castle-orbit__status:empty { display: none; }
+.castle-orbit__controls { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.castle-orbit__controls input { width: min(320px, 42vw); min-width: 70px; height: 44px; margin: 0; padding: 0; accent-color: #8fd8c8; }
+.castle-orbit__hint { text-align: center; font-size: 12px; color: #bcb8c8; max-width: 620px; margin: 6px auto 0; }
+.castle-orbit-open .intro, .castle-orbit-open .camera-tools, .castle-orbit-open .planet-labels,
+.castle-orbit-open .galaxy-footer, .castle-orbit-open .local-label, .castle-orbit-open .wordmark,
+.castle-orbit-open .header-actions, .castle-orbit-open .vignette { visibility: hidden; }
+.castle-orbit-open .galaxy-header { pointer-events: none; }
+.castle-orbit-open .main-nav { pointer-events: auto; }
+@media (max-height: 480px) {
+  .castle-orbit { padding-bottom: 73px; }
+  .castle-orbit--standalone { padding-bottom: max(4px, env(safe-area-inset-bottom)); }
+  .castle-orbit__hint { font-size: 11px; margin-top: 2px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .castle-orbit, .castle-orbit * { animation: none !important; transition: none !important; }
+}

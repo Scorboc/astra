@@ -1,27 +1,23 @@
 import {compactViewport,clampDistance,originTextureSize,originPreviewSize,detailSize} from './camera-policy.js';
 import {pc} from './playcanvas-runtime.js';
-import {WORLDS,flightPose,flightWorld,FLIGHT_STOPS,OBSERVATORY_POSITION,OBSERVATORY_ROTATION} from './playcanvas-path.js';
+import {WORLDS,flightPose,flightWorld,flightStops,OBSERVATORY_POSITION,OBSERVATORY_ROTATION} from './playcanvas-path.js';
 import {WORLD_THEMES} from './world-themes.ts';
 import {PLANETS} from './journey.ts';
 import {assetUrl} from '../asset-url.ts';
 import {preloadPlanetPreviews} from './planet-preload.js';
 import {applyPlanetFinish,applyDetailedPlanetFinish} from './playcanvas-materials.js';
-import {createObservatoryMirror} from './playcanvas-mirror.js';
-import {addEnergyRing} from './playcanvas-energy.js';
+import {LIVE_CASTLE_EYE,LIVE_CASTLE_AIM} from './castle-live-model.ts';
 import {addOriginInscription} from './playcanvas-inscription.js';
 import {planetHazeParticles} from './playcanvas-haze.js';
 import {applyCoastMaterials} from './playcanvas-coast.js';
 import {asteroidPoint,asteroidPointAt,arcParameter,ASTEROID_LENGTH,asteroidMistDensity,serpentSpiralPose,SERPENT_SPIRALS,STORM_CLUSTERS,MIST_SHAPES,createFlashSchedule} from './playcanvas-weather.js';
-import {addVolumes} from '../../prototypes/galaxy-playcanvas/volumes.js';
-import modelUrl from '../../prototypes/observatory-blender/assets/observatory.glb?url';
-import architectureUrl from '../../prototypes/observatory-blender/assets/architecture-reference-v2.webp?url';
 
 // Rendering, textures, entities, input and route mathematics belong to PlayCanvas.
 export function createGalaxyScene(host,labelHost,callbacks){
  const canvas=document.createElement('canvas');canvas.tabIndex=0;canvas.setAttribute('aria-label','Вселенная ASTRA. Колесо и свайп — полёт, нажатие на планету — открыть её.');host.append(canvas);
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
- let paused=reduced.matches,disposed=false,stage=0,mode='flight',app,device,camera,frame,station,fog,energy,mirror,effectsLayer,coast,coastPromise,observatoryPromise;
- const fineArchitecture=[];
+ let paused=reduced.matches,disposed=false,stage=0,mode='flight',app,device,camera,frame,station,effectsLayer,coast,coastPromise,observatoryPromise;
+ let liveCastle;const castleAbort=new AbortController();
  let elapsed=0,travel=0,desiredTravel=0,yaw=0,pitch=0,press=null,transition,landed=false,pinchDistance=0;
  const activePointers=new Map();
  let panCenter=null;
@@ -39,45 +35,21 @@ export function createGalaxyScene(host,labelHost,callbacks){
  function on(element,event,handler,options){element.addEventListener(event,handler,options);cleanup.push(()=>element.removeEventListener(event,handler,options));}
  function setModeValue(next){mode=next;host.dataset.cameraMode=next;document.body.dataset.cameraMode=next;landed=false;callbacks.landed(false);yaw=pitch=0;orbitBase=null;orbitYaw=orbitPitch=0;pinchDistance=0;if(coast)coast.enabled=next==='surface';}
  function fly(pos,look,duration=1.6){desiredPosition=pos;desiredTarget=look;orbitBase=desiredPosition.clone().sub(desiredTarget);orbitYaw=orbitPitch=0;transition=paused||reduced.matches?0:duration;}
- function home(forceFlight=false){if(stage===4&&!forceFlight){overview();return;}setModeValue('flight');travel=desiredTravel=FLIGHT_STOPS[Math.min(stage,4)];const pose=flightPose(travel);fly(position(pose.position),position(pose.target));}
+ function home(forceFlight=false){if(stage===4&&!forceFlight){overview();return;}document.body.classList.remove('exploring');setModeValue('flight');travel=desiredTravel=flightStops(compact())[Math.min(stage,4)];const pose=flightPose(travel,compact());fly(position(pose.position),position(pose.target));}
  function overview(){setModeValue('map');fly(new pc.Vec3(compact()?100:74,72,compact()?128:48),new pc.Vec3(-10,0,-66),2.3);}
  function present(){setModeValue('focus');fly(new pc.Vec3(-1,4,19),new pc.Vec3(4,4,-25),1.4);}
  function focus(id,composition='center'){if(id==='about'){land();return;}if(id==='origin')upgradeOrigin();else void loadDetailedWorld(worlds.find(w=>w.id===id));const spec=WORLDS[id];if(!spec)return;setModeValue('focus');focusRadius=spec.radius;const p=vec(spec.position);const look=p.clone().add(new pc.Vec3(composition==='hall'&&!compact()?spec.radius*1.7:0,0,0));fly(p.clone().add(new pc.Vec3(spec.radius*.9,spec.radius*.65,spec.radius*(compact()?6.4:3.7))),look);}
- function observatory(){setModeValue('observatory');void loadObservatory();const p=vec(OBSERVATORY_POSITION);fly(p.clone().add(new pc.Vec3(compact()?54:23.4,1.35,0)),p.clone().add(new pc.Vec3(0,5.76,0)));}
+ function observatory(){setModeValue('observatory');void loadObservatory();const p=vec(OBSERVATORY_POSITION);fly(new pc.Vec3(p.x+(compact()?72:27),LIVE_CASTLE_EYE,p.z),new pc.Vec3(p.x,LIVE_CASTLE_AIM,p.z));}
  async function land(){setModeValue('surface');upgradeOrigin();host.dataset.landscape='loading';try{if(!app)await ready;if(disposed||mode!=='surface')return;coastPromise??=Promise.all([load('Istok coast','container',assetUrl('/benchmark-origin/coast.glb')),load('coast stone','texture',assetUrl('/benchmark-origin/stone.webp'))]).then(([a,stone])=>{coast=a.resource.instantiateRenderEntity();coast.setLocalScale(.22,.22,.22);coast.setPosition(-8,5.64,0);app.root.addChild(coast);stone.resource.anisotropy=device.maxAnisotropy;applyCoastMaterials(pc,coast,stone.resource);const inscription=addOriginInscription(pc,device,coast);cleanup.push(()=>inscription.destroy());return coast;});await coastPromise;if(disposed||mode!=='surface')return;coast.enabled=true;host.dataset.landscape='ready';fly(new pc.Vec3(compact()?-8:-7.94,5.98,compact()?1.1:.88),new pc.Vec3(-8,5.88,-.198),2.2);}catch(error){coastPromise=null;host.dataset.landscape='failed';console.error(error);}}
- function scrub(value){if(!Number.isFinite(value))return;if(mode!=='flight')setModeValue('flight');transition=undefined;desiredTravel=value;}
+ function scrub(value){if(!Number.isFinite(value))return;document.body.classList.add('exploring');if(mode!=='flight')setModeValue('flight');transition=undefined;desiredTravel=value;}
  async function loadObservatory(){if(!app){await ready;if(disposed)return;}if(observatoryPromise)return observatoryPromise;observatoryPromise=(async()=>{
-  const [model,reference]=await Promise.all([load('approved observatory','container',modelUrl),load('architecture reference','texture',architectureUrl)]);if(disposed)return;
+  // The navigation anchor exists while the actual GLB/materials load, without
+  // blocking planet previews or mounting the standalone demo's second engine.
   station=new pc.Entity('ASTRA observatory');station.setPosition(...OBSERVATORY_POSITION);station.setLocalScale(.6,.6,.6);station.setEulerAngles(0,OBSERVATORY_ROTATION*180/Math.PI,0);app.root.addChild(station);
-  reference.resource.anisotropy=device.maxAnisotropy;
-  reference.resource.minFilter=pc.FILTER_LINEAR_MIPMAP_LINEAR;
-  reference.resource.magFilter=pc.FILTER_LINEAR;
-  const building=model.resource.instantiateRenderEntity();station.addChild(building);const inverse=new pc.Mat4().copy(station.getWorldTransform()).invert();
-  for(const render of building.findComponents('render'))for(const mi of render.meshInstances){if(['Ice','IcePale','Titanium','Glazing'].includes(mi.material.name))mi.material=boundedReferenceMaterial(reference.resource,inverse,mi.material);else{const m=mi.material.clone();m.useMetalness=true;m.metalness=.7;m.gloss=['Silver','Champagne'].includes(m.name)?.4:.6;m.update();mi.material=m;if(['Silver','Champagne'].includes(m.name))fineArchitecture.push(mi);}}
-  const red=material(0xff2544,0,.5,0xff1538),green=material(0x36ffad,0,.5,0x27ff9a);
-  for(const r of [9.30,9.42]){const ring=mesh('energy ring',new pc.TorusGeometry({ringRadius:r,tubeRadius:.023,segments:192,sides:5}),red,station);ring.setLocalPosition(0,11.5,-5.3);ring.setLocalEulerAngles(90,0,0);}
-  const beamBase=.84,beamTop=42;
-  const source=mesh('beam source on central plinth',new pc.CylinderGeometry({radius:.55,height:.035,capSegments:48}),green,station);source.setLocalPosition(0,beamBase,0);
-  const beam=mesh('green energy beam',new pc.CylinderGeometry({radius:.038,height:beamTop-beamBase,capSegments:10}),green,station);beam.setLocalPosition(0,(beamTop+beamBase)/2,0);
-  energy=addEnergyRing(pc,device,station,effectsLayer.id);fog=addVolumes(pc,device,station,camera,{layer:effectsLayer.id,omitFoundation:true,beamBase});mirror=createObservatoryMirror(pc,app,device,station,camera,effectsLayer);
-  const button=document.createElement('button');button.className='planet-label observatory-label';button.textContent='Обсерватория';button.setAttribute('aria-label','Открыть обсерваторию');button.addEventListener('click',callbacks.observatory);labelHost.append(button);labels.push({button,entity:station,offset:12.7});host.dataset.observatory='ready';
- })().catch(error=>{host.dataset.observatory='failed';console.error(error);});return observatoryPromise;}
- function referenceMaterial(texture,inverse,glass){const m=new pc.ShaderMaterial({uniqueName:'astra-ref-'+glass,attributes:{aPosition:pc.SEMANTIC_POSITION,aNormal:pc.SEMANTIC_NORMAL},vertexGLSL:'attribute vec3 aPosition;attribute vec3 aNormal;uniform mat4 matrix_model;uniform mat4 matrix_viewProjection;uniform mat4 architectureSpace;varying vec3 p;void main(){vec4 w=matrix_model*vec4(aPosition,1.);p=(architectureSpace*w).xyz;gl_Position=matrix_viewProjection*w;}',fragmentGLSL:`uniform sampler2D referenceMap;varying vec3 p;void main(){vec2 uv=abs(p.x)>9.55?vec2((573.-abs(p.x)*26.0465116)/1092.,(575.-(p.y-.25)*26.0465116)/702.):vec2((573.+p.x*26.0465116)/1092.,(575.-(p.y-.25)*35.73)/702.);vec3 color=pow(texture2D(referenceMap,clamp(uv,vec2(.001),vec2(.999))).rgb,vec3(2.2));gl_FragColor=vec4(color,${glass?'.65':'1.'});}`});m.setParameter('referenceMap',texture);m.setParameter('architectureSpace',inverse.data);m.cull=pc.CULLFACE_NONE;if(glass){m.blendType=pc.BLEND_NORMAL;m.depthWrite=false;}return m;}
- function boundedReferenceMaterial(texture,inverse,original){
-  const m=original.clone(),glass=original.name==='Glazing';
-  const beamAperture=original.name==='Titanium'?'if(p.y>4.82&&p.y<5.18&&length(p.xz)<.58)discard;':'';
-  m.gloss=Math.min(m.gloss,glass?.5:.55);
-  if(glass){m.cull=pc.CULLFACE_BACK;m.depthWrite=false;}
-  m.shaderChunks.glsl.set('diffusePS',`uniform sampler2D architectureRef;uniform mat4 architectureSpace;
-void getAlbedo(){vec3 p=(architectureSpace*vec4(vPositionW,1.)).xyz;${beamAperture}vec2 uv;float mask;
-${glass?`uv=vec2((573.+p.x*26.0465116)/1092.,(575.-(p.y-.25)*35.73)/702.);mask=step(.5,p.z)*(1.-step(4.2,p.z))*(1.-step(9.05,abs(p.x)))*step(.5,p.y);`:`uv=vec2((573.-abs(p.x)*26.0465116)/1092.,(575.-(p.y-.25)*26.0465116)/702.);mask=step(9.55,abs(p.x))*step(.27,p.y);`}
-mask*=step(0.,uv.x)*step(uv.x,1.)*step(0.,uv.y)*step(uv.y,1.);
-// Frontal reference projection must fade on sideways faces rather than stretch into stripes.
-vec3 face=cross(dFdx(p),dFdy(p));float frontal=abs(face.z)/max(length(face),.000001);mask*=smoothstep(.3,.75,frontal);
-vec2 footprint=fwidth(uv);float detail=1.-smoothstep(.004,.02,max(footprint.x,footprint.y));
-vec3 reference=pow(texture2D(architectureRef,clamp(uv,vec2(.001),vec2(.999))).rgb,vec3(2.2));dAlbedo=mix(material_diffuse,reference*${glass?'1.16':'1.42'},mask*.8*detail);}`);
-  m.setParameter('architectureRef',texture);m.setParameter('architectureSpace',inverse.data);m.update();return m;
- }
+  const button=document.createElement('button');button.className='planet-label observatory-label';button.textContent='Обсерватория';button.setAttribute('aria-label','Открыть обсерваторию');button.addEventListener('click',callbacks.observatory);labelHost.append(button);labels.push({button,entity:station,offset:12.7});
+  const {mountLiveCastle}=await import('./castle-live.js');if(disposed)return;
+  liveCastle=await mountLiveCastle({app,device,camera,host,compact:compact(),signal:castleAbort.signal});if(disposed){liveCastle.destroy();return;}host.dataset.observatory='ready';
+ })().catch(error=>{if(!disposed){host.dataset.observatory='failed';console.error(error);}});return observatoryPromise;}
  function createNebulae(){
   let seed=8714;const random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
   const quad=new pc.Mesh(device);quad.setPositions([-.5,-.5,0,.5,-.5,0,.5,.5,0,-.5,.5,0]);quad.setUvs(0,[0,0,1,0,1,1,0,1]);quad.setIndices([0,1,2,0,2,3]);quad.update();
@@ -110,18 +82,19 @@ void main(){vec2 p=(uv-.5)*2.;float edge=1.-smoothstep(.15,1.,length(p));vec2 dr
   }
   createBackdrop();createAsteroids();createNebulae();
   let frameCount=0,total=0;
-  app.on('update',dt=>{if(disposed)return;const obscured=document.hidden||document.body.classList.contains('world-interior');app.autoRender=!obscured;host.dataset.rendering=obscured?'suspended':'active';if(obscured)return;const stationDistance=station?camera.getPosition().distance(station.getPosition()):Infinity;camera.camera.nearClip=mode==='surface'?.025:.5;frame.bloom.intensity=mode==='surface'?.10:mode==='observatory'?.22:.34;frame.taa.enabled=!compact()&&(mode==='observatory'||stationDistance<45);for(const detail of fineArchitecture)detail.visible=stationDistance<16;frame.update();const delta=Math.min(dt,.05);if(!paused)elapsed+=dt;
-   if(mode==='flight'&&transition===undefined){const gap=desiredTravel-travel,step=reduced.matches?Math.abs(gap):Math.min(Math.abs(gap),delta*.32);travel+=Math.sign(gap)*step;const pose=flightPose(travel);desiredPosition=position(pose.position);desiredTarget=position(pose.target);if(compact())desiredPosition.z+=1.5;}
+  app.on('update',dt=>{if(disposed)return;const obscured=document.hidden||document.body.classList.contains('world-interior');app.autoRender=!obscured;host.dataset.rendering=obscured?'suspended':'active';if(obscured){liveCastle?.update(elapsed,false);return;}camera.camera.nearClip=mode==='surface'?.025:.5;frame.bloom.intensity=mode==='surface'?.10:mode==='observatory'?.22:.34;frame.taa.enabled=false;frame.update();const delta=Math.min(dt,.05);if(!paused)elapsed+=dt;
+   if(mode==='flight'&&transition===undefined){const gap=desiredTravel-travel,step=reduced.matches?Math.abs(gap):Math.min(Math.abs(gap),delta*.32);travel+=Math.sign(gap)*step;const pose=flightPose(travel,compact());desiredPosition=position(pose.position);desiredTarget=position(pose.target);}
    const speed=transition===0?1:1-Math.exp(-delta*(transition?5/transition:8));const pos=camera.getPosition().clone().lerp(camera.getPosition(),desiredPosition,speed);target.lerp(target,desiredTarget,speed);if(transition!==undefined&&pos.distance(desiredPosition)<.04&&target.distance(desiredTarget)<.04){transition=undefined;if(mode==='surface'&&coast?.enabled&&!landed){landed=true;callbacks.landed(true);}}
    if(mode!=='flight'){const offset=pos.clone().sub(target),angle=yaw,x=offset.x*Math.cos(angle)+offset.z*Math.sin(angle),z=offset.z*Math.cos(angle)-offset.x*Math.sin(angle);pos.set(target.x+x,target.y+offset.y+pitch,target.z+z);if(yaw||pitch)desiredPosition.copy(pos);if(!yaw&&!pitch&&pos.distance(desiredPosition)<.001&&target.distance(desiredTarget)<.001){pos.copy(desiredPosition);target.copy(desiredTarget);}}camera.setPosition(pos);camera.lookAt(target);yaw=pitch=0;
    if(!paused)for(const world of worlds)world.entity.rotateLocal(0,delta*world.spin,0);
-   fog?.update(elapsed);energy?.update(elapsed);mirror?.update(mode);if(station)station.enabled=mode!=='surface';
+   if(station)station.enabled=mode!=='surface';
+   liveCastle?.update(elapsed,mode!=='surface');
    for(const mist of mists){if(mist.haze){const h=mist.haze,t=elapsed*h.form.speed,distance=camera.getPosition().distance(h.center)/h.radius,smooth=(a,b,x)=>{const v=Math.max(0,Math.min(1,(x-a)/(b-a)));return v*v*(3-2*v);},visibility=1-smooth(30,44,distance),lod=h.index%3===0?1:1-smooth(5,11,distance);mist.entity.enabled=mode!=='surface'&&visibility*lod>.001;if(!mist.entity.enabled)continue;const q=new pc.Quat().setFromEulerAngles(h.form.tilt*180/Math.PI,(Math.sin(t*.045+h.phase)*.10+(h.form.name==='inclined-nebula-ring'?.55:0))*180/Math.PI,(Math.sin(t*.035+h.phase)*.065+(h.form.name==='inclined-nebula-ring'?.22:0))*180/Math.PI),at=q.transformVector(h.base.clone().mulScalar(1+Math.sin(t*.22+h.index*1.7+h.phase)*.035));mist.entity.setPosition(at.add(h.center));mist.material.setParameter('opacity',h.opacity*(.88+.12*Math.sin(t*.28+h.index+h.phase))*visibility*lod*h.form.density);}if(mist.base){const at=mist.base.clone();at.y+=Math.sin(elapsed*.35+mist.index)*.32;mist.entity.setPosition(at);}if(mist.coil){mist.entity.setPosition(serpentSpiralPose(mist.coil.u,Math.sin(elapsed*.30+mist.coil.sectionIndex)*.32).position);}mist.entity.lookAt(camera.getPosition());mist.material.setParameter('time',elapsed*4);if(mist.flash){const pulse=paused?0:mist.schedule.sample(elapsed).pulse;mist.material.setParameter('flash',pulse);mist.material.setParameter('opacity',pulse);mist.entity.enabled=pulse>.005;}}
    // Labels never cover the intro copy: a label that would land on it is hidden for that frame.
     const introEl=document.getElementById('intro'),introBox=introEl&&!introEl.hidden&&introEl.offsetParent?introEl.getBoundingClientRect():null,hostBox=introBox?host.getBoundingClientRect():null;
     for(const item of labels){const point=item.entity.getPosition().clone();point.y+=item.offset;const screen=camera.camera.worldToScreen(point);const front=point.clone().sub(camera.getPosition()).dot(camera.forward)>0;item.width||=item.button.offsetWidth;const lx=screen.x+(hostBox?.left??0),ly=screen.y+(hostBox?.top??0);const coversIntro=!!introBox&&lx+(item.width||80)/2>introBox.left-12&&lx-(item.width||80)/2<introBox.right+12&&ly+44>introBox.top-12&&ly<introBox.bottom+12;item.button.hidden=!item.entity.enabled||mode==='surface'||!front||coversIntro||screen.x<20||screen.x>host.clientWidth-20||screen.y<80||screen.y>host.clientHeight-80;item.button.style.transform=`translate(${screen.x}px,${screen.y}px) translate(-50%,0)`;}
    frameCount++;total+=dt;if(total>1){stats.fps=Math.round(frameCount/total);frameCount=0;total=0;host.dataset.fps=String(stats.fps);if(mode==='flight'||mode==='focus')for(const world of worlds){if(!world.loaded||camera.getPosition().distance(world.entity.getPosition())>=world.spec.radius*8.5)continue;if(world.id==='origin'){upgradeOrigin();continue;}if(!world.detailed&&!world.detailPending){void loadDetailedWorld(world);break;}}}stats.calls=app.stats.drawCalls.total;stats.surface=landed;host.dataset.cameraPosition=[pos.x,pos.y,pos.z].map(n=>n.toFixed(2)).join(',');host.dataset.flight=travel.toFixed(6);host.dataset.lookOffset='0,0';host.dataset.cameraForward=[camera.forward.x,camera.forward.y,camera.forward.z].join(',');host.dataset.animationTime=elapsed.toFixed(3);host.dataset.originRotation=worlds[0]?.entity.getEulerAngles().y.toFixed(3)??'0';
-   const current=document.getElementById('flight-world');if(current)current.textContent=mode==='observatory'?'Обсерватория':mode==='surface'?'На поверхности':mode==='map'?'Вся галактика':flightWorld(travel);
+   const current=document.getElementById('flight-world');if(current)current.textContent=mode==='observatory'?'Обсерватория':mode==='surface'?'На поверхности':mode==='map'?'Вся галактика':flightWorld(travel,compact());
   });host.dataset.planetTextures='loading';const previews=preloadPlanetPreviews(worlds,loadPlanet);app.start();const results=await previews;if(disposed)return;host.dataset.planetTextures=results.every(r=>r.ok)?'ready':'partial';host.dataset.failedPlanetTextures=results.filter(r=>!r.ok).map(r=>r.id).join(',');if(!results.some(r=>r.ok))throw new Error('No planet textures loaded');queueOriginFull(worlds.find(w=>w.id==='origin'));void loadObservatory();host.dataset.sceneReady='true';
  })().catch(error=>{if(!disposed){console.error('PlayCanvas initialization failed',error);callbacks.failed();}throw error;});
  async function loadPlanet(w){if(w.pending)return w.pending;w.entity.enabled=false;return w.pending=(async()=>{try{const a=await load(w.id,'texture',assetUrl(`/universe/${WORLD_THEMES[w.id].asset}.webp`));w.material.diffuseMap=a.resource;w.material.update();w.loaded=true;w.entity.enabled=true;if(w.id==='origin')host.dataset.originTexture=`${a.resource.width}x${a.resource.height}`;}catch(error){if(!disposed){w.material.diffuse=rgb({origin:0x343c47,aurora:0x164d34,velir:0x183b63,nereya:0x533b25,solis:0x482345}[w.id]);w.material.update();w.entity.enabled=true;console.error('Planet texture failed: '+w.id,error);}w.pending=null;throw error;}})();}
@@ -144,6 +117,6 @@ void main(){vec2 p=(uv-.5)*2.;float edge=1.-smoothstep(.15,1.,length(p));vec2 dr
  function zoomScale(factor){const offset=desiredPosition.clone().sub(desiredTarget),minimum=mode==='observatory'?(compact()?32:15):mode==='surface'?.8:focusRadius*(compact()?5.8:2.6),maximum=mode==='observatory'?90:mode==='surface'?3:focusRadius*12;offset.normalize().mulScalar(clampDistance(desiredPosition.distance(desiredTarget)*factor,minimum,maximum));desiredPosition=desiredTarget.clone().add(offset);transition=reduced.matches?0:undefined;}
  function zoom(direction){if(mode==='flight'){scrub(desiredTravel+direction*.035);return;}zoomScale(direction>0?.9:1.1);}
  function pause(value){paused=value;if(transition!==undefined)transition=0;document.body.classList.toggle('motion-paused',value);try{sessionStorage.setItem('astra.motion-paused',String(value));}catch{}}
- function dispose(){disposed=true;cleanup.forEach(fn=>fn());labels.forEach(l=>l.button.remove());mirror?.dispose();frame?.destroy();app?.destroy();canvas.remove();delete document.body.dataset.cameraMode;}
+ function dispose(){disposed=true;castleAbort.abort();liveCastle?.destroy();cleanup.forEach(fn=>fn());labels.forEach(l=>l.button.remove());frame?.destroy();app?.destroy();canvas.remove();delete document.body.dataset.cameraMode;}
  return {ready,home,overview,present,focus,land,observatory,setProgress(value){stage=value;for(let i=0;i<labels.length;i++)labels[i].button.classList.toggle('unexplored',i>stage);},setMode(value){value==='map'?overview():home(true);},scrub,stats,zoom,pause,get paused(){return paused;},dispose};
 }
