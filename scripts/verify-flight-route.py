@@ -12,7 +12,7 @@ def main():
     parser.add_argument('--motion',action='store_true')
     parser.add_argument('--nodes',type=int,nargs='+')
     args=parser.parse_args();out=Path(args.output);out.mkdir(parents=True,exist_ok=True)
-    data=json.loads(subprocess.check_output(['node','--input-type=module','-e',"import{flightPose,flightAtNode,FLIGHT_PERIOD,flightSpeed}from'./src/galaxy/playcanvas-path.js';console.log(JSON.stringify({period:FLIGHT_PERIOD,profiles:[false,true].map(c=>({speed:flightSpeed(c),nodes:Array.from({length:21},(_,i)=>{let t=flightAtNode(i,c);return {node:i,travel:t,pose:flightPose(t,c)};})}))}))"],text=True))
+    data=json.loads(subprocess.check_output(['node','--input-type=module','-e',"import{flightPose,flightAtNode,FLIGHT_PERIOD,flightSpeed}from'./src/galaxy/playcanvas-path.js';import{WHEEL_SENSITIVITY}from'./src/galaxy/flight-controller.js';console.log(JSON.stringify({wheel:WHEEL_SENSITIVITY,period:FLIGHT_PERIOD,profiles:[false,true].map(c=>({speed:flightSpeed(c),nodes:Array.from({length:21},(_,i)=>{let t=flightAtNode(i,c);return {node:i,travel:t,pose:flightPose(t,c)};})}))}))"],text=True))
     reports=[]
     with sync_playwright() as pw:
         browser=pw.chromium.launch(headless=True,executable_path='C:/Users/Admin/AppData/Local/ms-playwright/chromium-1234/chrome-win64/chrome.exe')
@@ -36,7 +36,7 @@ def main():
                 canvas.focus();count=round((travel-requested)/.035)
                 for _ in range(abs(count)):page.keyboard.press('ArrowDown' if count>0 else 'ArrowUp')
                 remaining=travel-(requested+count*.035);requested=travel
-                canvas.dispatch_event('wheel',{'deltaY':remaining/.00032,'cancelable':True})
+                canvas.dispatch_event('wheel',{'deltaY':remaining/data['wheel'],'cancelable':True})
                 page.wait_for_function('(t)=>Math.abs(Number(document.querySelector("#cosmos").dataset.flight)-t)<.00003',arg=travel,timeout=10000)
                 page.wait_for_timeout(180)
             records=[]

@@ -1,9 +1,11 @@
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+export const WHEEL_SENSITIVITY=.0004;
+export const WHEEL_GLIDE_SECONDS=.66;
 // Keep a short glide, not a many-second backlog of wheel/touch events.
-export const queueTravel=(current,destination,maxSpeed,previous=current,velocity=0)=>{
+export const queueTravel=(current,destination,maxSpeed,previous=current,velocity=0,leadSeconds=.55)=>{
  const input=destination-previous;
  const gap=input*velocity<0?input:destination-current;
- return current+clamp(gap,-maxSpeed*.55,maxSpeed*.55);
+ return current+clamp(gap,-maxSpeed*leadSeconds,maxSpeed*leadSeconds);
 };
 // Single authoritative travel coordinate: no independent XYZ chase camera.
 export function advanceTravel(current,destination,velocity,dt,maxSpeed=.12){

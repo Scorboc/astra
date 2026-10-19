@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {advanceTravel,queueTravel,gestureAxis,settleTravel} from '../src/galaxy/flight-controller.js';
+import {advanceTravel,queueTravel,gestureAxis,settleTravel,WHEEL_SENSITIVITY,WHEEL_GLIDE_SECONDS} from '../src/galaxy/flight-controller.js';
 test('travel accelerates and stops without overshoot',()=>{
  let travel=0,velocity=0;
  for(let i=0;i<500;i++){const state=advanceTravel(travel,.1,velocity,1/60);assert.ok(state.travel<=.10001);assert.ok(Math.abs(state.velocity)<=.32001);travel=state.travel;velocity=state.velocity;}
@@ -42,4 +42,17 @@ test('many wheel events cannot queue seconds of unrequested continued flight',()
 test('a reverse gesture cancels the outstanding forward glide immediately',()=>{
  assert.equal(queueTravel(1,1.04,.12,1.05,.12),.99);
  assert.equal(queueTravel(1,.96,.12,.95,-.12),1.01);
+});
+test('wheel is a little more sensitive without changing touch glide or easing',()=>{
+ const speed=.065;
+ assert.equal(WHEEL_SENSITIVITY,.00032*1.25);
+ for(const delta of [20,50,120,180]){
+  const before=queueTravel(0,delta*.00032,speed);
+  const after=queueTravel(0,delta*WHEEL_SENSITIVITY,speed,0,0,WHEEL_GLIDE_SECONDS);
+  assert.ok(after>before*1.19&&after<=before*1.251);
+  let travel=0,velocity=0;
+  for(let i=0;i<100;i++)({travel,velocity}=advanceTravel(travel,after,velocity,1/60,speed));
+  assert.equal(velocity,0);assert.ok(Math.abs(travel-after)<.00003);
+ }
+ assert.equal(queueTravel(0,1,speed),speed*.55);
 });

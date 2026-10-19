@@ -38,7 +38,7 @@ def main():
                 for _ in range(abs(count)):page.keyboard.press('ArrowDown' if count>0 else 'ArrowUp')
                 page.wait_for_timeout(120);remaining=travel-float(state()['flight'])
                 if abs(remaining)>.000001:
-                    pt=free_point();page.mouse.move(pt['x'],pt['y']);page.mouse.wheel(0,remaining/.00032)
+                    pt=free_point();page.mouse.move(pt['x'],pt['y']);page.mouse.wheel(0,remaining/.0004)
                 page.wait_for_timeout(700)
             page.wait_for_function("document.querySelector('#cosmos')?.dataset.sceneReady==='true'",timeout=90000)
             assert state()['planetTextures']=='ready';assert state()['observatory']=='loading'

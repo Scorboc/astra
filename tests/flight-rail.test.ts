@@ -103,3 +103,17 @@ test('the route is deterministic through repeated forward and backward passes',(
   const after=flightPose(at,compact);assert.ok(before.position.distance(after.position)<1e-9);assert.ok(before.target.distance(after.target)<1e-9);
  }
 });
+test('after Solis the approach keeps the castle as the next subject, without a second planet tour',()=>{
+ const center={x:-40,y:-.06,z:-68};
+ for(const compact of [false,true]){
+  const start=flightAtNode(11,compact),end=flightAtNode(15,compact);
+  for(let i=0;i<=2000;i++){
+   const pose=flightPose(start+(end-start)*i/2000,compact),to=pose.position.clone().mulScalar(-1).add(center),distance=to.length(),direction=to.normalize();
+   assert.ok(direction.dot(forward(pose))>Math.cos(5*Math.PI/180),'the next subject stays in view');
+   for(const [id,world] of Object.entries(WORLDS))if(id!=='about'){
+    const offset=pose.position.clone().mulScalar(-1).add({x:world.position[0],y:world.position[1],z:world.position[2]}),along=offset.dot(direction);
+    if(along>0&&along<distance)assert.ok(offset.sub(direction.clone().mulScalar(along)).length()>world.radius,`${id} must not replace the castle in the approach`);
+   }
+  }
+ }
+});

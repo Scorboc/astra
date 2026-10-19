@@ -9,17 +9,19 @@ export const OBSERVATORY_ROTATION=Math.PI/2;
 // then a low approach to the bridge (+X entrance). Departure clears the
 // northern facade, and a wide foreground arc rejoins the original first view.
 // No radius clamp / capture cone from the retired image-frame viewer remains.
-const points=[[-1,5,18],[6,9,-1],[15,17,-17],[18,16,-39],[2,3,-51],[9,3,-70],[17,6,-89],[14,7,-110],[6,8,-126],[10,10,-150],[-7,13,-174],[-35,7,-156],[-34,1,-120],[12,-3,-94],[8,LIVE_CASTLE_EYE,-48],[-15,LIVE_CASTLE_EYE,-57],[-23,-3.8,-51],[-46,2,-12],[-45,7,20],[-22,8,43],[0,6,40]];
+const points=[[-1,5,18],[6,9,-1],[15,17,-17],[18,16,-39],[2,3,-51],[9,3,-70],[17,6,-89],[14,7,-110],[6,8,-126],[10,10,-150],[-7,13,-174],[-31,8,-152],[-31,1,-132],[-21,-2,-113],[-14.5,LIVE_CASTLE_EYE,-85],[-15,LIVE_CASTLE_EYE,-57],[-23,-3.8,-51],[-46,2,-12],[-45,7,20],[-22,8,43],[0,6,40]];
 const phonePoints=points.map(p=>[p[0],p[1],p[2]+1.5]);
-// Wider, independently authored return: no radial deformation through Velir.
-for(const [index,p] of [[13,[18,-5,-79]],[14,[27,LIVE_CASTLE_EYE,-40]],[15,[14,LIVE_CASTLE_EYE,-48]],[16,[-4,-3.8,-49]],[17,[-32,2,-10]]])phonePoints[index]=p;
+// After Solis the next subject is the castle, not a second tour of the planets.
+// The phone uses an elevated outer corridor: the sightline clears Velir before
+// descending to the existing wide, low castle reveal. No radial deformation.
+for(const [index,p] of [[11,[23,18,-158]],[12,[27,16,-127]],[13,[27,12,-94]],[14,[27,5,-40]],[15,[14,LIVE_CASTLE_EYE,-48]],[16,[-4,-3.8,-49]],[17,[-32,2,-10]]])phonePoints[index]=p;
 // Authored gaze, not a lookAt lock: planets pass through the composition and
 // the castle does not swivel with the camera. Unwrapped yaw makes the loop
 // cross -180/180 without a sudden turn; pitch never tilts the horizon sideways.
-const yaw=[-Math.atan2(6,31)*180/Math.PI,-15,-24,-27,-23,-5,-24,-25,-25,-110,-175,-217,-215,-175,-68,-66,-45,110,65,22,-11];
-const pitch=[0,-8,-9,-14,-10,-2,-10,-10,-10,-10,-13,-4,-3,2,6,8,8,-3,-8,-8,-5];
+const yaw=[-Math.atan2(6,31)*180/Math.PI,-15,-24,-27,-23,-5,-24,-25,-25,-110,-175,-175,-172,-157,-120,-66,-45,110,65,22,-11];
+const pitch=[0,-8,-9,-14,-10,-2,-10,-10,-10,-10,-13,-5,-2,2,6,8,8,-3,-8,-8,-5];
 const phoneYaw=[...yaw],phonePitch=[...pitch];
-for(const [i,y,p] of [[12,-235,-3],[13,-185,0],[14,-68,4],[15,-70,8],[16,-62,10]]){phoneYaw[i]=y;phonePitch[i]=p;}
+for(const [i,y,p] of [[11,-145,-8],[12,-132,-10],[13,-111,-9],[14,-68,-4],[15,-70,8],[16,-62,10]]){phoneYaw[i]=y;phonePitch[i]=p;}
 export const FLIGHT_PERIOD=points.length/8;
 export function wrapFlight(value){const t=(Number.isFinite(value)?value:0)%FLIGHT_PERIOD;return t<0?t+FLIGHT_PERIOD:t;}
 export function pointAt(data,t){
