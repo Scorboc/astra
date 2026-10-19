@@ -3,6 +3,7 @@ import {pc} from './playcanvas-runtime.js';
 import {assetUrl} from '../asset-url.ts';
 import {applyCastleSurfaces} from './castle-live-surfaces.js';
 import {createCastleVolumes, createCastleGlows} from './castle-live-effects.js';
+import {createCastleWindowLight} from './castle-window-light.js';
 import {LIVE_CASTLE_POSITION,LIVE_CASTLE_SCALE,LIVE_CASTLE_ROTATION,LIVE_CASTLE_FLOOR,LIVE_CASTLE_ASSET_ROOT} from './castle-live-model.ts';
 
 // Live V8 architecture/effects from PR #10, mounted in the ONE galaxy AppBase.
@@ -114,6 +115,8 @@ export async function mountLiveCastle({app,device,camera,host,compact,signal}) {
     }}
     const volumes=new pc.Entity('Castle V8 volumes and glow');root.addChild(volumes);
     volume=createCastleVolumes(pc,device,volumes,camera,plasmaLayer.id,grain,compact);createCastleGlows(pc,device,volumes,plasmaLayer.id);
+    const windowLight=createCastleWindowLight(pc,device,volumes,plasmaLayer.id,grain,compact);
+    host.dataset.castleWindowLights=String(windowLight.count);
     // Billboard halo size is world-space; the parent above is identity-scaled.
     for(const r of volumes.findComponents('render'))for(const i of r.meshInstances){ownedMaterials.add(i.material);ownedMeshes.add(i.mesh);const size=i.material.getParameter('glowSize')?.data;if(size)i.material.setParameter('glowSize',size.map(n=>n*LIVE_CASTLE_SCALE));}
     const mirrorSize=compact?768:1536;
@@ -151,6 +154,8 @@ c+=vec3(1.,.76,.38)*(rings*.85+spokes*.45+rose*1.1)*fade*1.3;gl_FragColor=vec4(c
       const inView=depth>0&&screen.x+extent>0&&screen.x-extent<host.clientWidth&&screen.y+extent>0&&screen.y-extent<host.clientHeight;
       const near=visible&&inView&&distance<(compact?110:65)&&camera.getPosition().y>LIVE_CASTLE_FLOOR+.05;
       reflection.enabled=near;key.light.castShadows=near;for(const m of animated)m.setParameter('time',time);volume.update(time);if(near)reflect();
+      const windowVisible=visible&&inView&&distance<(compact?110:90);
+      windowLight.update(time,windowVisible);host.dataset.castleWindowMist=String(windowVisible);host.dataset.castleWindowTime=time.toFixed(3);
       host.dataset.castleReflection=String(near);host.dataset.castleAnimationTime=time.toFixed(3);
     },destroy:cleanup};
   }catch(error){cleanup();throw error;}

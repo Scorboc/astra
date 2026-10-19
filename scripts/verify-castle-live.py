@@ -47,8 +47,9 @@ def main():
             page.wait_for_function("document.querySelector('#cosmos')?.dataset.observatory==='ready'",timeout=90000)
             page.wait_for_load_state('networkidle');assert canvas.count()==1
             initial=state();assert initial['castleRender']=='live-3d-v8';assert initial['castleTriangles']=='601604';assert initial['castleBakedEncoding']=='sqrt-normalized'
+            assert initial['castleWindowLights']=='5'
             assert not page.locator('.castle-flight,.castle-orbit').count();assert not scene.evaluate('e=>e.inert')
-            if not mobile:assert initial['castleReflection']=='false'
+            if not mobile:assert initial['castleReflection']=='false';assert initial['castleWindowMist']=='false'
             page.screenshot(path=str(out/f'{name}-initial.png'));page.emulate_media(reduced_motion='reduce');records=[]
             for pose in poses[1 if mobile else 0]:
                 move_to(pose['travel']);s=state();assert s['castleWorldMatrix']==initial['castleWorldMatrix'];assert s['cameraMode']=='flight'
@@ -56,7 +57,9 @@ def main():
                 if pose['node'] in (12,14,16):page.screenshot(path=str(out/f'{name}-node-{pose["node"]}.png'))
                 if pose['node']==14:
                     assert s['castleReflection']=='true';assert float(s['cameraPosition'].split(',')[1])>-5.4
+                    assert s['castleWindowMist']=='true'
                     frozen=float(s['castleAnimationTime']);page.wait_for_timeout(250);assert float(state()['castleAnimationTime'])==frozen
+                    assert float(state()['castleWindowTime'])==frozen
                     if name=='phone':
                         page.wait_for_timeout(700);before=list(map(float,state()['cameraPosition'].split(',')))
                         page.set_viewport_size({'width':844,'height':390});page.wait_for_timeout(800)
@@ -70,6 +73,18 @@ def main():
                 for i in range(1,7):cdp.send('Input.dispatchTouchEvent',{'type':'touchMove','touchPoints':[{'x':pt['x'],'y':pt['y']+i*8}]})
                 cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});page.wait_for_timeout(500);assert float(state()['flight'])<before
             t=float(state()['castleAnimationTime']);page.wait_for_timeout(300);assert float(state()['castleAnimationTime'])>t
+            assert float(state()['castleWindowTime'])>t
+            # Isolated built-in synthetic account: unauthenticated hall links correctly open registration.
+            page.evaluate("location.hash='#login'")
+            page.locator('input[name="login"]').fill('1');page.locator('input[name="password"]').fill('1')
+            page.get_by_role('button',name='Войти',exact=True).click()
+            page.wait_for_function("location.hash==='#galaxy'")
+            page.locator('.main-nav [data-world="aurora"]').click()
+            page.wait_for_function("document.body.classList.contains('world-interior')&&document.querySelector('#cosmos')?.dataset.rendering==='suspended'")
+            page.wait_for_function("document.querySelector('#cosmos')?.dataset.castleWindowMist==='false'")
+            assert state()['rendering']=='suspended'
+            page.go_back(wait_until='networkidle')
+            page.wait_for_function("document.querySelector('#cosmos')?.dataset.rendering==='active'")
             assert not any('/castle-orbit/transparent/' in u or '/castle-live/assets/' in u for u in requests)
             assert not any('/castle-live/universe/' in u and any(x in u for x in ['origin-moon','aurora-detailed','velir-detailed','sky-nebula']) for u in requests)
             assert not any(urlsplit(u).hostname not in ('127.0.0.1','localhost') for u in requests if u.startswith('http'))
