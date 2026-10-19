@@ -19,3 +19,11 @@ test('window fog has bounded local ray marching, no screen-space card or separat
  assert.ok(windowLightShader(true).includes('i<8'));assert.ok(windowLightShader(false).includes('i<12'));
  for(const text of [windowLightShader(true),windowLightShader(false)]){assert.ok(text.includes('inverseModel'));assert.ok(text.includes('smoothstep'));assert.ok(!text.includes('discardAlpha'));}
 });
+
+test('window light has a bright near-aperture core with a wider, weaker surrounding veil',()=>{
+ assert.ok(windowLightField(0,0,-.2)>windowLightField(.2,0,-.2)*2);
+ assert.ok(windowLightField(.2,0,-.2)>.25);
+ assert.ok(windowLightField(0,0,-.2)>windowLightField(0,0,.3)*4);
+ for(const s of WINDOW_LIGHT_SOURCES){const sourceZ=s.position[2]+s.size[2]*(.30-.5);assert.ok(sourceZ>3&&sourceZ<6);}
+ assert.ok(windowLightShader(false).includes('coreSum'));assert.ok(windowLightShader(false).includes('mix(tint,vec3(1.,.99,.95),coreShare)'));
+});

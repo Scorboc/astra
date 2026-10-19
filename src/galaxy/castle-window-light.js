@@ -2,22 +2,24 @@ import {CULLFACE_BACK} from 'playcanvas';
 
 // Local facade apertures, all ABOVE the existing mirror. No cloud under the castle.
 export const WINDOW_LIGHT_SOURCES=Object.freeze([
-  {name:'Nave',position:[0,7.4,5.7],size:[12,14,9],strength:1.6},
-  {name:'Left dome',position:[-9.5,4,4.4],size:[10,7,8],strength:1.05},
-  {name:'Right dome',position:[9.5,4,4.4],size:[10,7,8],strength:1.05},
-  {name:'Left outer',position:[-16.5,3.5,3.7],size:[6.5,5.6,6],strength:.8},
-  {name:'Right outer',position:[16.5,3.5,3.7],size:[6.5,5.6,6],strength:.8},
+  {name:'Nave',position:[0,8.5,8.2],size:[18,16,14],strength:1.6},
+  {name:'Left dome',position:[-9.5,4.8,6.8],size:[12.8,9,12],strength:1.05},
+  {name:'Right dome',position:[9.5,4.8,6.8],size:[12.8,9,12],strength:1.05},
+  {name:'Left outer',position:[-16.5,3.8,5.4],size:[8.8,6.8,9.6],strength:.8},
+  {name:'Right outer',position:[16.5,3.8,5.4],size:[8.8,6.8,9.6],strength:.8},
 ].map(s=>Object.freeze({...s,position:Object.freeze(s.position),size:Object.freeze(s.size)})));
-export const WINDOW_LIGHT_FIELD=Object.freeze([.22,.23,.34]);
+export const WINDOW_LIGHT_FIELD=Object.freeze([.28,.14,.40]);
 export const WINDOW_LIGHT_COLOR=Object.freeze([1,.92,.76]);
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
 // Noise-free envelope, shared with tests of the soft bounds and forward falloff.
 export function windowLightField(x,y,z){
   if(![x,y,z].every(Number.isFinite)||Math.max(Math.abs(x),Math.abs(y),Math.abs(z))>=.5)return 0;
   const depth=z+.5,spread=WINDOW_LIGHT_FIELD[0]+WINDOW_LIGHT_FIELD[1]*depth;
-  return Math.exp(-2.2*(x/spread)**2-2*(y/WINDOW_LIGHT_FIELD[2])**2)*
-    (1-smooth(.25,.5,Math.abs(x)))*(1-smooth(.28,.5,Math.abs(y)))*
-    smooth(0,.10,depth)*(1-smooth(.72,1,depth))*(1-smooth(.10,1,depth));
+  const rx=x/spread,ry=y/WINDOW_LIGHT_FIELD[2];
+  const veil=Math.exp(-1.8*rx**2-1.4*ry**2)*(1-smooth(.14,1,depth));
+  const core=Math.exp(-9*rx**2-7*ry**2-32*(depth-.30)**2);
+  return (.72*veil+.28*core)*(1-smooth(.32,.5,Math.abs(x)))*(1-smooth(.32,.5,Math.abs(y)))*
+    smooth(0,.08,depth)*(1-smooth(.76,1,depth));
 }
 
 export function windowLightShader(compact){
@@ -29,16 +31,21 @@ void main(){
  vec3 rd=normalize(hit-ro),safe=mix(vec3(-1.),vec3(1.),step(vec3(0.),rd))*max(abs(rd),vec3(.00001));
  vec3 a=(-.5-ro)/safe,b=(.5-ro)/safe,lo=min(a,b),hi=max(a,b);
  float start=max(max(lo.x,lo.y),max(lo.z,0.)),stop=min(min(hi.x,hi.y),hi.z);if(stop<=start)discard;
- float stepSize=(stop-start)/${steps}.0,sum=0.;
+ float stepSize=(stop-start)/${steps}.0,sum=0.,coreSum=0.;
  for(int i=0;i<${steps};i++){
   vec3 p=ro+rd*(start+(float(i)+.5)*stepSize);float depth=p.z+.5,spread=fieldShape.x+fieldShape.y*depth;
-  vec2 radial=vec2(p.x/spread,p.y/fieldShape.z);float aperture=exp(-2.2*radial.x*radial.x-2.*radial.y*radial.y);
-  float edge=(1.-smoothstep(.25,.5,abs(p.x)))*(1.-smoothstep(.28,.5,abs(p.y)));
-  float fade=smoothstep(0.,.10,depth)*(1.-smoothstep(.72,1.,depth))*(1.-smoothstep(.10,1.,depth));
+  vec2 radial=vec2(p.x/spread,p.y/fieldShape.z);
+  float veil=exp(-1.8*radial.x*radial.x-1.4*radial.y*radial.y)*(1.-smoothstep(.14,1.,depth));
+  float sourceDepth=depth-.30;float core=exp(-9.*radial.x*radial.x-7.*radial.y*radial.y-32.*sourceDepth*sourceDepth);
+  float edge=(1.-smoothstep(.32,.5,abs(p.x)))*(1.-smoothstep(.32,.5,abs(p.y)));
+  float fade=smoothstep(0.,.08,depth)*(1.-smoothstep(.76,1.,depth));
   float grain=texture2D(densityMap,p.xy*2.1+vec2(p.z*.6+time*.012,-time*.008)).g;
-  sum+=aperture*edge*fade*(.65+.35*grain)*stepSize;
+  float weight=edge*fade*(.55+.45*grain)*stepSize;
+  sum+=(.72*veil+.28*core)*weight;coreSum+=core*weight;
  }
- float alpha=1.-exp(-sum*strength);gl_FragColor=vec4(tint*1.2,alpha);
+ float alpha=1.-exp(-sum*strength),coreShare=clamp(coreSum/max(sum,.0001),0.,1.);
+ vec3 light=mix(tint,vec3(1.,.99,.95),coreShare)*(1.6+2.4*coreShare);
+ gl_FragColor=vec4(light,alpha);
 }`;
 }
 
