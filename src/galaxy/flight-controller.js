@@ -1,10 +1,16 @@
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+// Keep a short glide, not a many-second backlog of wheel/touch events.
+export const queueTravel=(current,destination,maxSpeed,previous=current,velocity=0)=>{
+ const input=destination-previous;
+ const gap=input*velocity<0?input:destination-current;
+ return current+clamp(gap,-maxSpeed*.55,maxSpeed*.55);
+};
 // Single authoritative travel coordinate: no independent XYZ chase camera.
-export function advanceTravel(current,destination,velocity,dt){
+export function advanceTravel(current,destination,velocity,dt,maxSpeed=.12){
  const delta=clamp(dt,0,.05),gap=destination-current;
  if(Math.abs(gap)<.00002)return {travel:destination,velocity:0};
  if(gap*velocity<0)velocity=0;
- const wanted=clamp(gap*18,-.12,.12);
+ const wanted=clamp(gap*18,-maxSpeed,maxSpeed);
  velocity+=(wanted-velocity)*(1-Math.exp(-delta*24));
  let step=velocity*delta;
  if(Math.sign(step)===Math.sign(gap)&&Math.abs(step)>Math.abs(gap)){step=gap;velocity=0;}

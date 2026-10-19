@@ -13,7 +13,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--base',default='http://127.0.0.1:64995/astra/')
     parser.add_argument('--output',default='artifacts/castle-occlusion');parser.add_argument('--baseline',action='store_true');parser.add_argument('--quick',action='store_true');args=parser.parse_args()
     out=Path(args.output);out.mkdir(parents=True,exist_ok=True);report=[]
-    poses=json.loads(subprocess.check_output(['node','--input-type=module','-e',"import{flightAtNode}from'./src/galaxy/playcanvas-path.js';console.log(JSON.stringify([false,true].map(c=>flightAtNode(14,c))))"],text=True))
+    poses=json.loads(subprocess.check_output(['node','--input-type=module','-e',"import{flightAtNode}from'./src/galaxy/playcanvas-path.js';console.log(JSON.stringify([false,true].map(c=>flightAtNode(15,c))))"],text=True))
     with sync_playwright() as pw:
         browser=pw.chromium.launch(headless=True,executable_path='C:/Users/Admin/AppData/Local/ms-playwright/chromium-1234/chrome-win64/chrome.exe')
         profiles=[('desktop',1440,900,False),('phone',390,844,True),('landscape',844,390,True)]

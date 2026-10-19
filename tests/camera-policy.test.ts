@@ -6,7 +6,8 @@ test('restored flight camera uses only the original vertical travel gesture',()=
  const code=readFileSync(new URL('../src/galaxy/playcanvas-world.js',import.meta.url),'utf8');
  assert.ok(code.includes('Math.max(-180,Math.min(180,e.deltaY))*.00032'));
  assert.ok(code.includes("if(mode==='flight')scrub(desiredTravel-dy*.0011)"));
- assert.ok(code.includes('Math.min(Math.abs(gap),delta*.32)'));
+ assert.ok(code.includes('advanceTravel(travel,desiredTravel,travelVelocity,delta,flightSpeed(compact()))'));
+ assert.ok(code.includes("mode==='flight'&&transition===undefined)?1"));
  assert.ok(!code.includes('lookAround('));
  assert.ok(!code.includes('gestureAxis('));
 });

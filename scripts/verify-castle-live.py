@@ -56,7 +56,7 @@ def main():
                 move_to(pose['travel']);s=state();assert s['castleWorldMatrix']==initial['castleWorldMatrix'];assert s['cameraMode']=='flight'
                 assert s['castleRender']=='live-3d-v8';records.append({'node':pose['node'],'state':s})
                 if pose['node'] in (12,14,16):page.screenshot(path=str(out/f'{name}-node-{pose["node"]}.png'))
-                if pose['node']==14:
+                if pose['node']==15:
                     assert s['castleReflection']=='true';assert float(s['cameraPosition'].split(',')[1])>-5.4
                     assert s['castleWindowMist']=='true'
                     frozen=float(s['castleAnimationTime']);page.wait_for_timeout(250);assert float(state()['castleAnimationTime'])==frozen

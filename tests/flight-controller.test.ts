@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {advanceTravel,gestureAxis,settleTravel} from '../src/galaxy/flight-controller.js';
+import {advanceTravel,queueTravel,gestureAxis,settleTravel} from '../src/galaxy/flight-controller.js';
 test('travel accelerates and stops without overshoot',()=>{
  let travel=0,velocity=0;
  for(let i=0;i<500;i++){const state=advanceTravel(travel,.1,velocity,1/60);assert.ok(state.travel<=.10001);assert.ok(Math.abs(state.velocity)<=.32001);travel=state.travel;velocity=state.velocity;}
@@ -29,4 +29,17 @@ test('release while restoring heading retains a short step in either direction',
  }
  assert.equal(settleTravel(1,1,0),1);
  assert.ok(Math.abs(settleTravel(1,1.2,0)-1.025)<1e-12);
+});
+test('many wheel events cannot queue seconds of unrequested continued flight',()=>{
+ for(const speed of [.06,.12])for(const direction of [-1,1]){
+  let travel=1,velocity=0,destination=1;
+  for(let i=0;i<300;i++)destination=queueTravel(travel,destination+direction*.05,speed);
+  assert.ok(Math.abs(destination-travel)<=speed*.55+1e-9);
+  for(let i=0;i<80;i++)({travel,velocity}=advanceTravel(travel,destination,velocity,1/60,speed));
+  assert.ok(Math.abs(travel-destination)<.00003);assert.equal(velocity,0);
+ }
+});
+test('a reverse gesture cancels the outstanding forward glide immediately',()=>{
+ assert.equal(queueTravel(1,1.04,.12,1.05,.12),.99);
+ assert.equal(queueTravel(1,.96,.12,.95,-.12),1.01);
 });

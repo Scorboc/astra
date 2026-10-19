@@ -1,6 +1,7 @@
 import {compactViewport,clampDistance,originTextureSize,originPreviewSize,detailSize} from './camera-policy.js';
 import {pc} from './playcanvas-runtime.js';
-import {WORLDS,flightPose,flightWorld,flightStops,OBSERVATORY_POSITION,OBSERVATORY_ROTATION} from './playcanvas-path.js';
+import {WORLDS,flightPose,flightWorld,flightStops,flightSpeed,OBSERVATORY_POSITION,OBSERVATORY_ROTATION} from './playcanvas-path.js';
+import {advanceTravel,queueTravel} from './flight-controller.js';
 import {WORLD_THEMES} from './world-themes.ts';
 import {PLANETS} from './journey.ts';
 import {assetUrl} from '../asset-url.ts';
@@ -18,7 +19,7 @@ export function createGalaxyScene(host,labelHost,callbacks){
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let paused=reduced.matches,disposed=false,stage=0,mode='flight',app,device,camera,frame,station,effectsLayer,coast,coastPromise,observatoryPromise;
  let liveCastle;const castleAbort=new AbortController();
- let elapsed=0,travel=0,desiredTravel=0,yaw=0,pitch=0,press=null,transition,landed=false,pinchDistance=0;
+ let elapsed=0,travel=0,desiredTravel=0,travelVelocity=0,yaw=0,pitch=0,press=null,transition,landed=false,pinchDistance=0;
  const activePointers=new Map();
  let panCenter=null;
  const routeCompact=compactViewport(window.innerWidth,window.innerHeight);const compact=()=>routeCompact;
@@ -33,7 +34,7 @@ export function createGalaxyScene(host,labelHost,callbacks){
  function mesh(name,geometry,mat,parent=app.root){const e=new pc.Entity(name);e.addComponent('render',{meshInstances:[new pc.MeshInstance(pc.Mesh.fromGeometry(device,geometry),mat)]});parent.addChild(e);return e;}
  function load(name,type,url){return new Promise((resolve,reject)=>{const a=new pc.Asset(name,type,{url});assets.push(a);app.assets.add(a);a.ready(()=>{if(disposed){a.unload();reject(new Error('Scene disposed'));}else resolve(a);});a.once('error',reject);app.assets.load(a);});}
  function on(element,event,handler,options){element.addEventListener(event,handler,options);cleanup.push(()=>element.removeEventListener(event,handler,options));}
- function setModeValue(next){mode=next;host.dataset.cameraMode=next;document.body.dataset.cameraMode=next;landed=false;callbacks.landed(false);yaw=pitch=0;orbitBase=null;orbitYaw=orbitPitch=0;pinchDistance=0;if(coast)coast.enabled=next==='surface';}
+ function setModeValue(next){mode=next;host.dataset.cameraMode=next;document.body.dataset.cameraMode=next;landed=false;callbacks.landed(false);yaw=pitch=0;orbitBase=null;orbitYaw=orbitPitch=0;pinchDistance=0;if(camera)camera.camera.fov=compact()?58:48;if(coast)coast.enabled=next==='surface';}
  function fly(pos,look,duration=1.6){desiredPosition=pos;desiredTarget=look;orbitBase=desiredPosition.clone().sub(desiredTarget);orbitYaw=orbitPitch=0;transition=paused||reduced.matches?0:duration;}
  function home(forceFlight=false){if(stage===4&&!forceFlight){overview();return;}document.body.classList.remove('exploring');setModeValue('flight');travel=desiredTravel=flightStops(compact())[Math.min(stage,4)];const pose=flightPose(travel,compact());fly(position(pose.position),position(pose.target));}
  function overview(){setModeValue('map');fly(new pc.Vec3(compact()?100:74,72,compact()?128:48),new pc.Vec3(-10,0,-66),2.3);}
@@ -41,7 +42,7 @@ export function createGalaxyScene(host,labelHost,callbacks){
  function focus(id,composition='center'){if(id==='about'){land();return;}if(id==='origin')upgradeOrigin();else void loadDetailedWorld(worlds.find(w=>w.id===id));const spec=WORLDS[id];if(!spec)return;setModeValue('focus');focusRadius=spec.radius;const p=vec(spec.position);const look=p.clone().add(new pc.Vec3(composition==='hall'&&!compact()?spec.radius*1.7:0,0,0));fly(p.clone().add(new pc.Vec3(spec.radius*.9,spec.radius*.65,spec.radius*(compact()?6.4:3.7))),look);}
  function observatory(){setModeValue('observatory');void loadObservatory();const p=vec(OBSERVATORY_POSITION);fly(new pc.Vec3(p.x+(compact()?72:27),LIVE_CASTLE_EYE,p.z),new pc.Vec3(p.x,LIVE_CASTLE_AIM,p.z));}
  async function land(){setModeValue('surface');upgradeOrigin();host.dataset.landscape='loading';try{if(!app)await ready;if(disposed||mode!=='surface')return;coastPromise??=Promise.all([load('Istok coast','container',assetUrl('/benchmark-origin/coast.glb')),load('coast stone','texture',assetUrl('/benchmark-origin/stone.webp'))]).then(([a,stone])=>{coast=a.resource.instantiateRenderEntity();coast.setLocalScale(.22,.22,.22);coast.setPosition(-8,5.64,0);app.root.addChild(coast);stone.resource.anisotropy=device.maxAnisotropy;applyCoastMaterials(pc,coast,stone.resource);const inscription=addOriginInscription(pc,device,coast);cleanup.push(()=>inscription.destroy());return coast;});await coastPromise;if(disposed||mode!=='surface')return;coast.enabled=true;host.dataset.landscape='ready';fly(new pc.Vec3(compact()?-8:-7.94,5.98,compact()?1.1:.88),new pc.Vec3(-8,5.88,-.198),2.2);}catch(error){coastPromise=null;host.dataset.landscape='failed';console.error(error);}}
- function scrub(value){if(!Number.isFinite(value))return;document.body.classList.add('exploring');if(mode!=='flight')setModeValue('flight');transition=undefined;desiredTravel=value;}
+ function scrub(value){if(!Number.isFinite(value))return;document.body.classList.add('exploring');if(mode!=='flight'){setModeValue('flight');const pose=flightPose(travel,compact());fly(position(pose.position),position(pose.target),.65);travelVelocity=0;}desiredTravel=reduced.matches?value:queueTravel(travel,value,flightSpeed(compact()),desiredTravel,travelVelocity);}
  async function loadObservatory(){if(!app){await ready;if(disposed)return;}if(observatoryPromise)return observatoryPromise;observatoryPromise=(async()=>{
   // The navigation anchor exists while the actual GLB/materials load, without
   // blocking planet previews or mounting the standalone demo's second engine.
@@ -72,7 +73,7 @@ void main(){vec2 p=(uv-.5)*2.;float edge=1.-smoothstep(.15,1.,length(p));vec2 dr
  const ready=(async()=>{
   device=await pc.createGraphicsDevice(canvas,{deviceTypes:[pc.DEVICETYPE_WEBGL2],antialias:true,powerPreference:'default'});if(disposed){device.destroy();return;}
   const options=new pc.AppOptions();options.graphicsDevice=device;options.componentSystems=[pc.RenderComponentSystem,pc.CameraComponentSystem,pc.LightComponentSystem];options.resourceHandlers=[pc.TextureHandler,pc.ContainerHandler];app=new pc.AppBase(canvas);app.init(options);app.setCanvasResolution(pc.RESOLUTION_AUTO);app.setCanvasFillMode(pc.FILLMODE_NONE);
-  const resize=()=>{device.maxPixelRatio=Math.min(devicePixelRatio,compact()?1.3:1.6);app.resizeCanvas(host.clientWidth,host.clientHeight);canvas.style.width='100%';canvas.style.height='100%';host.dataset.pixelRatio=String(device.maxPixelRatio);if(camera){camera.camera.fov=compact()?58:48;}host.dataset.compact=String(compact());};resize();const ro=new ResizeObserver(resize);ro.observe(host);cleanup.push(()=>ro.disconnect());
+  const resize=()=>{device.maxPixelRatio=Math.min(devicePixelRatio,compact()?1.3:1.6);app.resizeCanvas(host.clientWidth,host.clientHeight);canvas.style.width='100%';canvas.style.height='100%';host.dataset.pixelRatio=String(device.maxPixelRatio);if(camera){camera.camera.fov=mode==='flight'?flightPose(travel,compact()).fov:compact()?58:48;}host.dataset.compact=String(compact());};resize();const ro=new ResizeObserver(resize);ro.observe(host);cleanup.push(()=>ro.disconnect());
   effectsLayer=new pc.Layer({name:'ASTRA soft effects'});app.scene.layers.insertTransparent(effectsLayer,app.scene.layers.getOpaqueIndex(app.scene.layers.getLayerById(pc.LAYERID_IMMEDIATE)));
   camera=new pc.Entity('ASTRA camera');camera.addComponent('camera',{fov:compact()?58:48,nearClip:.025,farClip:1800,clearColor:new pc.Color(0,0,0)});camera.camera.layers=[...camera.camera.layers,effectsLayer.id];app.root.addChild(camera);const initialPose=flightPose(0,compact());desiredPosition=initialPose.position;desiredTarget=initialPose.target;target.copy(desiredTarget);camera.setPosition(desiredPosition);camera.lookAt(desiredTarget);
   app.scene.ambientLight=new pc.Color(.18,.22,.32);app.scene.exposure=1.05;frame=new pc.CameraFrame(app,camera.camera);frame.rendering.toneMapping=pc.TONEMAP_ACES;frame.bloom.intensity=.34;frame.bloom.threshold=.9;frame.bloom.blurLevel=5;frame.taa.jitter=.65;frame.update();
@@ -83,8 +84,10 @@ void main(){vec2 p=(uv-.5)*2.;float edge=1.-smoothstep(.15,1.,length(p));vec2 dr
   createBackdrop();createAsteroids();createNebulae();
   let frameCount=0,total=0;
   app.on('update',dt=>{if(disposed)return;const obscured=document.hidden||document.body.classList.contains('world-interior');app.autoRender=!obscured;host.dataset.rendering=obscured?'suspended':'active';if(obscured){liveCastle?.update(elapsed,false);return;}camera.camera.nearClip=mode==='surface'?.025:.5;frame.bloom.intensity=mode==='surface'?.10:mode==='observatory'?.22:.34;frame.taa.enabled=false;frame.update();const delta=Math.min(dt,.05);if(!paused)elapsed+=dt;
-   if(mode==='flight'&&transition===undefined){const gap=desiredTravel-travel,step=reduced.matches?Math.abs(gap):Math.min(Math.abs(gap),delta*.32);travel+=Math.sign(gap)*step;const pose=flightPose(travel,compact());desiredPosition=position(pose.position);desiredTarget=position(pose.target);}
-   const speed=transition===0?1:1-Math.exp(-delta*(transition?5/transition:8));const pos=camera.getPosition().clone().lerp(camera.getPosition(),desiredPosition,speed);target.lerp(target,desiredTarget,speed);if(transition!==undefined&&pos.distance(desiredPosition)<.04&&target.distance(desiredTarget)<.04){transition=undefined;if(mode==='surface'&&coast?.enabled&&!landed){landed=true;callbacks.landed(true);}}
+   if(mode==='flight'&&transition===undefined){if(reduced.matches){travel=desiredTravel;travelVelocity=0;}else{const next=advanceTravel(travel,desiredTravel,travelVelocity,delta,flightSpeed(compact()));travel=next.travel;travelVelocity=next.velocity;}const pose=flightPose(travel,compact());desiredPosition=position(pose.position);desiredTarget=position(pose.target);camera.camera.fov=pose.fov;}
+   // Flight has one smoothed scalar coordinate. A second XYZ chase would cut
+   // corners, drift off the rail and brake unevenly during a turn.
+   const speed=transition===0||(mode==='flight'&&transition===undefined)?1:1-Math.exp(-delta*(transition?5/transition:8));const pos=camera.getPosition().clone().lerp(camera.getPosition(),desiredPosition,speed);target.lerp(target,desiredTarget,speed);if(transition!==undefined&&pos.distance(desiredPosition)<.04&&target.distance(desiredTarget)<.04){transition=undefined;if(mode==='surface'&&coast?.enabled&&!landed){landed=true;callbacks.landed(true);}}
    if(mode!=='flight'){const offset=pos.clone().sub(target),angle=yaw,x=offset.x*Math.cos(angle)+offset.z*Math.sin(angle),z=offset.z*Math.cos(angle)-offset.x*Math.sin(angle);pos.set(target.x+x,target.y+offset.y+pitch,target.z+z);if(yaw||pitch)desiredPosition.copy(pos);if(!yaw&&!pitch&&pos.distance(desiredPosition)<.001&&target.distance(desiredTarget)<.001){pos.copy(desiredPosition);target.copy(desiredTarget);}}camera.setPosition(pos);camera.lookAt(target);yaw=pitch=0;
    if(!paused)for(const world of worlds)world.entity.rotateLocal(0,delta*world.spin,0);
    if(station)station.enabled=mode!=='surface';
