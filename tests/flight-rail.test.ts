@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {flightPose,flightAtNode,flightStops,flightLength,flightSpeed,FLIGHT_PERIOD,FLIGHT_STOPS,WORLDS} from '../src/galaxy/playcanvas-path.js';
-import {LIVE_CASTLE_EYE,LIVE_CASTLE_FLOOR} from '../src/galaxy/castle-live-model.ts';
+import {LIVE_CASTLE_EYE,LIVE_CASTLE_FLOOR,LIVE_CASTLE_POSITION,LIVE_CASTLE_SCALE} from '../src/galaxy/castle-live-model.ts';
 import {advanceTravel} from '../src/galaxy/flight-controller.js';
 import {readFileSync} from 'node:fs';
 
@@ -88,6 +88,25 @@ test('the bridge reveal is above the actual floor and uses a wider lens only loc
    assert.ok(depth>0);assert.ok(Math.abs(dot(right)/depth/tan/(w/h))<.98,`${w}x${h} spire width`);
    assert.ok(Math.abs(dot(up)/depth/tan)<.98,`${w}x${h} spire height`);
   }
+ }
+});
+
+test('the rail crosses the actual bridge entrance axis, not the nearby planet row',()=>{
+ const bytes=readFileSync(new URL('../public/castle-live/observatory-gothic/control-v8/castle-baked-draco.glb',import.meta.url));
+ const gltf=JSON.parse(bytes.toString('utf8',20,20+bytes.readUInt32LE(12))),floor=gltf.nodes.find(n=>n.name==='Reflective platform and bridge');
+ const primitive=gltf.meshes[floor.mesh].primitives.find(p=>gltf.materials[p.material].name==='Control mirror floor');
+ // Local +Z is world +X after the unchanged 90 degree castle rotation.
+ const bridgeEnd={x:LIVE_CASTLE_POSITION[0]+gltf.accessors[primitive.attributes.POSITION].max[2]*LIVE_CASTLE_SCALE,y:LIVE_CASTLE_FLOOR,z:LIVE_CASTLE_POSITION[2]};
+ for(const compact of [false,true]){
+  const pose=flightPose(flightAtNode(compact?16:15,compact),compact);
+  assert.ok(Math.abs(pose.position.z-bridgeEnd.z)<.001,'camera must cross the middle of the entrance');
+  assert.ok(pose.position.x>bridgeEnd.x+2&&pose.position.x<bridgeEnd.x+6,'cross in front of the actual bridge end');
+  assert.ok(Math.abs(pose.position.y-LIVE_CASTLE_EYE)<.001);
+  const bridgeDistance=pose.position.distance(bridgeEnd);assert.ok(bridgeDistance<6.5);
+  for(const [id,world] of Object.entries(WORLDS))if(id!=='about')
+   assert.ok(pose.position.distance({x:world.position[0],y:world.position[1],z:world.position[2]})>bridgeDistance*1.4,`${id} must not be the fly-by anchor`);
+  const to=pose.position.clone().mulScalar(-1).add({x:-40,y:-.06,z:-68}).normalize();
+  assert.ok(to.dot(forward(pose))>Math.cos(5*Math.PI/180));
  }
 });
 test('complete desktop/phone routes have real clearance from all five planets',()=>{

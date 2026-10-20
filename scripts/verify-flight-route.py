@@ -48,7 +48,7 @@ def main():
                 assert sum(a*b/length for a,b in zip(map(float,s['cameraForward'].split(',')),direction))>.99999
                 assert abs(s['cameraFov']-node['pose']['fov'])<.01
                 assert s['cameraMode']=='flight' and s['castleWorldMatrix']==initial['castleWorldMatrix']
-                if node['node']==15:assert s['castleReflection']=='true' and s['castleWindowMist']=='true'
+                if node['node']==15 or (mobile and node['node']==16):assert s['castleReflection']=='true' and s['castleWindowMist']=='true'
                 image=out/f'{name}-{node["node"]:02}.png';page.screenshot(path=str(image))
                 records.append({'node':node['node'],'state':s,'image':str(image)})
             # At rest the image stays still; the living universe resumes normally.
@@ -57,7 +57,14 @@ def main():
             if mobile:
                 before=state()['cameraPosition'];page.set_viewport_size({'width':h,'height':w});page.wait_for_timeout(300)
                 assert state()['cameraPosition']==before;page.set_viewport_size({'width':w,'height':h})
-            page.emulate_media(reduced_motion='no-preference');page.wait_for_timeout(200);assert frozen!=state()['castleAnimationTime']
+            page.emulate_media(reduced_motion='no-preference')
+            page.wait_for_function('(previous)=>document.querySelector("#cosmos").dataset.castleAnimationTime!==previous',arg=frozen,timeout=8000)
+            # A small real wheel event must retain the stronger requested step,
+            # not disappear into an unchanged queue cap or delayed easing.
+            page.emulate_media(reduced_motion='reduce');move_to(0);page.emulate_media(reduced_motion='no-preference');canvas.focus()
+            expected=20*data['wheel'];canvas.dispatch_event('wheel',{'deltaY':20,'cancelable':True});requested=expected
+            page.wait_for_function('(t)=>Math.abs(Number(document.querySelector("#cosmos").dataset.flight)-t)<.00003',arg=expected,timeout=4000)
+            wheel_probe={'deltaY':20,'expectedTravel':expected,'actualTravel':float(state()['flight'])}
             motion=[]
             if args.motion and not mobile:
                 page.emulate_media(reduced_motion='reduce');move_to(0);page.emulate_media(reduced_motion='no-preference');canvas.focus()
@@ -87,7 +94,7 @@ def main():
                 sheet.paste(im,(x+(360-im.width)//2,y));draw.text((x+5,y+227),str(r['node']),fill='white')
             sheet.save(out/f'{name}-contact.jpg',quality=90)
             video_path=str(page.video.path()) if page.video else None
-            reports.append({'profile':name,'initial':initial,'records':records,'motion':motion,'video':video_path,'errors':errors,'http':http})
+            reports.append({'profile':name,'initial':initial,'records':records,'wheelProbe':wheel_probe,'motion':motion,'video':video_path,'errors':errors,'http':http})
             ctx.close();(out/'report.json').write_text(json.dumps(reports,ensure_ascii=False,indent=2),encoding='utf-8')
             print(name+f': exact route, {len(records)} views, native input, mirror, orientation, reduced motion: PASS',flush=True)
         browser.close()

@@ -8,18 +8,20 @@ export const OBSERVATORY_ROTATION=Math.PI/2;
 // Knots 20,0,1,2,3 are the exact geometric support of the approved passage.
 // Later planets have approach/reveal/departure shots, not alternating sideways
 // dives. Immediately after the Solis reveal one bend leads to the castle.
-const points=[[-1,5,18],[6,9,-1],[15,17,-17],[18,16,-39],[4,9,-46],[10,6,-66],[16,5,-82],[19,7,-104],[7,7,-120],[-18,10,-126],[-30,5,-107],[-27,1,-94],[-23,0,-85],[-16,-2,-79],[-16,-3.5,-60],[-16,LIVE_CASTLE_EYE,-56.5],[-27,-2.8,-39],[-40,2,-6],[-33,7,24],[-13,8,40],[0,6,40]];
+const points=[[-1,5,18],[6,9,-1],[15,17,-17],[18,16,-39],[4,9,-46],[10,6,-66],[16,5,-82],[19,7,-104],[7,7,-120],[-18,10,-126],[-30,5,-107],[-28,1,-102],[-22,0,-97],[-18,-2,-91],[-16,-3.5,-82],[-16,LIVE_CASTLE_EYE,-68],[-18,-2.8,-45],[-40,2,-6],[-33,7,24],[-13,8,40],[0,6,40]];
 const phonePoints=points.map(p=>[p[0],p[1],p[2]+1.5]);
 // Portrait framing uses a distant southeast castle view, on the actual route
 // from Solis. It no longer detours through the entire east side of the galaxy.
-for(const [index,p] of [[7,[25,10,-105]],[8,[18,15,-130]],[9,[-6,14,-141]],[10,[-8,10,-123]],[11,[-8,7,-117]],[12,[-6,4,-112]],[13,[-4,1,-108]],[14,[-2,-2,-105]],[15,[-1,LIVE_CASTLE_EYE,-103]],[16,[8,-2,-83]],[17,[-20,2,-14]]])phonePoints[index]=p;
+// The portrait reveal stays farther back, then the actual rail crosses the
+// same bridge axis in front of its end, rather than passing Nereya/Velir.
+for(const [index,p] of [[7,[25,10,-105]],[8,[18,15,-130]],[9,[-6,14,-141]],[10,[-14,10,-124]],[11,[-20,7,-116]],[12,[-22,4,-110]],[13,[-19,1,-106]],[14,[-16,-2,-102]],[15,[-14,LIVE_CASTLE_EYE,-96]],[16,[-14,LIVE_CASTLE_EYE,-68]],[17,[-24,2,-14]]])phonePoints[index]=p;
 // Authored gaze, not a lookAt lock: planets pass through the composition and
 // the castle does not swivel with the camera. Unwrapped yaw makes the loop
 // cross -180/180 without a sudden turn; pitch never tilts the horizon sideways.
-const yaw=[-Math.atan2(6,31)*180/Math.PI,-15,-24,-32,-26.6,-8,-18,-25,-44,-144,-166,-156,-135,-115,-72,-64,-25,80,46,8,-11];
-const pitch=[0,-8,-9,-20,-22,-5,-7,-6,-6,-8,-7,-1,0,4,9,10,6,-4,-11,-10,-5];
+const yaw=[-Math.atan2(6,31)*180/Math.PI,-15,-24,-32,-26.6,-8,-18,-25,-44,-144,-166,-160.6,-148.2,-136.3,-120.3,-90,-43.7,80,46,8,-11];
+const pitch=[0,-8,-9,-20,-22,-5,-7,-6,-6,-8,-7,-1.7,0,3.5,7.1,14,4.9,-4,-11,-10,-5];
 const phoneYaw=[...yaw],phonePitch=[...pitch];
-for(const [i,y,p] of [[7,-36,-8],[8,-56,-23],[9,-155,-10],[10,-150,-9],[11,-148,-7],[12,-142,-4],[13,-138,-1],[14,-134,2],[15,-132,5],[16,-108,5],[17,-220,-5],[18,-316,-11],[19,-352,-10],[20,-371,-5]]){phoneYaw[i]=y;phonePitch[i]=p;}
+for(const [i,y,p] of [[7,-36,-8],[8,-56,-23],[9,-155,-10],[10,-155.1,-9.3],[11,-157.4,-7.7],[12,-156.8,-5.1],[13,-151.1,-1.4],[14,-144.8,2.7],[15,-137.1,10],[16,-90,14],[17,-220,-5],[18,-316,-11],[19,-352,-10],[20,-371,-5]]){phoneYaw[i]=y;phonePitch[i]=p;}
 // Frozen angular derivatives in radians / scene-unit from 412e6ef. Keeping
 // only the old knot values is insufficient: editing knot 3 or the return would
 // otherwise alter the Hermite tangents of the already-approved first passage.

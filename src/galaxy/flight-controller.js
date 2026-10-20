@@ -1,6 +1,6 @@
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-export const WHEEL_SENSITIVITY=.0004;
-export const WHEEL_GLIDE_SECONDS=.66;
+export const WHEEL_SENSITIVITY=.0006;
+export const WHEEL_GLIDE_SECONDS=.9;
 // Keep a short glide, not a many-second backlog of wheel/touch events.
 export const queueTravel=(current,destination,maxSpeed,previous=current,velocity=0,leadSeconds=.55)=>{
  const input=destination-previous;
