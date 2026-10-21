@@ -1,6 +1,6 @@
 // Ported from Claude's owner-approved castle-live V8 scene (PR #10).
 // Source: public/castle-live/assets/index-CLca2w5b.js
-// SHA256: 81f04dc2030b56c0b073bb46d259a01d1eb8ecdf25d939d0bb627c669b190289
+// SHA256: b916631198bd4ce5763b48d1f3c78f40c84c45a2f71d3d213e85599d7b4ba779
 // Engine, standalone controls, planets and backdrop are deliberately excluded.
 var Vy = `
 #ifndef ASTRA_CASTLE_GRAIN
