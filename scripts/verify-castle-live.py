@@ -38,7 +38,7 @@ def main():
                 for _ in range(abs(count)):page.keyboard.press('ArrowDown' if count>0 else 'ArrowUp')
                 page.wait_for_timeout(120);remaining=travel-float(state()['flight'])
                 if abs(remaining)>.000001:
-                    pt=free_point();page.mouse.move(pt['x'],pt['y']);page.mouse.wheel(0,remaining/.00032)
+                    pt=free_point();page.mouse.move(pt['x'],pt['y']);page.mouse.wheel(0,remaining/.0004)
                 page.wait_for_timeout(700)
             page.wait_for_function("document.querySelector('#cosmos')?.dataset.sceneReady==='true'",timeout=90000)
             assert state()['planetTextures']=='ready';assert state()['observatory']=='loading'
@@ -56,7 +56,7 @@ def main():
                 move_to(pose['travel']);s=state();assert s['castleWorldMatrix']==initial['castleWorldMatrix'];assert s['cameraMode']=='flight'
                 assert s['castleRender']=='live-3d-v8';records.append({'node':pose['node'],'state':s})
                 if pose['node'] in (12,14,16):page.screenshot(path=str(out/f'{name}-node-{pose["node"]}.png'))
-                if pose['node']==14:
+                if pose['node']==15:
                     assert s['castleReflection']=='true';assert float(s['cameraPosition'].split(',')[1])>-5.4
                     assert s['castleWindowMist']=='true'
                     frozen=float(s['castleAnimationTime']);page.wait_for_timeout(250);assert float(state()['castleAnimationTime'])==frozen
